@@ -1,0 +1,42 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "cypher",
+      "camelcase": "Cypher",
+      "title": "Cypher",
+      "scope": "source.cypher",
+      "file-types": [
+        "cypher"
+      ],
+      "injection-regex": "^cypher$",
+      "class-name": "TreeSitterCypher"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Graph query language",
+    "authors": [
+      {
+        "name": "Andreas Kollegger",
+        "email": "andreas.kollegger@neo4j.com",
+        "url": ""
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/gram-data/tree-sitter-cypher",
+      "funding": ""
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "java": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true,
+    "zig": true
+  }
+}
