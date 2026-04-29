@@ -1,0 +1,255 @@
+============================================
+UNION
+============================================
+
+MATCH (n:A) RETURN n UNION MATCH (n:B) RETURN n
+
+---
+
+(source_file
+  (union_statement
+    (statement
+      (match_clause
+        pattern: (pattern
+          (path_pattern
+            (node_pattern
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier))))))
+      (return_clause
+        (return_body
+          (return_item
+            (expression
+              (identifier))))))
+    (statement
+      (match_clause
+        pattern: (pattern
+          (path_pattern
+            (node_pattern
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier))))))
+      (return_clause
+        (return_body
+          (return_item
+            (expression
+              (identifier))))))))
+
+============================================
+UNION ALL
+============================================
+
+MATCH (n:A) RETURN n UNION ALL MATCH (n:B) RETURN n
+
+---
+
+(source_file
+  (union_statement
+    (statement
+      (match_clause
+        pattern: (pattern
+          (path_pattern
+            (node_pattern
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier))))))
+      (return_clause
+        (return_body
+          (return_item
+            (expression
+              (identifier))))))
+    (statement
+      (match_clause
+        pattern: (pattern
+          (path_pattern
+            (node_pattern
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier))))))
+      (return_clause
+        (return_body
+          (return_item
+            (expression
+              (identifier))))))))
+
+============================================
+Simple CASE expression
+============================================
+
+RETURN CASE n.status WHEN 'active' THEN 1 ELSE 0 END
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (case_expression
+              (expression
+                (property_access
+                  object: (expression
+                    (identifier))
+                  property: (identifier)))
+              (case_when_clause
+                (expression
+                  (string_literal))
+                (expression
+                  (integer_literal)))
+              (case_else_clause
+                (expression
+                  (integer_literal))))))))))
+
+============================================
+Searched CASE expression
+============================================
+
+RETURN CASE WHEN x > 0 THEN 'pos' ELSE 'other' END
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (case_expression
+              (case_when_clause
+                (expression
+                  (binary_expression
+                    (expression
+                      (identifier))
+                    (expression
+                      (integer_literal))))
+                (expression
+                  (string_literal)))
+              (case_else_clause
+                (expression
+                  (string_literal))))))))))
+
+============================================
+List comprehension
+============================================
+
+RETURN [x IN xs WHERE x > 0 | x * 2]
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (list_comprehension
+              (identifier)
+              (expression
+                (identifier))
+              (where_clause
+                (expression
+                  (binary_expression
+                    (expression
+                      (identifier))
+                    (expression
+                      (integer_literal)))))
+              (expression
+                (binary_expression
+                  (expression
+                    (identifier))
+                  (expression
+                    (integer_literal)))))))))))
+
+============================================
+ALL quantifier
+============================================
+
+RETURN ALL(x IN xs WHERE x > 0)
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (all_expression
+              (identifier)
+              (expression
+                (identifier))
+              (where_clause
+                (expression
+                  (binary_expression
+                    (expression
+                      (identifier))
+                    (expression
+                      (integer_literal))))))))))))
+
+============================================
+count star
+============================================
+
+MATCH (n) RETURN count(*)
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (count_star)))))))
+
+============================================
+ERROR - UNION with no right statement
+============================================
+
+MATCH (n) RETURN n UNION
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier))))))
+  (ERROR))
+
+============================================
+ERROR - CASE without END
+============================================
+
+RETURN CASE x WHEN 1 THEN 'a'
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (case_expression
+              (expression
+                (identifier))
+              (case_when_clause
+                (expression
+                  (integer_literal))
+                (expression
+                  (string_literal)))
+              (MISSING "case_expression_token2"))))))))

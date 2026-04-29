@@ -1,0 +1,227 @@
+============================================
+CREATE node
+============================================
+
+CREATE (n:Person {name: 'Alice'})
+
+---
+
+(source_file
+  (statement
+    (create_clause
+      (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            label: (label_expression
+              label_name: (identifier))
+            properties: (property_map
+              (property_key_value
+                (identifier)
+                (expression
+                  (string_literal))))))))))
+
+============================================
+SET property
+============================================
+
+MATCH (n) SET n.age = 30
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (set_clause
+      (set_item
+        (property_access
+          object: (expression
+            (identifier))
+          property: (identifier))
+        (expression
+          (integer_literal))))))
+
+============================================
+SET map merge
+============================================
+
+MATCH (n) SET n += {active: true}
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (set_clause
+      (set_item
+        (identifier)
+        (expression
+          (map_literal
+            (property_key_value
+              (identifier)
+              (expression
+                (boolean_literal)))))))))
+
+============================================
+SET labels
+============================================
+
+MATCH (n) SET n:Admin
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (set_clause
+      (set_item
+        (identifier)
+        (label_expression
+          label_name: (identifier))))))
+
+============================================
+REMOVE label
+============================================
+
+MATCH (n) REMOVE n:Temp
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (remove_clause
+      (remove_item
+        (identifier)
+        (label_expression
+          label_name: (identifier))))))
+
+============================================
+REMOVE property
+============================================
+
+MATCH (n) REMOVE n.prop
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (remove_clause
+      (remove_item
+        (property_access
+          object: (expression
+            (identifier))
+          property: (identifier))))))
+
+============================================
+DELETE node
+============================================
+
+MATCH (n) DELETE n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (delete_clause
+      (expression
+        (identifier)))))
+
+============================================
+DETACH DELETE
+============================================
+
+MATCH (n) DETACH DELETE n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (delete_clause
+      (expression
+        (identifier)))))
+
+============================================
+CREATE with relationship
+============================================
+
+MATCH (n) CREATE (n)-[:KNOWS]->(m)
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (create_clause
+      (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern
+            (relationship_body
+              label: (label_expression
+                label_name: (identifier))))
+          (node_pattern
+            variable: (identifier)))))))
+
+============================================
+ERROR - CREATE with no pattern
+============================================
+
+CREATE
+
+---
+
+(ERROR)
+
+============================================
+ERROR - SET with no items
+============================================
+
+MATCH (n) SET
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))))
+  (ERROR))

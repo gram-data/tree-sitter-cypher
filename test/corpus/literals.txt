@@ -333,4 +333,5 @@ ERROR - unexpected character
 ---
 
 (ERROR
-  (UNEXPECTED '@'))
+  (UNEXPECTED '@')
+  (UNEXPECTED 'v'))

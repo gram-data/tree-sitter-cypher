@@ -39,12 +39,14 @@ MATCH (n) RETURN n.name, n.age
         (return_item
           (expression
             (property_access
-              object: (identifier)
+              object: (expression
+                (identifier))
               property: (identifier))))
         (return_item
           (expression
             (property_access
-              object: (identifier)
+              object: (expression
+                (identifier))
               property: (identifier))))))))
 
 ============================================
@@ -67,7 +69,8 @@ MATCH (n) WHERE n.active = true RETURN n
           (binary_expression
             left: (expression
               (property_access
-                object: (identifier)
+                object: (expression
+                  (identifier))
                 property: (identifier)))
             right: (expression
               (boolean_literal))))))

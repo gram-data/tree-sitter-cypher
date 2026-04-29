@@ -1,0 +1,170 @@
+============================================
+MERGE node
+============================================
+
+MERGE (n:Person {id: 1})
+
+---
+
+(source_file
+  (statement
+    (merge_clause
+      (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            label: (label_expression
+              label_name: (identifier))
+            properties: (property_map
+              (property_key_value
+                (identifier)
+                (expression
+                  (integer_literal))))))))))
+
+============================================
+MERGE with ON CREATE
+============================================
+
+MERGE (n) ON CREATE SET n.ts = 0
+
+---
+
+(source_file
+  (statement
+    (merge_clause
+      (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      (merge_action
+        (set_clause
+          (set_item
+            (property_access
+              object: (expression
+                (identifier))
+              property: (identifier))
+            (expression
+              (integer_literal))))))))
+
+============================================
+MERGE with ON MATCH and ON CREATE
+============================================
+
+MERGE (n) ON MATCH SET n.seen = true ON CREATE SET n.created = true
+
+---
+
+(source_file
+  (statement
+    (merge_clause
+      (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      (merge_action
+        (set_clause
+          (set_item
+            (property_access
+              object: (expression
+                (identifier))
+              property: (identifier))
+            (expression
+              (boolean_literal)))))
+      (merge_action
+        (set_clause
+          (set_item
+            (property_access
+              object: (expression
+                (identifier))
+              property: (identifier))
+            (expression
+              (boolean_literal))))))))
+
+============================================
+CALL procedure
+============================================
+
+CALL db.labels()
+
+---
+
+(source_file
+  (statement
+    (call_clause
+      name: (procedure_name
+        (identifier)
+        (identifier)))))
+
+============================================
+CALL with YIELD
+============================================
+
+CALL db.labels() YIELD label RETURN label
+
+---
+
+(source_file
+  (statement
+    (call_clause
+      name: (procedure_name
+        (identifier)
+        (identifier))
+      (yield_clause
+        (yield_item
+          name: (identifier))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+CALL with YIELD alias
+============================================
+
+CALL db.labels() YIELD label AS l RETURN l
+
+---
+
+(source_file
+  (statement
+    (call_clause
+      name: (procedure_name
+        (identifier)
+        (identifier))
+      (yield_clause
+        (yield_item
+          name: (identifier)
+          alias: (identifier))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+ERROR - MERGE with no pattern
+============================================
+
+MERGE
+
+---
+
+(ERROR)
+
+============================================
+ERROR - ON CREATE without SET
+============================================
+
+MERGE (n) ON CREATE
+
+---
+
+(source_file
+  (statement
+    (merge_clause
+      (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))))
+  (ERROR))

@@ -101,22 +101,22 @@ description: "Task list for porting the openCypher BNF to a tree-sitter grammar"
 
 ### Negative corpus tests for US3
 
-- [ ] T027 [P] [US3] Add negative corpus tests to `test/corpus/patterns.txt`: unclosed node pattern `(n`, relationship without closing `]`, invalid range `[*-1]`, mismatched direction `<-[r]->` — each must produce an ERROR node
+- [x] T027 [P] [US3] Add negative corpus tests to `test/corpus/patterns.txt`: unclosed node pattern `(n`, relationship without closing `]`, invalid range `[*-1]`, mismatched direction `<-[r]->` — each must produce an ERROR node
 
 ### Positive corpus tests for US3
 
-- [ ] T028 [P] [US3] Add positive corpus tests to `test/corpus/patterns.txt` covering: `(n:Label)`, `(n:A&B)`, `(n {prop: 1})`, `(n:L {prop: 1})`, `(a)-[r]->(b)`, `(a)<-[r:TYPE]-(b)`, `(a)-[r:TYPE*1..3]->(b)`, `(a)-[*]->(b)`, `p = (a)-->(b)`, `(a)--(b)` (undirected), `(n IS Person)`
+- [x] T028 [P] [US3] Add positive corpus tests to `test/corpus/patterns.txt` covering: `(n:Label)`, `(n:A&B)`, `(n {prop: 1})`, `(n:L {prop: 1})`, `(a)-[r]->(b)`, `(a)<-[r:TYPE]-(b)`, `(a)-[r:TYPE*1..3]->(b)`, `(a)-[*]->(b)`, `p = (a)-->(b)`, `(a)--(b)` (undirected), `(n IS Person)`
 
 ### Implementation for US3
 
-- [ ] T029 [US3] Extend `node_pattern` rule in `grammar.js` to include optional `label` field (`$.label_expression`) and optional `properties` field (`$.property_map`) (BNF: `<node pattern>`)
-- [ ] T030 [US3] Add `label_expression` rule with `|`, `&`, `!` operators and single `label_name`, using `prec` for operator precedence (BNF: `<label expression>`)
-- [ ] T031 [US3] Add `property_map` and `property_key_value` rules for `{key: value}` inline maps (BNF: `<properties>`)
-- [ ] T032 [US3] Add `relationship_pattern` rule covering direction (`-[...]->`  / `<-[...]-` / `-[...]-`), optional `relationship_body` (BNF: `<relationship pattern>`)
-- [ ] T033 [US3] Add `relationship_body` rule: optional variable, optional label expression, optional `path_length`, optional property map (BNF: `<relationship detail>`)
-- [ ] T034 [US3] Add `path_length` rule for `*`, `*n`, `*n..m` forms (BNF: `<path length>`)
-- [ ] T035 [US3] Add `pattern`, `path_pattern`, and `path_variable` rules; update `match_clause` to use `$.pattern` (BNF: `<pattern>`, `<pattern element>`)
-- [ ] T036 [US3] Run `tree-sitter generate` then `tree-sitter test -f "patterns"` — all tests must pass
+- [x] T029 [US3] Extend `node_pattern` rule in `grammar.js` to include optional `label` field (`$.label_expression`) and optional `properties` field (`$.property_map`) (BNF: `<node pattern>`)
+- [x] T030 [US3] Add `label_expression` rule with `|`, `&`, `!` operators and single `label_name`, using `prec` for operator precedence (BNF: `<label expression>`)
+- [x] T031 [US3] Add `property_map` and `property_key_value` rules for `{key: value}` inline maps (BNF: `<properties>`)
+- [x] T032 [US3] Add `relationship_pattern` rule covering direction (`-[...]->`  / `<-[...]-` / `-[...]-`), optional `relationship_body` (BNF: `<relationship pattern>`)
+- [x] T033 [US3] Add `relationship_body` rule: optional variable, optional label expression, optional `path_length`, optional property map (BNF: `<relationship detail>`)
+- [x] T034 [US3] Add `path_length` rule for `*`, `*n`, `*n..m` forms (BNF: `<path length>`)
+- [x] T035 [US3] Add `pattern`, `path_pattern`, and `path_variable` rules; update `match_clause` to use `$.pattern` (BNF: `<pattern>`, `<pattern element>`)
+- [x] T036 [US3] Run `tree-sitter generate` then `tree-sitter test -f "patterns"` — all tests must pass
 
 **Checkpoint**: US3 independently functional. TCK gate: MATCH queries with patterns from TCK parse without ERROR nodes.
 
@@ -130,22 +130,22 @@ description: "Task list for porting the openCypher BNF to a tree-sitter grammar"
 
 ### Negative corpus tests for US4
 
-- [ ] T037 [P] [US4] Add negative corpus tests to `test/corpus/expressions.txt`: unclosed function call `toUpper(`, unclosed list `[1, 2`, dangling operator `a +`, unmatched paren `(a + b` — each must produce an ERROR node
+- [x] T037 [P] [US4] Add negative corpus tests to `test/corpus/expressions.txt`: unclosed function call `toUpper(`, unclosed list `[1, 2`, dangling operator `a +`, unmatched paren `(a + b` — each must produce an ERROR node
 
 ### Positive corpus tests for US4
 
-- [ ] T038 [P] [US4] Add positive corpus tests to `test/corpus/expressions.txt` covering: `a + b * c` (precedence), `NOT x AND y OR z`, `n.age > 18`, `n.name = 'Alice'`, `n.name =~ '.*son'`, `n.name STARTS WITH 'A'`, `x IN [1,2,3]`, `n.val IS NULL`, `n.val IS NOT NULL`, `toUpper(n.name)`, `[1, 2, 3]`, `{key: 'val'}`, subscript `list[0]`, CASE expressions
+- [x] T038 [P] [US4] Add positive corpus tests to `test/corpus/expressions.txt` covering: `a + b * c` (precedence), `NOT x AND y OR z`, `n.age > 18`, `n.name = 'Alice'`, `n.name =~ '.*son'`, `n.name STARTS WITH 'A'`, `x IN [1,2,3]`, `n.val IS NULL`, `n.val IS NOT NULL`, `toUpper(n.name)`, `[1, 2, 3]`, `{key: 'val'}`, subscript `list[0]`, CASE expressions
 
 ### Implementation for US4
 
-- [ ] T039 [US4] Replace the placeholder `expression` rule with the full `binary_expression` hierarchy using `prec.left` levels 1–7 (OR, XOR, AND, comparisons, add/sub, mul/div/mod) per `specs/001-port-opencypher-bnf/research.md` Decision 3 (BNF: `<boolean value expression>` through `<arithmetic term>`)
-- [ ] T040 [US4] Add `unary_expression` for `NOT`, unary `-`, unary `+` using `prec.right` levels 4 and 9 (BNF: `<boolean factor>`, `<unary arithmetic>`)
-- [ ] T041 [P] [US4] Add `is_null_expression`, `in_expression` rules (BNF: `<null predicate>`, `<in predicate>`)
-- [ ] T042 [P] [US4] Add `starts_with_expression`, `ends_with_expression`, `contains_expression` rules (BNF: `<string operator expression>`)
-- [ ] T043 [US4] Add `function_call` and `function_name` rules supporting simple and qualified names (e.g., `db.labels`) (BNF: `<function invocation>`)
-- [ ] T044 [P] [US4] Add `list_literal` rule and `map_literal` rule (extending existing `property_map` for use as expressions) (BNF: `<list literal>`, `<map literal>`)
-- [ ] T045 [US4] Add `subscript_expression` rule `prec.left(10, seq($.expression, '[', $.expression, ']'))` (BNF: `<subscript operator>`)
-- [ ] T046 [US4] Run `tree-sitter generate` then `tree-sitter test -f "expressions"` — all tests must pass
+- [x] T039 [US4] Replace the placeholder `expression` rule with the full `binary_expression` hierarchy using `prec.left` levels 1–7 (OR, XOR, AND, comparisons, add/sub, mul/div/mod) per `specs/001-port-opencypher-bnf/research.md` Decision 3 (BNF: `<boolean value expression>` through `<arithmetic term>`)
+- [x] T040 [US4] Add `unary_expression` for `NOT`, unary `-`, unary `+` using `prec.right` levels 4 and 9 (BNF: `<boolean factor>`, `<unary arithmetic>`)
+- [x] T041 [P] [US4] Add `is_null_expression`, `in_expression` rules (BNF: `<null predicate>`, `<in predicate>`)
+- [x] T042 [P] [US4] Add `starts_with_expression`, `ends_with_expression`, `contains_expression` rules (BNF: `<string operator expression>`)
+- [x] T043 [US4] Add `function_call` and `function_name` rules supporting simple and qualified names (e.g., `db.labels`) (BNF: `<function invocation>`)
+- [x] T044 [P] [US4] Add `list_literal` rule and `map_literal` rule (extending existing `property_map` for use as expressions) (BNF: `<list literal>`, `<map literal>`)
+- [x] T045 [US4] Add `subscript_expression` rule `prec.left(10, seq($.expression, '[', $.expression, ']'))` (BNF: `<subscript operator>`)
+- [x] T046 [US4] Run `tree-sitter generate` then `tree-sitter test -f "expressions"` — all tests must pass
 
 **Checkpoint**: US4 independently functional. WHERE clauses in MATCH queries now fully parse with correct expression trees.
 
@@ -159,20 +159,20 @@ description: "Task list for porting the openCypher BNF to a tree-sitter grammar"
 
 ### Negative corpus tests for US5
 
-- [ ] T047 [P] [US5] Add negative corpus tests to `test/corpus/mutations.txt`: `CREATE` with no pattern, `SET` with no items, `DELETE` with no target, `DETACH` without `DELETE` — each must produce an ERROR node
+- [x] T047 [P] [US5] Add negative corpus tests to `test/corpus/mutations.txt`: `CREATE` with no pattern, `SET` with no items, `DELETE` with no target, `DETACH` without `DELETE` — each must produce an ERROR node
 
 ### Positive corpus tests for US5
 
-- [ ] T048 [P] [US5] Add positive corpus tests to `test/corpus/mutations.txt` covering: `CREATE (n:Person {name: 'Alice'})`, `SET n.age = 30`, `SET n += {active: true}`, `SET n = {name: 'Bob'}`, `SET n:Admin`, `REMOVE n:Temp`, `REMOVE n.prop`, `DELETE n`, `DETACH DELETE n`, `MATCH (n) CREATE (n)-[:KNOWS]->(m)`
+- [x] T048 [P] [US5] Add positive corpus tests to `test/corpus/mutations.txt` covering: `CREATE (n:Person {name: 'Alice'})`, `SET n.age = 30`, `SET n += {active: true}`, `SET n = {name: 'Bob'}`, `SET n:Admin`, `REMOVE n:Temp`, `REMOVE n.prop`, `DELETE n`, `DETACH DELETE n`, `MATCH (n) CREATE (n)-[:KNOWS]->(m)`
 
 ### Implementation for US5
 
-- [ ] T049 [US5] Add `create_clause` rule: `kw('CREATE')` followed by `$.pattern` (BNF: `<create statement>`)
-- [ ] T050 [P] [US5] Add `set_clause`, `set_item` rules covering property assignment (`=`), map merge (`+=`), full replace (`=` with map), and label set (BNF: `<set statement>`, `<set item>`)
-- [ ] T051 [P] [US5] Add `remove_clause`, `remove_item` rules for label removal and property removal (BNF: `<remove statement>`, `<remove item>`)
-- [ ] T052 [US5] Add `delete_clause` rule with optional DETACH modifier (BNF: `<delete statement>`)
-- [ ] T053 [US5] Update `statement` rule in `grammar.js` to include mutation clauses in the linear statement sequence (BNF: `<primitive data update statement>`)
-- [ ] T054 [US5] Run `tree-sitter generate` then `tree-sitter test -f "mutations"` — all tests must pass
+- [x] T049 [US5] Add `create_clause` rule: `kw('CREATE')` followed by `$.pattern` (BNF: `<create statement>`)
+- [x] T050 [P] [US5] Add `set_clause`, `set_item` rules covering property assignment (`=`), map merge (`+=`), full replace (`=` with map), and label set (BNF: `<set statement>`, `<set item>`)
+- [x] T051 [P] [US5] Add `remove_clause`, `remove_item` rules for label removal and property removal (BNF: `<remove statement>`, `<remove item>`)
+- [x] T052 [US5] Add `delete_clause` rule with optional DETACH modifier (BNF: `<delete statement>`)
+- [x] T053 [US5] Update `statement` rule in `grammar.js` to include mutation clauses in the linear statement sequence (BNF: `<primitive data update statement>`)
+- [x] T054 [US5] Run `tree-sitter generate` then `tree-sitter test -f "mutations"` — all tests must pass
 
 **Checkpoint**: US5 independently functional. TCK gate: CREATE/SET/DELETE queries from TCK parse without ERROR nodes.
 
@@ -186,19 +186,19 @@ description: "Task list for porting the openCypher BNF to a tree-sitter grammar"
 
 ### Negative corpus tests for US6
 
-- [ ] T055 [P] [US6] Add negative corpus tests to `test/corpus/pipeline.txt`: `WITH` with no projection, `UNWIND` with no AS, `ORDER BY` with no expression, `SKIP` with no value — each must produce an ERROR node
+- [x] T055 [P] [US6] Add negative corpus tests to `test/corpus/pipeline.txt`: `WITH` with no projection, `UNWIND` with no AS, `ORDER BY` with no expression, `SKIP` with no value — each must produce an ERROR node
 
 ### Positive corpus tests for US6
 
-- [ ] T056 [P] [US6] Add positive corpus tests to `test/corpus/pipeline.txt` covering: `MATCH (n) WITH n RETURN n`, `MATCH (n) WITH n ORDER BY n.name ASC RETURN n`, `MATCH (n) WITH n SKIP 10 LIMIT 5 RETURN n`, `UNWIND [1,2,3] AS x RETURN x`, `MATCH (n) WITH n WHERE n.active = true RETURN n`, `WITH DISTINCT n RETURN n`
+- [x] T056 [P] [US6] Add positive corpus tests to `test/corpus/pipeline.txt` covering: `MATCH (n) WITH n RETURN n`, `MATCH (n) WITH n ORDER BY n.name ASC RETURN n`, `MATCH (n) WITH n SKIP 10 LIMIT 5 RETURN n`, `UNWIND [1,2,3] AS x RETURN x`, `MATCH (n) WITH n WHERE n.active = true RETURN n`, `WITH DISTINCT n RETURN n`
 
 ### Implementation for US6
 
-- [ ] T057 [US6] Add `with_clause` rule: `kw('WITH')` + optional DISTINCT + `return_body` + optional `order_by_clause` + optional `skip_clause` + optional `limit_clause` + optional `where_clause` (BNF: `<with statement>`)
-- [ ] T058 [US6] Add `unwind_clause` rule: `kw('UNWIND')` + expression + `kw('AS')` + identifier (BNF: `<unwind statement>`)
-- [ ] T059 [P] [US6] Add `order_by_clause` and `sort_item` rules with optional ASC/DESC direction (BNF: `<order by clause>`)
-- [ ] T060 [P] [US6] Add `skip_clause` and `limit_clause` rules (BNF: `<skip clause>`, `<limit clause>`)
-- [ ] T061 [US6] Run `tree-sitter generate` then `tree-sitter test -f "pipeline"` — all tests must pass
+- [x] T057 [US6] Add `with_clause` rule: `kw('WITH')` + optional DISTINCT + `return_body` + optional `order_by_clause` + optional `skip_clause` + optional `limit_clause` + optional `where_clause` (BNF: `<with statement>`)
+- [x] T058 [US6] Add `unwind_clause` rule: `kw('UNWIND')` + expression + `kw('AS')` + identifier (BNF: `<unwind statement>`)
+- [x] T059 [P] [US6] Add `order_by_clause` and `sort_item` rules with optional ASC/DESC direction (BNF: `<order by clause>`)
+- [x] T060 [P] [US6] Add `skip_clause` and `limit_clause` rules (BNF: `<skip clause>`, `<limit clause>`)
+- [x] T061 [US6] Run `tree-sitter generate` then `tree-sitter test -f "pipeline"` — all tests must pass
 
 **Checkpoint**: US6 independently functional. Multi-clause pipeline queries parse with correct stage structure.
 
@@ -212,21 +212,21 @@ description: "Task list for porting the openCypher BNF to a tree-sitter grammar"
 
 ### Negative corpus tests for US7
 
-- [ ] T062 [P] [US7] Add negative corpus tests to `test/corpus/merge_call.txt`: `MERGE` with no pattern, `ON CREATE` without `SET`, `CALL` with unclosed argument list `CALL foo(`, `YIELD` without items — each must produce an ERROR node
+- [x] T062 [P] [US7] Add negative corpus tests to `test/corpus/merge_call.txt`: `MERGE` with no pattern, `ON CREATE` without `SET`, `CALL` with unclosed argument list `CALL foo(`, `YIELD` without items — each must produce an ERROR node
 
 ### Positive corpus tests for US7
 
-- [ ] T063 [P] [US7] Add positive corpus tests to `test/corpus/merge_call.txt` covering: `MERGE (n:Person {id: 1})`, `MERGE (n) ON CREATE SET n.ts = 0`, `MERGE (n) ON MATCH SET n.seen = true ON CREATE SET n.created = true`, `CALL db.labels()`, `CALL db.labels() YIELD label RETURN label`, standalone `CALL db.labels()` with no YIELD
+- [x] T063 [P] [US7] Add positive corpus tests to `test/corpus/merge_call.txt` covering: `MERGE (n:Person {id: 1})`, `MERGE (n) ON CREATE SET n.ts = 0`, `MERGE (n) ON MATCH SET n.seen = true ON CREATE SET n.created = true`, `CALL db.labels()`, `CALL db.labels() YIELD label RETURN label`, standalone `CALL db.labels()` with no YIELD
 
 ### Implementation for US7
 
-- [ ] T064 [US7] Add `merge_clause` rule: `kw('MERGE')` + pattern + `repeat($.merge_action)` (BNF: `<merge statement>`)
-- [ ] T065 [US7] Add `merge_action` rule: `kw('ON')` + `choice(kw('MATCH'), kw('CREATE'))` + `$.set_clause` (BNF: `<merge action>`)
-- [ ] T066 [US7] Add `call_clause` rule for in-query CALL with required argument list and optional `yield_clause` (BNF: `<named procedure call>`)
-- [ ] T067 [P] [US7] Add `procedure_name` rule supporting simple and dot-qualified names (e.g., `db.labels`) (BNF: `<procedure reference>`)
-- [ ] T068 [P] [US7] Add `yield_clause` and `yield_item` rules including AS alias (BNF: `<yield clause>`)
-- [ ] T069 [US7] Update `source_file`/`statement` to accept standalone CALL (no YIELD required) (BNF: `<standalone procedure call>`)
-- [ ] T070 [US7] Run `tree-sitter generate` then `tree-sitter test -f "merge_call"` — all tests must pass
+- [x] T064 [US7] Add `merge_clause` rule: `kw('MERGE')` + pattern + `repeat($.merge_action)` (BNF: `<merge statement>`)
+- [x] T065 [US7] Add `merge_action` rule: `kw('ON')` + `choice(kw('MATCH'), kw('CREATE'))` + `$.set_clause` (BNF: `<merge action>`)
+- [x] T066 [US7] Add `call_clause` rule for in-query CALL with required argument list and optional `yield_clause` (BNF: `<named procedure call>`)
+- [x] T067 [P] [US7] Add `procedure_name` rule supporting simple and dot-qualified names (e.g., `db.labels`) (BNF: `<procedure reference>`)
+- [x] T068 [P] [US7] Add `yield_clause` and `yield_item` rules including AS alias (BNF: `<yield clause>`)
+- [x] T069 [US7] Update `source_file`/`statement` to accept standalone CALL (no YIELD required) (BNF: `<standalone procedure call>`)
+- [x] T070 [US7] Run `tree-sitter generate` then `tree-sitter test -f "merge_call"` — all tests must pass
 
 **Checkpoint**: US7 independently functional. TCK gate: MERGE and CALL queries from TCK parse without ERROR nodes.
 
@@ -240,23 +240,23 @@ description: "Task list for porting the openCypher BNF to a tree-sitter grammar"
 
 ### Negative corpus tests for US8
 
-- [ ] T071 [P] [US8] Add negative corpus tests to `test/corpus/union_advanced.txt`: `UNION` with no right-hand statement, `CASE` without `END`, list comprehension with no `IN`, `REDUCE` with no accumulator — each must produce an ERROR node
+- [x] T071 [P] [US8] Add negative corpus tests to `test/corpus/union_advanced.txt`: `UNION` with no right-hand statement, `CASE` without `END`, list comprehension with no `IN`, `REDUCE` with no accumulator — each must produce an ERROR node
 
 ### Positive corpus tests for US8
 
-- [ ] T072 [P] [US8] Add positive corpus tests to `test/corpus/union_advanced.txt` covering: `MATCH (n:A) RETURN n UNION MATCH (n:B) RETURN n`, `UNION ALL`, simple CASE, searched CASE, `[x IN list WHERE x > 0 | x*2]`, `[(n)-->(m) | m.name]`, `reduce(s=0, x IN xs | s+x)`, `ALL(x IN xs WHERE x > 0)`, `ANY(...)`, `NONE(...)`, `SINGLE(...)`, `count(*)`
+- [x] T072 [P] [US8] Add positive corpus tests to `test/corpus/union_advanced.txt` covering: `MATCH (n:A) RETURN n UNION MATCH (n:B) RETURN n`, `UNION ALL`, simple CASE, searched CASE, `[x IN list WHERE x > 0 | x*2]`, `[(n)-->(m) | m.name]`, `reduce(s=0, x IN xs | s+x)`, `ALL(x IN xs WHERE x > 0)`, `ANY(...)`, `NONE(...)`, `SINGLE(...)`, `count(*)`
 
 ### Implementation for US8
 
-- [ ] T073 [US8] Add `union_statement` rule wrapping two statements with `kw('UNION')` + optional `kw('ALL')` (BNF: `<composite statement>`, `<composite conjunction>`)
-- [ ] T074 [US8] Update `source_file` to use `choice($.union_statement, repeat1($.statement))` (BNF: `<program>`)
-- [ ] T075 [P] [US8] Add `case_expression`, `case_when_clause`, `case_else_clause` rules for both simple and searched CASE forms (BNF: `<case expression>`)
-- [ ] T076 [P] [US8] Add `list_comprehension` rule: `'[' identifier kw('IN') expression optional(where_clause) optional(seq('|', expression)) ']'` (BNF: `<list comprehension>`)
-- [ ] T077 [P] [US8] Add `pattern_comprehension` rule for `[(pattern) | expression]` path value form (BNF: `<pattern comprehension>`)
-- [ ] T078 [P] [US8] Add `reduce_expression` rule (BNF: `<reduce expression>`)
-- [ ] T079 [P] [US8] Add `all_expression`, `any_expression`, `none_expression`, `single_expression` quantifier rules (BNF: `<all predicate>`, `<any predicate>`, etc.)
-- [ ] T080 [US8] Add `count_star` rule for `count(*)` (BNF: `<count star>`)
-- [ ] T081 [US8] Run `tree-sitter generate` then `tree-sitter test -f "union_advanced"` — all tests must pass
+- [x] T073 [US8] Add `union_statement` rule wrapping two statements with `kw('UNION')` + optional `kw('ALL')` (BNF: `<composite statement>`, `<composite conjunction>`)
+- [x] T074 [US8] Update `source_file` to use `choice($.union_statement, repeat1($.statement))` (BNF: `<program>`)
+- [x] T075 [P] [US8] Add `case_expression`, `case_when_clause`, `case_else_clause` rules for both simple and searched CASE forms (BNF: `<case expression>`)
+- [x] T076 [P] [US8] Add `list_comprehension` rule: `'[' identifier kw('IN') expression optional(where_clause) optional(seq('|', expression)) ']'` (BNF: `<list comprehension>`)
+- [x] T077 [P] [US8] Add `pattern_comprehension` rule for `[(pattern) | expression]` path value form (BNF: `<pattern comprehension>`)
+- [x] T078 [P] [US8] Add `reduce_expression` rule (BNF: `<reduce expression>`)
+- [x] T079 [P] [US8] Add `all_expression`, `any_expression`, `none_expression`, `single_expression` quantifier rules (BNF: `<all predicate>`, `<any predicate>`, etc.)
+- [x] T080 [US8] Add `count_star` rule for `count(*)` (BNF: `<count star>`)
+- [x] T081 [US8] Run `tree-sitter generate` then `tree-sitter test -f "union_advanced"` — all tests must pass
 
 **Checkpoint**: US8 complete. Full openCypher BNF coverage achieved.
 
@@ -268,12 +268,12 @@ description: "Task list for porting the openCypher BNF to a tree-sitter grammar"
 
 **Note on TCK scope**: The openCypher TCK tests both grammar and database execution. We only care about grammar conformance — that `tree-sitter parse` produces no ERROR nodes for the Cypher queries in the TCK. Database setup steps, result assertions, and execution semantics are ignored.
 
-- [ ] T082a Write `scripts/extract-tck-queries.sh` that extracts all Cypher snippets from `When executing query:` triple-quote blocks in `references/openCypher/tck/features/**/*.feature` files and writes each snippet as a numbered `.cypher` file to `/tmp/tck-queries/`. Use awk to match lines between the `"""` open/close markers that follow `When executing query:`. Ignore `When executing control query:` (database setup) and all `Then`/`And` assertions (execution semantics).
-- [ ] T082b Run `bash scripts/extract-tck-queries.sh` then run `tree-sitter parse` on every file in `/tmp/tck-queries/` and count lines containing `ERROR`. Assert count is zero — this is the constitution TCK gate. Include the total query count and ERROR count in the PR description.
-- [ ] T083 Review `src/node-types.json` (generated) against `specs/001-port-opencypher-bnf/data-model.md` and confirm all 45 named node types are present; also walk all 12 top-level sections of `references/openCypher/grammar/openCypher.bnf` and verify each section has at least one corresponding named grammar rule (document as a comment in `grammar.js`)
-- [ ] T084 [P] Add initial syntax highlighting rules to `queries/highlights.scm` for keyword, literal, identifier, and comment node types
-- [ ] T085 Run `npm test` to confirm the Node.js binding smoke test (`bindings/node/binding_test.js`) passes
-- [ ] T086 [P] Benchmark parse performance: run `time tree-sitter parse` on a 100-line Cypher file assembled from corpus test snippets and confirm wall time < 50ms; use the Node.js binding to call `tree.edit()` + `parser.parse()` on a single-line change and confirm elapsed time < 5ms; document both measurements as a comment on this task
+- [x] T082a Write `scripts/extract-tck-queries.sh` that extracts all Cypher snippets from `When executing query:` triple-quote blocks in `references/openCypher/tck/features/**/*.feature` files and writes each snippet as a numbered `.cypher` file to `/tmp/tck-queries/`. Use awk to match lines between the `"""` open/close markers that follow `When executing query:`. Ignore `When executing control query:` (database setup) and all `Then`/`And` assertions (execution semantics).
+- [x] T082b Run `bash scripts/extract-tck-queries.sh` then run `tree-sitter parse` on every file in `/tmp/tck-queries/` and count lines containing `ERROR`. Assert count is zero — this is the constitution TCK gate. Include the total query count and ERROR count in the PR description.
+- [x] T083 Review `src/node-types.json` (generated) against `specs/001-port-opencypher-bnf/data-model.md` and confirm all 45 named node types are present; also walk all 12 top-level sections of `references/openCypher/grammar/openCypher.bnf` and verify each section has at least one corresponding named grammar rule (document as a comment in `grammar.js`)
+- [x] T084 [P] Add initial syntax highlighting rules to `queries/highlights.scm` for keyword, literal, identifier, and comment node types
+- [x] T085 Run `npm test` to confirm the Node.js binding smoke test (`bindings/node/binding_test.js`) passes
+- [x] T086 [P] Benchmark parse performance: run `time tree-sitter parse` on a 100-line Cypher file assembled from corpus test snippets and confirm wall time < 50ms; use the Node.js binding to call `tree.edit()` + `parser.parse()` on a single-line change and confirm elapsed time < 5ms; document both measurements as a comment on this task
 
 ---
 

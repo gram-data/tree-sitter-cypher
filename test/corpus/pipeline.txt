@@ -1,0 +1,215 @@
+============================================
+MATCH WITH RETURN
+============================================
+
+MATCH (n) WITH n RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (with_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+WITH ORDER BY
+============================================
+
+MATCH (n) WITH n ORDER BY n.name ASC RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (with_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier))))
+      (order_by_clause
+        (sort_item
+          (expression
+            (property_access
+              object: (expression
+                (identifier))
+              property: (identifier))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+WITH SKIP LIMIT
+============================================
+
+MATCH (n) WITH n SKIP 10 LIMIT 5 RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (with_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier))))
+      (skip_clause
+        (expression
+          (integer_literal)))
+      (limit_clause
+        (expression
+          (integer_literal))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+UNWIND list
+============================================
+
+UNWIND [1, 2, 3] AS x RETURN x
+
+---
+
+(source_file
+  (statement
+    (unwind_clause
+      (expression
+        (list_literal
+          (expression
+            (integer_literal))
+          (expression
+            (integer_literal))
+          (expression
+            (integer_literal))))
+      (identifier))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+WITH WHERE
+============================================
+
+MATCH (n) WITH n WHERE n.active = true RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (with_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier))))
+      (where_clause
+        (expression
+          (binary_expression
+            left: (expression
+              (property_access
+                object: (expression
+                  (identifier))
+                property: (identifier)))
+            right: (expression
+              (boolean_literal))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+WITH DISTINCT
+============================================
+
+MATCH (n) WITH DISTINCT n RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (with_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+ERROR - WITH with no projection
+============================================
+
+MATCH (n) WITH
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (with_clause
+      (return_body
+        (MISSING "*")))))
+
+============================================
+ERROR - UNWIND with no AS
+============================================
+
+UNWIND [1, 2, 3]
+
+---
+
+(ERROR
+  (expression
+    (list_literal
+      (expression
+        (integer_literal))
+      (expression
+        (integer_literal))
+      (expression
+        (integer_literal)))))
