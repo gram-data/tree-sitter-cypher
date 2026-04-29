@@ -1,0 +1,336 @@
+============================================
+Integer literal - decimal
+============================================
+
+RETURN 42
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (integer_literal)))))))
+
+============================================
+Integer literal - hex
+============================================
+
+RETURN 0x1A
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (integer_literal)))))))
+
+============================================
+Integer literal - octal
+============================================
+
+RETURN 0o17
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (integer_literal)))))))
+
+============================================
+Float literal - decimal notation
+============================================
+
+RETURN 3.14
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (float_literal)))))))
+
+============================================
+Float literal - scientific notation
+============================================
+
+RETURN 1.5e10
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (float_literal)))))))
+
+============================================
+String literal - double quoted
+============================================
+
+RETURN "hello"
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (string_literal)))))))
+
+============================================
+String literal - single quoted
+============================================
+
+RETURN 'world'
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (string_literal)))))))
+
+============================================
+String literal - escape sequences
+============================================
+
+RETURN "line\nbreak"
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (string_literal)))))))
+
+============================================
+Boolean literal - true
+============================================
+
+RETURN true
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (boolean_literal)))))))
+
+============================================
+Boolean literal - TRUE (case insensitive)
+============================================
+
+RETURN TRUE
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (boolean_literal)))))))
+
+============================================
+Boolean literal - false
+============================================
+
+RETURN false
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (boolean_literal)))))))
+
+============================================
+Null literal
+============================================
+
+RETURN null
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (null_literal)))))))
+
+============================================
+Null literal - NULL (case insensitive)
+============================================
+
+RETURN NULL
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (null_literal)))))))
+
+============================================
+Identifier in RETURN
+============================================
+
+MATCH (n) RETURN myVar
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Escaped identifier in RETURN
+============================================
+
+MATCH (n) RETURN `my var`
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (escaped_identifier)))))))
+
+============================================
+Parameter - named
+============================================
+
+RETURN $name
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (parameter)))))))
+
+============================================
+Parameter - positional
+============================================
+
+RETURN $0
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (parameter)))))))
+
+============================================
+Line comment is skipped
+============================================
+
+// this is a comment
+RETURN 42
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (integer_literal)))))))
+
+============================================
+Block comment is skipped
+============================================
+
+/* block comment */ RETURN 42
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (integer_literal)))))))
+
+============================================
+ERROR - unclosed string literal
+============================================
+
+"hello
+
+---
+
+(ERROR
+  (UNEXPECTED '\0'))
+
+============================================
+ERROR - unexpected character
+============================================
+
+@invalid
+
+---
+
+(ERROR
+  (UNEXPECTED '@'))

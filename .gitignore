@@ -41,6 +41,13 @@ zig-out/
 *.obj
 *.o
 
+# Universal
+.DS_Store
+*.tmp
+*.swp
+.vscode/
+.idea/
+
 # Archives
 *.tar.gz
 *.tgz

@@ -15,10 +15,10 @@ description: "Task list for porting the openCypher BNF to a tree-sitter grammar"
 
 **Purpose**: Directory layout and tool verification before any grammar work begins.
 
-- [ ] T001 Create `test/corpus/` directory and add `.gitkeep` placeholder
-- [ ] T002 [P] Create `queries/highlights.scm`, `queries/injections.scm`, `queries/locals.scm`, `queries/tags.scm` as empty files (required by Node binding loader in `bindings/node/index.js`)
-- [ ] T003 Run `tree-sitter generate` on the existing stub `grammar.js` to confirm toolchain works and `src/parser.c` is generated without error
-- [ ] T004 Run `npm install` to install `tree-sitter-cli` and `tree-sitter` dev dependencies from `package.json`
+- [x] T001 Create `test/corpus/` directory and add `.gitkeep` placeholder
+- [x] T002 [P] Create `queries/highlights.scm`, `queries/injections.scm`, `queries/locals.scm`, `queries/tags.scm` as empty files (required by Node binding loader in `bindings/node/index.js`)
+- [x] T003 Run `tree-sitter generate` on the existing stub `grammar.js` to confirm toolchain works and `src/parser.c` is generated without error
+- [x] T004 Run `npm install` to install `tree-sitter-cli` and `tree-sitter` dev dependencies from `package.json`
 
 ---
 
@@ -28,9 +28,9 @@ description: "Task list for porting the openCypher BNF to a tree-sitter grammar"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T005 Add `kw(str)` case-insensitive keyword helper to `grammar.js` (see `specs/001-port-opencypher-bnf/research.md` Decision 1 for implementation)
-- [ ] T006 [P] Add `commaSep1(rule)` and `commaSep(rule)` list helpers to `grammar.js` (see `specs/001-port-opencypher-bnf/research.md` Decision 2)
-- [ ] T007 Add `extras` array to the grammar object in `grammar.js` to skip whitespace (`/\s+/`), line comments (`//...`), and block comments (`/* ... */`) (see research.md Decision 4)
+- [x] T005 Add `kw(str)` case-insensitive keyword helper to `grammar.js` (see `specs/001-port-opencypher-bnf/research.md` Decision 1 for implementation)
+- [x] T006 [P] Add `commaSep1(rule)` and `commaSep(rule)` list helpers to `grammar.js` (see `specs/001-port-opencypher-bnf/research.md` Decision 2)
+- [x] T007 Add `extras` array to the grammar object in `grammar.js` to skip whitespace (`/\s+/`), line comments (`//...`), and block comments (`/* ... */`) (see research.md Decision 4)
 
 **Checkpoint**: Run `tree-sitter generate` — must succeed. Foundation ready for all user stories.
 
@@ -44,21 +44,21 @@ description: "Task list for porting the openCypher BNF to a tree-sitter grammar"
 
 ### Negative corpus tests for US1
 
-- [ ] T008 [P] [US1] Add negative corpus tests to `test/corpus/literals.txt`: malformed integer (`1_000`), unclosed string (`"hello`), invalid escape (`"\q"`), malformed hex (`0xGG`) — each must produce an ERROR node
+- [x] T008 [P] [US1] Add negative corpus tests to `test/corpus/literals.txt`: malformed integer (`1_000`), unclosed string (`"hello`), invalid escape (`"\q"`), malformed hex (`0xGG`) — each must produce an ERROR node
 
 ### Positive corpus tests for US1
 
-- [ ] T009 [P] [US1] Add positive corpus tests to `test/corpus/literals.txt` covering: decimal integer, hex integer (`0x1A`), octal integer (`0o17`), float (`3.14`), scientific notation (`1.5e10`), single-quoted string, double-quoted string, string with escape sequences, `true`, `false`, `null`, unquoted identifier, backtick-escaped identifier, `$name` parameter, `$0` parameter
+- [x] T009 [P] [US1] Add positive corpus tests to `test/corpus/literals.txt` covering: decimal integer, hex integer (`0x1A`), octal integer (`0o17`), float (`3.14`), scientific notation (`1.5e10`), single-quoted string, double-quoted string, string with escape sequences, `true`, `false`, `null`, unquoted identifier, backtick-escaped identifier, `$name` parameter, `$0` parameter
 
 ### Implementation for US1
 
-- [ ] T010 [US1] Add `integer_literal` rule to `grammar.js` covering decimal, hex (`0x`), and octal (`0o`) forms (BNF: `<unsigned decimal integer>`, `<unsigned hexadecimal integer>`)
-- [ ] T011 [US1] Add `float_literal` rule to `grammar.js` covering decimal and scientific notation forms (BNF: `<unsigned decimal in common notation>`, `<unsigned decimal in scientific notation>`)
-- [ ] T012 [P] [US1] Add `string_literal` rule to `grammar.js` covering single- and double-quoted strings with escape sequences (BNF: `<character string literal>`)
-- [ ] T013 [P] [US1] Add `boolean_literal` and `null_literal` rules to `grammar.js` using `kw()` helper (BNF: `<boolean literal>`, `<null literal>`)
-- [ ] T014 [P] [US1] Add `identifier` and `escaped_identifier` rules to `grammar.js` (BNF: `<regular identifier>`, `<escaped symbolic name>`)
-- [ ] T015 [US1] Add `parameter` rule to `grammar.js` for `$name` and `$0` forms (BNF: `<general parameter reference>`)
-- [ ] T016 [US1] Run `tree-sitter generate` then `tree-sitter test -f "literals"` — all tests must pass
+- [x] T010 [US1] Add `integer_literal` rule to `grammar.js` covering decimal, hex (`0x`), and octal (`0o`) forms (BNF: `<unsigned decimal integer>`, `<unsigned hexadecimal integer>`)
+- [x] T011 [US1] Add `float_literal` rule to `grammar.js` covering decimal and scientific notation forms (BNF: `<unsigned decimal in common notation>`, `<unsigned decimal in scientific notation>`)
+- [x] T012 [P] [US1] Add `string_literal` rule to `grammar.js` covering single- and double-quoted strings with escape sequences (BNF: `<character string literal>`)
+- [x] T013 [P] [US1] Add `boolean_literal` and `null_literal` rules to `grammar.js` using `kw()` helper (BNF: `<boolean literal>`, `<null literal>`)
+- [x] T014 [P] [US1] Add `identifier` and `escaped_identifier` rules to `grammar.js` (BNF: `<regular identifier>`, `<escaped symbolic name>`)
+- [x] T015 [US1] Add `parameter` rule to `grammar.js` for `$name` and `$0` forms (BNF: `<general parameter reference>`)
+- [x] T016 [US1] Run `tree-sitter generate` then `tree-sitter test -f "literals"` — all tests must pass
 
 **Checkpoint**: US1 independently functional. TCK gate: verify no ERROR nodes when parsing any literal expression from TCK feature files.
 
@@ -72,22 +72,22 @@ description: "Task list for porting the openCypher BNF to a tree-sitter grammar"
 
 ### Negative corpus tests for US2
 
-- [ ] T017 [P] [US2] Add negative corpus tests to `test/corpus/match_return.txt`: missing RETURN keyword, missing closing paren in node pattern, empty MATCH with no pattern — each must produce an ERROR node
+- [x] T017 [P] [US2] Add negative corpus tests to `test/corpus/match_return.txt`: missing RETURN keyword, missing closing paren in node pattern, empty MATCH with no pattern — each must produce an ERROR node
 
 ### Positive corpus tests for US2
 
-- [ ] T018 [P] [US2] Add positive corpus tests to `test/corpus/match_return.txt` covering: `MATCH (n) RETURN n`, `MATCH (n) RETURN n.name, n.age`, `MATCH (n) WHERE n.active = true RETURN n`, `OPTIONAL MATCH (n) RETURN n`, `MATCH (n) RETURN DISTINCT n`
+- [x] T018 [P] [US2] Add positive corpus tests to `test/corpus/match_return.txt` covering: `MATCH (n) RETURN n`, `MATCH (n) RETURN n.name, n.age`, `MATCH (n) WHERE n.active = true RETURN n`, `OPTIONAL MATCH (n) RETURN n`, `MATCH (n) RETURN DISTINCT n`
 
 ### Implementation for US2
 
-- [ ] T019 [US2] Replace the stub `source_file` rule in `grammar.js` with `repeat1($.statement)` and add `statement` rule (BNF: `<statement block>`, `<statement>`)
-- [ ] T020 [US2] Add `match_clause` rule with `optional` OPTIONAL modifier, `kw('MATCH')`, pattern field, and optional `where_clause` field (BNF: `<simple match statement>`, `<optional match statement>`)
-- [ ] T021 [US2] Add minimal `node_pattern` rule — variable and closing parens only, no labels or properties yet (BNF: `<node pattern>` — partial, extended in US3)
-- [ ] T022 [US2] Add `where_clause` rule: `kw('WHERE')` followed by a placeholder `$.expression` rule (BNF: `<where clause>`)
-- [ ] T023 [US2] Add `return_clause`, `return_body`, and `return_item` rules including DISTINCT and AS alias (BNF: `<return statement>`, `<return item>`)
-- [ ] T024 [US2] Add placeholder `expression` rule as `choice` of `$.identifier`, `$.property_access`, and all literal types (extended fully in US4) (BNF: `<value expression>`)
-- [ ] T025 [US2] Add `property_access` rule: `prec.left(10, seq($.expression, '.', $.identifier))` (BNF: `<postfix expression>` with property name)
-- [ ] T026 [US2] Run `tree-sitter generate` then `tree-sitter test -f "match_return"` — all tests must pass
+- [x] T019 [US2] Replace the stub `source_file` rule in `grammar.js` with `repeat1($.statement)` and add `statement` rule (BNF: `<statement block>`, `<statement>`)
+- [x] T020 [US2] Add `match_clause` rule with `optional` OPTIONAL modifier, `kw('MATCH')`, pattern field, and optional `where_clause` field (BNF: `<simple match statement>`, `<optional match statement>`)
+- [x] T021 [US2] Add minimal `node_pattern` rule — variable and closing parens only, no labels or properties yet (BNF: `<node pattern>` — partial, extended in US3)
+- [x] T022 [US2] Add `where_clause` rule: `kw('WHERE')` followed by a placeholder `$.expression` rule (BNF: `<where clause>`)
+- [x] T023 [US2] Add `return_clause`, `return_body`, and `return_item` rules including DISTINCT and AS alias (BNF: `<return statement>`, `<return item>`)
+- [x] T024 [US2] Add placeholder `expression` rule as `choice` of `$.identifier`, `$.property_access`, and all literal types (extended fully in US4) (BNF: `<value expression>`)
+- [x] T025 [US2] Add `property_access` rule: `prec.left(10, seq($.expression, '.', $.identifier))` (BNF: `<postfix expression>` with property name)
+- [x] T026 [US2] Run `tree-sitter generate` then `tree-sitter test -f "match_return"` — all tests must pass
 
 **Checkpoint**: US2 independently functional. A developer can parse `MATCH (n) RETURN n` and inspect the tree.
 
@@ -264,12 +264,16 @@ description: "Task list for porting the openCypher BNF to a tree-sitter grammar"
 
 ## Phase 11: Polish & Cross-Cutting Concerns
 
-**Purpose**: TCK validation pass, highlights query, and final quality gate check.
+**Purpose**: TCK grammar-conformance pass, highlights query, and final quality gate check.
 
-- [ ] T082 Run `tree-sitter parse` on all `.cypher` query snippets extracted from `references/openCypher/tck/features/` and confirm zero ERROR nodes (constitution TCK gate final validation)
-- [ ] T083 Review `src/node-types.json` (generated) against `specs/001-port-opencypher-bnf/data-model.md` and confirm all 45 named node types are present
+**Note on TCK scope**: The openCypher TCK tests both grammar and database execution. We only care about grammar conformance — that `tree-sitter parse` produces no ERROR nodes for the Cypher queries in the TCK. Database setup steps, result assertions, and execution semantics are ignored.
+
+- [ ] T082a Write `scripts/extract-tck-queries.sh` that extracts all Cypher snippets from `When executing query:` triple-quote blocks in `references/openCypher/tck/features/**/*.feature` files and writes each snippet as a numbered `.cypher` file to `/tmp/tck-queries/`. Use awk to match lines between the `"""` open/close markers that follow `When executing query:`. Ignore `When executing control query:` (database setup) and all `Then`/`And` assertions (execution semantics).
+- [ ] T082b Run `bash scripts/extract-tck-queries.sh` then run `tree-sitter parse` on every file in `/tmp/tck-queries/` and count lines containing `ERROR`. Assert count is zero — this is the constitution TCK gate. Include the total query count and ERROR count in the PR description.
+- [ ] T083 Review `src/node-types.json` (generated) against `specs/001-port-opencypher-bnf/data-model.md` and confirm all 45 named node types are present; also walk all 12 top-level sections of `references/openCypher/grammar/openCypher.bnf` and verify each section has at least one corresponding named grammar rule (document as a comment in `grammar.js`)
 - [ ] T084 [P] Add initial syntax highlighting rules to `queries/highlights.scm` for keyword, literal, identifier, and comment node types
 - [ ] T085 Run `npm test` to confirm the Node.js binding smoke test (`bindings/node/binding_test.js`) passes
+- [ ] T086 [P] Benchmark parse performance: run `time tree-sitter parse` on a 100-line Cypher file assembled from corpus test snippets and confirm wall time < 50ms; use the Node.js binding to call `tree.edit()` + `parser.parse()` on a single-line change and confirm elapsed time < 5ms; document both measurements as a comment on this task
 
 ---
 
@@ -298,6 +302,7 @@ Each phase has tasks marked `[P]` that can run concurrently:
 - Phase 6 (US4): T037 ‖ T038; T041 ‖ T042 ‖ T044 ‖ T045
 - Phase 8 (US6): T055 ‖ T056; T059 ‖ T060
 - Phase 10 (US8): T071 ‖ T072; T075 ‖ T076 ‖ T077 ‖ T078 ‖ T079
+- Phase 11 (Polish): T082b depends on T082a; T083 ‖ T084 ‖ T085 ‖ T086 can run concurrently after T082b
 
 ---
 

@@ -1,0 +1,158 @@
+============================================
+Simple MATCH RETURN
+============================================
+
+MATCH (n) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+MATCH RETURN with property access
+============================================
+
+MATCH (n) RETURN n.name, n.age
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (property_access
+              object: (identifier)
+              property: (identifier))))
+        (return_item
+          (expression
+            (property_access
+              object: (identifier)
+              property: (identifier))))))))
+
+============================================
+MATCH WHERE RETURN
+============================================
+
+MATCH (n) WHERE n.active = true RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (binary_expression
+            left: (expression
+              (property_access
+                object: (identifier)
+                property: (identifier)))
+            right: (expression
+              (boolean_literal))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+OPTIONAL MATCH
+============================================
+
+OPTIONAL MATCH (n) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+RETURN DISTINCT
+============================================
+
+MATCH (n) RETURN DISTINCT n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+ERROR - MATCH with no RETURN
+============================================
+
+MATCH (n)
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))))
+
+============================================
+ERROR - missing closing paren in node pattern
+============================================
+
+MATCH (n RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            (MISSING ")")))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))

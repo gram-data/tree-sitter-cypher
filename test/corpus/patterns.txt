@@ -1,0 +1,329 @@
+============================================
+Node pattern with label
+============================================
+
+MATCH (n:Person) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            label: (label_expression
+              label_name: (identifier))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Node pattern with label conjunction
+============================================
+
+MATCH (n:A&B) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            label: (label_expression
+              label_name: (identifier)
+              label_name: (identifier))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Node pattern with property map
+============================================
+
+MATCH (n {prop: 1}) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            properties: (property_map
+              (property_key_value
+                (identifier)
+                (expression
+                  (integer_literal))))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Node pattern with label and properties
+============================================
+
+MATCH (n:Person {name: 'Alice'}) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            label: (label_expression
+              label_name: (identifier))
+            properties: (property_map
+              (property_key_value
+                (identifier)
+                (expression
+                  (string_literal))))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Directed relationship right
+============================================
+
+MATCH (a)-[r]->(b) RETURN r
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern
+            (relationship_body
+              variable: (identifier)))
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Directed relationship left with type
+============================================
+
+MATCH (a)<-[r:KNOWS]-(b) RETURN r
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern
+            (relationship_body
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier))))
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Variable length relationship
+============================================
+
+MATCH (a)-[r:KNOWS*1..3]->(b) RETURN r
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern
+            (relationship_body
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier))
+              length: (path_length)))
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Any length relationship
+============================================
+
+MATCH (a)-[*]->(b) RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern
+            (relationship_body
+              length: (path_length)))
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Path variable
+============================================
+
+MATCH p = (a)-->(b) RETURN p
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          variable: (identifier)
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern)
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Undirected relationship
+============================================
+
+MATCH (a)--(b) RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern)
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+IS label expression
+============================================
+
+MATCH (n IS Person) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            label: (label_expression
+              label_name: (identifier))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+ERROR - unclosed node pattern
+============================================
+
+MATCH (n RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            (MISSING ")")))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+ERROR - relationship without closing bracket
+============================================
+
+MATCH (a)-[r->(b) RETURN r
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern
+            (ERROR
+              (identifier)))
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
