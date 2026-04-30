@@ -7,13 +7,17 @@
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
 
-// T005: case-insensitive keyword terminal (BNF: all reserved words)
-const kw = str =>
-  token(new RegExp(
+// T003: case-insensitive keyword terminal producing a capturable anonymous node.
+// Each kw('MATCH') call emits alias(token_(...), 'match') so query files can
+// capture keywords as '"match" @keyword' without naming every keyword as a rule.
+const kw = str => {
+  const t = token(new RegExp(
     str.split('').map(c =>
       /[a-zA-Z]/.test(c) ? `[${c.toUpperCase()}${c.toLowerCase()}]` : c
     ).join('')
   ));
+  return alias(t, str.toLowerCase());
+};
 
 // T006: comma-separated list helpers (BNF: { <item> [ { , <item> }... ] })
 const commaSep1 = rule => seq(rule, repeat(seq(',', rule)));
@@ -22,7 +26,7 @@ const commaSep  = rule => optional(commaSep1(rule));
 export default grammar({
   name: 'cypher',
 
-  extras: $ => [/\s/, $._comment],
+  extras: $ => [/\s/, $.comment],
 
   // GLR disambiguation for ambiguous token sequences
   conflicts: $ => [
@@ -188,7 +192,7 @@ export default grammar({
       kw('UNWIND'),
       $.expression,
       kw('AS'),
-      $._symbolic_name,
+      field('variable', $._symbolic_name),
     ),
 
     // ─── T059: ORDER BY clause ───────────────────────────────────────────────
@@ -482,7 +486,7 @@ export default grammar({
     // prec(2) to resolve conflict with in_expression inside list_literal
     list_comprehension: $ => prec(2, seq(
       '[',
-      $.identifier,
+      field('variable', $.identifier),
       kw('IN'),
       $.expression,
       optional($.where_clause),
@@ -492,10 +496,10 @@ export default grammar({
 
     // ─── T079: Existential quantifiers ───────────────────────────────────────
     // BNF: <all predicate>, <any predicate>, <none predicate>, <single predicate>
-    all_expression:    $ => seq(kw('ALL'),    '(', $.identifier, kw('IN'), $.expression, optional($.where_clause), ')'),
-    any_expression:    $ => seq(kw('ANY'),    '(', $.identifier, kw('IN'), $.expression, optional($.where_clause), ')'),
-    none_expression:   $ => seq(kw('NONE'),   '(', $.identifier, kw('IN'), $.expression, optional($.where_clause), ')'),
-    single_expression: $ => seq(kw('SINGLE'), '(', $.identifier, kw('IN'), $.expression, optional($.where_clause), ')'),
+    all_expression:    $ => seq(kw('ALL'),    '(', field('variable', $.identifier), kw('IN'), $.expression, optional($.where_clause), ')'),
+    any_expression:    $ => seq(kw('ANY'),    '(', field('variable', $.identifier), kw('IN'), $.expression, optional($.where_clause), ')'),
+    none_expression:   $ => seq(kw('NONE'),   '(', field('variable', $.identifier), kw('IN'), $.expression, optional($.where_clause), ')'),
+    single_expression: $ => seq(kw('SINGLE'), '(', field('variable', $.identifier), kw('IN'), $.expression, optional($.where_clause), ')'),
 
     // ─── T078: REDUCE expression ──────────────────────────────────────────────
     // BNF: <reduce expression> ::= REDUCE ( acc = init, var IN list | expr )
@@ -506,7 +510,7 @@ export default grammar({
       '=',
       $.expression,
       ',',
-      $.identifier,
+      field('iterator', $.identifier),
       kw('IN'),
       $.expression,
       '|',
@@ -545,8 +549,8 @@ export default grammar({
       seq("'", /([^'\\]|\\.)*/,  "'"),
     )),
 
-    boolean_literal: _ => token(choice(kw('true'), kw('false'))),
-    null_literal:    _ => token(kw('null')),
+    boolean_literal: _ => token(choice(/[Tt][Rr][Uu][Ee]/, /[Ff][Aa][Ll][Ss][Ee]/)),
+    null_literal:    _ => token(/[Nn][Uu][Ll][Ll]/),
 
     identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
 
@@ -557,7 +561,7 @@ export default grammar({
       choice(/[a-zA-Z_][a-zA-Z0-9_]*/, /[0-9]+/),
     )),
 
-    _comment: _ => token(choice(
+    comment: _ => token(choice(
       seq('//', /.*/),
       seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/'),
     )),

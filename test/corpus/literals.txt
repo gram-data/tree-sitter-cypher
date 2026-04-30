@@ -281,7 +281,7 @@ RETURN $0
             (parameter)))))))
 
 ============================================
-Line comment is skipped
+Line comment
 ============================================
 
 // this is a comment
@@ -290,6 +290,7 @@ RETURN 42
 ---
 
 (source_file
+  (comment)
   (statement
     (return_clause
       (return_body
@@ -298,7 +299,7 @@ RETURN 42
             (integer_literal)))))))
 
 ============================================
-Block comment is skipped
+Block comment
 ============================================
 
 /* block comment */ RETURN 42
@@ -306,6 +307,7 @@ Block comment is skipped
 ---
 
 (source_file
+  (comment)
   (statement
     (return_clause
       (return_body

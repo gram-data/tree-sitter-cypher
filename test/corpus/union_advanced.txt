@@ -252,4 +252,4 @@ RETURN CASE x WHEN 1 THEN 'a'
                   (integer_literal))
                 (expression
                   (string_literal)))
-              (MISSING "case_expression_token2"))))))))
+              (MISSING "end"))))))))

@@ -1,0 +1,158 @@
+============================================
+Keyword highlighting - MATCH and RETURN
+============================================
+
+MATCH (n) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Keyword highlighting - OPTIONAL MATCH
+============================================
+
+OPTIONAL MATCH (n) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Label vs variable disambiguation
+============================================
+
+MATCH (n:Person) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            label: (label_expression
+              label_name: (identifier))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Parameter highlighting
+============================================
+
+MATCH (n {id: $userId}) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            properties: (property_map
+              (property_key_value
+                (identifier)
+                (expression
+                  (parameter))))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Property access highlighting
+============================================
+
+MATCH (n) RETURN n.name
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (property_access
+              object: (expression
+                (identifier))
+              property: (identifier))))))))
+
+============================================
+Comment parsing - inline comment with query
+============================================
+
+// find nodes
+MATCH (n) RETURN n
+
+---
+
+(source_file
+  (comment)
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+ERROR - RETURN with no items missing keyword
+============================================
+
+MATCH (n) WHERE RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (identifier)))))
+  (ERROR
+    (UNEXPECTED '\n')))
