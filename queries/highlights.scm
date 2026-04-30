@@ -7,6 +7,8 @@
 "set" @keyword
 "remove" @keyword
 "with" @keyword
+(starts_with_expression "with" @keyword.operator)
+(ends_with_expression "with" @keyword.operator)
 "unwind" @keyword
 "call" @keyword
 "yield" @keyword
@@ -35,7 +37,8 @@
 "contains" @keyword.operator
 "starts" @keyword.operator
 "ends" @keyword.operator
-"all" @keyword.operator
+(union_statement "all" @keyword)
+(all_expression "all" @keyword.operator)
 "any" @keyword.operator
 "none" @keyword.operator
 "single" @keyword.operator
@@ -62,6 +65,7 @@
 (count_star) @function
 (boolean_literal) @boolean
 (null_literal) @constant.builtin
+(is_null_expression "null" @constant.builtin)
 (parameter) @variable.parameter
 
 ; Labels and relationship types (before generic identifier fallback)
@@ -111,7 +115,7 @@
 "&" @operator
 "|" @operator
 ".." @operator
-(binary_expression operator: _ @operator)
+(binary_expression operator: ["=" "<>" "<" ">" "<=" ">=" "=~" "+" "-" "||" "*" "/" "%" "^"] @operator)
 
 ; Generic identifier fallback (must come after all specific captures)
 (identifier) @variable
