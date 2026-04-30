@@ -7,7 +7,6 @@
     "type": "git",
     "url": "git+https://github.com/gram-data/tree-sitter-cypher.git"
   },
-  "funding": "",
   "license": "MIT",
   "author": {
     "name": "Andreas Kollegger",
