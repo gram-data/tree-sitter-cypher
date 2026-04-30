@@ -192,7 +192,7 @@ export default grammar({
       kw('UNWIND'),
       $.expression,
       kw('AS'),
-      $._symbolic_name,
+      field('variable', $._symbolic_name),
     ),
 
     // ─── T059: ORDER BY clause ───────────────────────────────────────────────
@@ -486,7 +486,7 @@ export default grammar({
     // prec(2) to resolve conflict with in_expression inside list_literal
     list_comprehension: $ => prec(2, seq(
       '[',
-      $.identifier,
+      field('variable', $.identifier),
       kw('IN'),
       $.expression,
       optional($.where_clause),
@@ -496,10 +496,10 @@ export default grammar({
 
     // ─── T079: Existential quantifiers ───────────────────────────────────────
     // BNF: <all predicate>, <any predicate>, <none predicate>, <single predicate>
-    all_expression:    $ => seq(kw('ALL'),    '(', $.identifier, kw('IN'), $.expression, optional($.where_clause), ')'),
-    any_expression:    $ => seq(kw('ANY'),    '(', $.identifier, kw('IN'), $.expression, optional($.where_clause), ')'),
-    none_expression:   $ => seq(kw('NONE'),   '(', $.identifier, kw('IN'), $.expression, optional($.where_clause), ')'),
-    single_expression: $ => seq(kw('SINGLE'), '(', $.identifier, kw('IN'), $.expression, optional($.where_clause), ')'),
+    all_expression:    $ => seq(kw('ALL'),    '(', field('variable', $.identifier), kw('IN'), $.expression, optional($.where_clause), ')'),
+    any_expression:    $ => seq(kw('ANY'),    '(', field('variable', $.identifier), kw('IN'), $.expression, optional($.where_clause), ')'),
+    none_expression:   $ => seq(kw('NONE'),   '(', field('variable', $.identifier), kw('IN'), $.expression, optional($.where_clause), ')'),
+    single_expression: $ => seq(kw('SINGLE'), '(', field('variable', $.identifier), kw('IN'), $.expression, optional($.where_clause), ')'),
 
     // ─── T078: REDUCE expression ──────────────────────────────────────────────
     // BNF: <reduce expression> ::= REDUCE ( acc = init, var IN list | expr )
@@ -510,7 +510,7 @@ export default grammar({
       '=',
       $.expression,
       ',',
-      $.identifier,
+      field('iterator', $.identifier),
       kw('IN'),
       $.expression,
       '|',
