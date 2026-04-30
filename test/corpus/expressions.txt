@@ -390,4 +390,5 @@ RETURN a +
               (expression
                 (identifier))
               (expression
-                (MISSING count_star)))))))))
+                (null_literal
+                  (MISSING "is_null_expression_token1"))))))))))

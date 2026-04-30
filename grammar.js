@@ -7,13 +7,17 @@
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
 
-// T005: case-insensitive keyword terminal (BNF: all reserved words)
-const kw = str =>
-  token(new RegExp(
+// T003: case-insensitive keyword terminal producing a capturable anonymous node.
+// Each kw('MATCH') call emits alias(token_(...), 'match') so query files can
+// capture keywords as '"match" @keyword' without naming every keyword as a rule.
+const kw = str => {
+  const t = token(new RegExp(
     str.split('').map(c =>
       /[a-zA-Z]/.test(c) ? `[${c.toUpperCase()}${c.toLowerCase()}]` : c
     ).join('')
   ));
+  return alias(t, str.toLowerCase());
+};
 
 // T006: comma-separated list helpers (BNF: { <item> [ { , <item> }... ] })
 const commaSep1 = rule => seq(rule, repeat(seq(',', rule)));
@@ -22,7 +26,7 @@ const commaSep  = rule => optional(commaSep1(rule));
 export default grammar({
   name: 'cypher',
 
-  extras: $ => [/\s/, $._comment],
+  extras: $ => [/\s/, $.comment],
 
   // GLR disambiguation for ambiguous token sequences
   conflicts: $ => [
@@ -545,8 +549,8 @@ export default grammar({
       seq("'", /([^'\\]|\\.)*/,  "'"),
     )),
 
-    boolean_literal: _ => token(choice(kw('true'), kw('false'))),
-    null_literal:    _ => token(kw('null')),
+    boolean_literal: _ => token(choice(/[Tt][Rr][Uu][Ee]/, /[Ff][Aa][Ll][Ss][Ee]/)),
+    null_literal:    _ => token(/[Nn][Uu][Ll][Ll]/),
 
     identifier: _ => /[a-zA-Z_][a-zA-Z0-9_]*/,
 
@@ -557,7 +561,7 @@ export default grammar({
       choice(/[a-zA-Z_][a-zA-Z0-9_]*/, /[0-9]+/),
     )),
 
-    _comment: _ => token(choice(
+    comment: _ => token(choice(
       seq('//', /.*/),
       seq('/*', /[^*]*\*+([^/*][^*]*\*+)*/, '/'),
     )),
