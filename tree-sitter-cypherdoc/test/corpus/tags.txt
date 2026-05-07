@@ -1,0 +1,457 @@
+============================================
+Required param - string
+============================================
+
+/**
+ * query
+ * @param {string} name - The full name
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (required_param
+      (identifier))
+    (tag_description)))
+
+============================================
+Required param - integer
+============================================
+
+/**
+ * query
+ * @param {integer} age - Age in years
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (required_param
+      (identifier))
+    (tag_description)))
+
+============================================
+Required param - float
+============================================
+
+/**
+ * query
+ * @param {float} score - A decimal score
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (required_param
+      (identifier))
+    (tag_description)))
+
+============================================
+Required param - boolean
+============================================
+
+/**
+ * query
+ * @param {boolean} active - Whether the node is active
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (required_param
+      (identifier))
+    (tag_description)))
+
+============================================
+Required param - path
+============================================
+
+/**
+ * query
+ * @param {path} route - The traversal path
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (required_param
+      (identifier))
+    (tag_description)))
+
+============================================
+Required param - map
+============================================
+
+/**
+ * query
+ * @param {map} props - Property map
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (required_param
+      (identifier))
+    (tag_description)))
+
+============================================
+Required param - any
+============================================
+
+/**
+ * query
+ * @param {any} value - Unconstrained value
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (required_param
+      (identifier))
+    (tag_description)))
+
+============================================
+Optional param - string default
+============================================
+
+/**
+ * query
+ * @param {string} [label="Person"] - Node label
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (optional_param
+      (identifier)
+      (param_default
+        (string_default)))
+    (tag_description)))
+
+============================================
+Optional param - integer default
+============================================
+
+/**
+ * query
+ * @param {integer} [limit=25] - Max results
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (optional_param
+      (identifier)
+      (param_default
+        (number_default)))
+    (tag_description)))
+
+============================================
+Optional param - negative integer default
+============================================
+
+/**
+ * query
+ * @param {integer} [offset=-1] - Start offset
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (optional_param
+      (identifier)
+      (param_default
+        (number_default)))
+    (tag_description)))
+
+============================================
+Optional param - boolean default
+============================================
+
+/**
+ * query
+ * @param {boolean} [include_deleted=false] - Include soft-deleted nodes
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (optional_param
+      (identifier)
+      (param_default
+        (boolean_default)))
+    (tag_description)))
+
+============================================
+Multiple params
+============================================
+
+/**
+ * query
+ * @param {string} name - Full name
+ * @param {integer} [limit=25] - Max results
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (required_param
+      (identifier))
+    (tag_description))
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (optional_param
+      (identifier)
+      (param_default
+        (number_default)))
+    (tag_description)))
+
+============================================
+Returns - single-member tuple one row
+============================================
+
+/**
+ * query
+ * @returns {[greeting: string]} - The greeting
+ */
+
+---
+
+(document
+  (name)
+  (returns_tag
+    (returns_type_annotation
+      (tuple_type
+        (tuple_member
+          (identifier)
+          (scalar_type
+            (identifier)))))
+    (tag_description)))
+
+============================================
+Returns - multi-member tuple one row
+============================================
+
+/**
+ * query
+ * @returns {[connection: path, hops: integer]} - Shortest path if found
+ */
+
+---
+
+(document
+  (name)
+  (returns_tag
+    (returns_type_annotation
+      (tuple_type
+        (tuple_member
+          (identifier)
+          (scalar_type
+            (identifier)))
+        (tuple_member
+          (identifier)
+          (scalar_type
+            (identifier)))))
+    (tag_description)))
+
+============================================
+Returns - multi-member tuple many rows
+============================================
+
+/**
+ * query
+ * @returns {[colleague_name: string, company: string][]} - One per colleague
+ */
+
+---
+
+(document
+  (name)
+  (returns_tag
+    (returns_type_annotation
+      (tuple_type
+        (tuple_member
+          (identifier)
+          (scalar_type
+            (identifier)))
+        (tuple_member
+          (identifier)
+          (scalar_type
+            (identifier)))
+        (array_marker)))
+    (tag_description)))
+
+============================================
+Full tool - params and returns
+============================================
+
+/**
+ * find_person_by_name
+ *
+ * Find a Person node by exact name match.
+ *
+ * @param {string} name - The full name to search for
+ * @returns {[person: node]} - The matching person
+ */
+
+---
+
+(document
+  (name)
+  (description
+    (description_line))
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (required_param
+      (identifier))
+    (tag_description))
+  (returns_tag
+    (returns_type_annotation
+      (tuple_type
+        (tuple_member
+          (identifier)
+          (scalar_type
+            (identifier)))))
+    (tag_description)))
+
+============================================
+ERROR - optional param with no default
+============================================
+
+/**
+ * query
+ * @param {string} [name] - Missing default
+ */
+
+---
+
+(document
+  (name)
+  (ERROR
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (ERROR
+      (identifier)
+      (UNEXPECTED ' '))
+    (identifier)))
+
+============================================
+ERROR - returns with scalar type instead of tuple
+============================================
+
+/**
+ * query
+ * @returns {string} - scalar not allowed here
+ */
+
+---
+
+(document
+  (ERROR
+    (name))
+  (name)
+  (description
+    (description_line)))
+
+============================================
+ERROR - tuple member missing colon
+============================================
+
+/**
+ * query
+ * @returns {[x string]} - missing colon
+ */
+
+---
+
+(document
+  (name)
+  (ERROR
+    (ERROR
+      (identifier)
+      (UNEXPECTED ' '))
+    (identifier)))
+
+============================================
+ERROR - empty tuple
+============================================
+
+/**
+ * query
+ * @returns {[]} - empty tuple not allowed
+ */
+
+---
+
+(document
+  (name)
+  (ERROR
+    (ERROR
+      (UNEXPECTED ' ')
+      (identifier))
+    (identifier)))

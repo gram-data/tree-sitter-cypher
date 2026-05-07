@@ -1,0 +1,28 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "cypherdoc",
+      "camelcase": "Cypherdoc",
+      "title": "Cypherdoc",
+      "scope": "source.cypherdoc",
+      "file-types": [],
+      "injection-regex": "cypherdoc",
+      "highlights": "queries/highlights.scm"
+    }
+  ],
+  "metadata": {
+    "version": "0.0.1",
+    "license": "MIT",
+    "description": "Structured documentation comments for Cypher statements",
+    "authors": [
+      {
+        "name": "Andreas Kollegger",
+        "email": "andreas.kollegger@neo4j.com"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/gram-data/tree-sitter-cypher"
+    }
+  }
+}

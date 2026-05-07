@@ -15,11 +15,11 @@
 **Purpose**: Create the `tree-sitter-cypherdoc/` subdirectory and verify the toolchain works
 before any grammar rules are written.
 
-- [ ] T001 Create directory structure: `tree-sitter-cypherdoc/queries/` and `tree-sitter-cypherdoc/test/corpus/`
-- [ ] T002 [P] Write `tree-sitter-cypherdoc/package.json` with name `"tree-sitter-cypherdoc"`, type `"module"`, and dev dependency on `tree-sitter-cli ^0.26.5`
-- [ ] T003 [P] Write `tree-sitter-cypherdoc/tree-sitter.json` registering language name `"cypherdoc"` with `"injection-regex": "cypherdoc"`
-- [ ] T004 Write `tree-sitter-cypherdoc/grammar.js` with a minimal `document` rule matching `/**` ... `*/` delimiters and no internal content
-- [ ] T005 Run `tree-sitter generate` from `tree-sitter-cypherdoc/` and add a trivial positive corpus test (`/** */` → `(document)`) plus a negative test (`/* */` → ERROR) to `tree-sitter-cypherdoc/test/corpus/names.txt`; confirm `tree-sitter test` passes
+- [x] T001 Create directory structure: `tree-sitter-cypherdoc/queries/` and `tree-sitter-cypherdoc/test/corpus/`
+- [x] T002 [P] Write `tree-sitter-cypherdoc/package.json` with name `"tree-sitter-cypherdoc"`, type `"module"`, and dev dependency on `tree-sitter-cli ^0.26.5`
+- [x] T003 [P] Write `tree-sitter-cypherdoc/tree-sitter.json` registering language name `"cypherdoc"` with `"injection-regex": "cypherdoc"`
+- [x] T004 Write `tree-sitter-cypherdoc/grammar.js` with a minimal `document` rule matching `/**` ... `*/` delimiters and no internal content
+- [x] T005 Run `tree-sitter generate` from `tree-sitter-cypherdoc/` and add a trivial positive corpus test (`/** */` → `(document)`) plus a negative test (`/* */` → ERROR) to `tree-sitter-cypherdoc/test/corpus/names.txt`; confirm `tree-sitter test` passes
 
 **Checkpoint**: `tree-sitter generate` and `tree-sitter test` succeed with the stub grammar.
 
@@ -32,11 +32,11 @@ stripping `*` decorations, and the `name`/`description` nodes that head every do
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T006 Add `extras` to `tree-sitter-cypherdoc/grammar.js`: `[ /[ \t]+/, /\n[ \t]*\*[ \t]?/ ]` to strip decorative line prefixes
-- [ ] T007 Implement `name` rule in `tree-sitter-cypherdoc/grammar.js`: first non-empty, non-tag content line matching `[a-zA-Z_][a-zA-Z0-9_]*`
-- [ ] T008 Implement `description` and `description_line` rules in `tree-sitter-cypherdoc/grammar.js`: prose lines not starting with `@`, accumulated before the first tag
-- [ ] T009 Add corpus tests to `tree-sitter-cypherdoc/test/corpus/names.txt`: name-only, name + description, description-only (no name), and the negative case where the first line starts with `@`
-- [ ] T010 Run `tree-sitter generate` + `tree-sitter test` from `tree-sitter-cypherdoc/` and confirm all corpus tests pass
+- [x] T006 Add `extras` to `tree-sitter-cypherdoc/grammar.js`: `[ /\s+/, /[ \t]*\*[ \t\n]/ ]` to strip decorative line prefixes without consuming `*/`
+- [x] T007 Implement `name` rule in `tree-sitter-cypherdoc/grammar.js`: first non-empty, non-tag content line matching `[a-zA-Z_][a-zA-Z0-9_]*`
+- [x] T008 Implement `description` and `description_line` rules in `tree-sitter-cypherdoc/grammar.js`: prose lines not starting with `@`, ` `, or `*`, accumulated before the first tag
+- [x] T009 Add corpus tests to `tree-sitter-cypherdoc/test/corpus/names.txt`: name-only, name + description, multi-paragraph description, and the case starting directly with a tag
+- [x] T010 Run `tree-sitter generate` + `tree-sitter test` from `tree-sitter-cypherdoc/` and confirm all corpus tests pass
 
 **Checkpoint**: `/** find_person_by_name\n * Description text\n */` parses to a `document` with `name` and `description` children.
 
@@ -53,14 +53,14 @@ Tree-sitter query patterns.
 `param_tag`, `type_annotation`, `scalar_type`, and `required_param`/`optional_param` nodes
 and zero ERROR nodes.
 
-- [ ] T011 [US1] Implement `type_annotation`, `scalar_type`, and `identifier` rules in `tree-sitter-cypherdoc/grammar.js` — scalar type only, no type argument yet
-- [ ] T012 [US1] Implement `required_param` and `param_tag` rules in `tree-sitter-cypherdoc/grammar.js`; wire `param_tag` into the `document` rule
-- [ ] T013 [US1] Implement `optional_param` and `param_default` rules in `tree-sitter-cypherdoc/grammar.js` covering `string_default` (`"..."` / `'...'`), `number_default` (integer and decimal, optionally negative), and `boolean_default` (`true`/`false`)
-- [ ] T014 [US1] Extend `scalar_type` with `type_argument` rule in `tree-sitter-cypherdoc/grammar.js` — `<identifier>` suffix covering `node<Label>`, `relationship<TYPE>`, `list<scalar_type>`
-- [ ] T015 [P] [US1] Add corpus tests for `@param` with all plain scalar types (`string`, `integer`, `float`, `boolean`, `path`, `map`, `any`) and a negative test for `@param` with no type to `tree-sitter-cypherdoc/test/corpus/tags.txt`
-- [ ] T016 [P] [US1] Add corpus tests for `optional_param` with each default type (string, integer, boolean, negative number) and a negative test for bare `[name]` without `=default` to `tree-sitter-cypherdoc/test/corpus/tags.txt`
-- [ ] T017 [P] [US1] Add corpus tests for `type_argument` covering `node<Person>`, `relationship<KNOWS>`, `list<string>`, and a negative test for `node<>` (empty argument) to `tree-sitter-cypherdoc/test/corpus/types.txt`
-- [ ] T018 [US1] Run `tree-sitter generate` + `tree-sitter test` from `tree-sitter-cypherdoc/`; run `tree-sitter parse cypher/find_person.cypher` and `cypher/get_colleagues.cypher` from repo root; confirm zero ERROR nodes in `doc_comment` subtrees
+- [x] T011 [US1] Implement `type_annotation`, `scalar_type`, and `identifier` rules in `tree-sitter-cypherdoc/grammar.js` — scalar type only, no type argument yet
+- [x] T012 [US1] Implement `required_param` and `param_tag` rules in `tree-sitter-cypherdoc/grammar.js`; wire `param_tag` into the `document` rule
+- [x] T013 [US1] Implement `optional_param` and `param_default` rules in `tree-sitter-cypherdoc/grammar.js` covering `string_default` (`"..."` / `'...'`), `number_default` (integer and decimal, optionally negative), and `boolean_default` (`true`/`false`)
+- [x] T014 [US1] Extend `scalar_type` with `type_argument` rule in `tree-sitter-cypherdoc/grammar.js` — `<identifier>` suffix covering `node<Label>`, `relationship<TYPE>`, `list<scalar_type>`
+- [x] T015 [P] [US1] Add corpus tests for `@param` with all plain scalar types (`string`, `integer`, `float`, `boolean`, `path`, `map`, `any`) and a negative test for `@param` with no type to `tree-sitter-cypherdoc/test/corpus/tags.txt`
+- [x] T016 [P] [US1] Add corpus tests for `optional_param` with each default type (string, integer, boolean, negative number) and a negative test for bare `[name]` without `=default` to `tree-sitter-cypherdoc/test/corpus/tags.txt`
+- [x] T017 [P] [US1] Add corpus tests for `type_argument` covering `node<Person>`, `relationship<KNOWS>`, `list<string>`, and a negative test for `node<>` (empty argument) to `tree-sitter-cypherdoc/test/corpus/types.txt`
+- [x] T018 [US1] Run `tree-sitter generate` + `tree-sitter test` from `tree-sitter-cypherdoc/`; run `tree-sitter parse cypher/find_person.cypher` and `cypher/get_colleagues.cypher` from repo root; confirm zero ERROR nodes in `doc_comment` subtrees
 
 **Checkpoint**: US1 fully functional. `find_person.cypher` and `get_colleagues.cypher` parse cleanly with complete `param_tag` structure.
 
@@ -76,12 +76,12 @@ patterns.
 `tree-sitter parse cypher/get_colleagues.cypher` produce `returns_tag` nodes containing
 `tuple_type` with correct `tuple_member` children and an `array_marker` where present.
 
-- [ ] T019 [US2] Implement `tuple_member` rule in `tree-sitter-cypherdoc/grammar.js`: `column: (identifier) ':' type: (scalar_type)` with named fields
-- [ ] T020 [US2] Implement `tuple_type` rule in `tree-sitter-cypherdoc/grammar.js`: comma-separated `tuple_member` list wrapped in `[...]`, with optional `array_marker` child; define `array_marker` as the atomic two-character token `"[]"`
-- [ ] T021 [US2] Implement `returns_tag` rule in `tree-sitter-cypherdoc/grammar.js`: `@returns` followed by `type_annotation` (tuple_type only) and optional `tag_description`; wire into `document` rule after all `param_tag` nodes
-- [ ] T022 [P] [US2] Add corpus tests for `@returns` with single-member tuple (no `array_marker`) and `@returns` with multi-member tuple plus `array_marker` to `tree-sitter-cypherdoc/test/corpus/tags.txt`
-- [ ] T023 [P] [US2] Add negative corpus tests for `@returns` with a bare scalar type (not a tuple) and `@returns` with an empty tuple `[]` to `tree-sitter-cypherdoc/test/corpus/tags.txt`
-- [ ] T024 [US2] Run `tree-sitter generate` + `tree-sitter test` from `tree-sitter-cypherdoc/`; run `tree-sitter parse` on `cypher/shortest_path.cypher`, `cypher/get_colleagues.cypher`, and `cypher/find_person.cypher`; confirm zero ERROR nodes
+- [x] T019 [US2] Implement `tuple_member` rule in `tree-sitter-cypherdoc/grammar.js`: `column: (identifier) ':' type: (scalar_type)` with named fields
+- [x] T020 [US2] Implement `tuple_type` rule in `tree-sitter-cypherdoc/grammar.js`: comma-separated `tuple_member` list wrapped in `[...]`, with optional `array_marker` child; define `array_marker` as the atomic two-character token `"[]"`
+- [x] T021 [US2] Implement `returns_tag` rule in `tree-sitter-cypherdoc/grammar.js`: `@returns` followed by `type_annotation` (tuple_type only) and optional `tag_description`; wire into `document` rule after all `param_tag` nodes
+- [x] T022 [P] [US2] Add corpus tests for `@returns` with single-member tuple (no `array_marker`) and `@returns` with multi-member tuple plus `array_marker` to `tree-sitter-cypherdoc/test/corpus/tags.txt`
+- [x] T023 [P] [US2] Add negative corpus tests for `@returns` with a bare scalar type (not a tuple) and `@returns` with an empty tuple `[]` to `tree-sitter-cypherdoc/test/corpus/tags.txt`
+- [x] T024 [US2] Run `tree-sitter generate` + `tree-sitter test` from `tree-sitter-cypherdoc/`; run `tree-sitter parse` on `cypher/shortest_path.cypher`, `cypher/get_colleagues.cypher`, and `cypher/find_person.cypher`; confirm zero ERROR nodes
 
 **Checkpoint**: US2 fully functional. All five `cypher/*.cypher` example files parse cleanly end-to-end.
 
@@ -96,9 +96,9 @@ patterns.
 nodes and sets `injection.language "cypherdoc"`; all 102 existing Cypher corpus tests pass
 without regression.
 
-- [ ] T025 [US3] Verify `queries/injections.scm` in `tree-sitter-cypher` contains the injection pattern for `doc_comment` → `"cypherdoc"` (already written; this is a confirmation task)
-- [ ] T026 [US3] Verify `tree-sitter-cypherdoc/tree-sitter.json` `"injection-regex"` matches the string `"cypherdoc"` used in `injections.scm`
-- [ ] T027 [US3] Run `tree-sitter test` from the `tree-sitter-cypher` repo root; confirm all 102 Cypher corpus tests still pass with no regression from the injection wiring
+- [x] T025 [US3] Verify `queries/injections.scm` in `tree-sitter-cypher` contains the injection pattern for `doc_comment` → `"cypherdoc"` (already written; this is a confirmation task)
+- [x] T026 [US3] Verify `tree-sitter-cypherdoc/tree-sitter.json` `"injection-regex"` matches the string `"cypherdoc"` used in `injections.scm`
+- [x] T027 [US3] Run `tree-sitter test` from the `tree-sitter-cypher` repo root; confirm all 102 Cypher corpus tests still pass with no regression from the injection wiring
 
 **Checkpoint**: US3 complete. Injection is verified; no regressions in the Cypher grammar.
 
@@ -113,9 +113,9 @@ tool name, tag keywords, type annotations, identifiers, defaults, and descriptio
 files shows the tool name, `@param`/`@returns` keywords, type names, param names, default
 values, and description text each captured under distinct capture names.
 
-- [ ] T028 [P] [US4] Write `tree-sitter-cypherdoc/queries/highlights.scm` with captures: `(name) @name`, `"@param" @tag`, `"@returns" @tag`, `(scalar_type (identifier) @type)`, `(required_param (identifier) @variable)`, `(optional_param (identifier) @variable)`, `(param_default) @constant`, `(tag_description) @comment`, `(description) @comment`
-- [ ] T029 [P] [US4] Write `tree-sitter-cypherdoc/queries/tags.scm` with `(document (name) @name)` for symbol indexing
-- [ ] T030 [US4] Run `tree-sitter highlight` on `cypher/hello.tool.cypher`, `cypher/find_person.cypher`, and `cypher/get_colleagues.cypher` from `tree-sitter-cypherdoc/`; confirm each capture class appears and no ERROR nodes exist
+- [x] T028 [P] [US4] Write `tree-sitter-cypherdoc/queries/highlights.scm` with captures: `(name) @name`, `"@param" @tag`, `"@returns" @tag`, `(scalar_type (identifier) @type)`, `(required_param (identifier) @variable)`, `(optional_param (identifier) @variable)`, `(param_default) @constant`, `(tag_description) @comment`, `(description) @comment`
+- [x] T029 [P] [US4] Write `tree-sitter-cypherdoc/queries/tags.scm` with `(document (name) @name)` for symbol indexing
+- [x] T030 [US4] Run `tree-sitter highlight` on `cypher/hello.tool.cypher`, `cypher/find_person.cypher`, and `cypher/get_colleagues.cypher` from `tree-sitter-cypherdoc/`; confirm each capture class appears and no ERROR nodes exist
 
 **Checkpoint**: US4 complete. All four user stories are independently functional.
 
@@ -126,9 +126,9 @@ values, and description text each captured under distinct capture names.
 **Purpose**: Complete the dual-coverage gate (negative tests), run the full validation sweep,
 and update developer documentation.
 
-- [ ] T031 [P] Add negative corpus tests for each remaining edge case to `tree-sitter-cypherdoc/test/corpus/`: `/** */` with no closing `*/` → ERROR, tag description with no `-` separator (should still parse gracefully), `@param` with tuple type instead of scalar → ERROR
-- [ ] T032 [P] Update `CLAUDE.md` to document `tree-sitter-cypherdoc/` development commands: `cd tree-sitter-cypherdoc && tree-sitter generate`, `tree-sitter test`, `tree-sitter parse ../cypher/<file>.cypher`
-- [ ] T033 Run full end-to-end sweep: `tree-sitter test` from `tree-sitter-cypherdoc/` (all cypherdoc corpus tests pass) then `tree-sitter test` from repo root (all 102 Cypher corpus tests pass) then `tree-sitter parse` on all five `cypher/*.cypher` files (zero ERROR nodes in all `doc_comment` subtrees)
+- [x] T031 [P] Add negative corpus tests for each remaining edge case to `tree-sitter-cypherdoc/test/corpus/`: tag description with no `-` separator → ERROR node, `@param` with tuple type instead of scalar → ERROR node
+- [x] T032 [P] Update `CLAUDE.md` to document `tree-sitter-cypherdoc/` development commands: `cd tree-sitter-cypherdoc && tree-sitter generate`, `tree-sitter test`, `tree-sitter parse ../cypher/<file>.cypher`
+- [x] T033 Run full end-to-end sweep: `tree-sitter test` from `tree-sitter-cypherdoc/` (all cypherdoc corpus tests pass) then `tree-sitter test` from repo root (all 102 Cypher corpus tests pass) then `tree-sitter parse` on all five `cypher/*.cypher` files (zero ERROR nodes in all `doc_comment` subtrees)
 
 ---
 
