@@ -1,0 +1,116 @@
+============================================
+Scalar type - node with label
+============================================
+
+/**
+ * query
+ * @param {node<Person>} seed - Starting node
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)
+        (type_argument
+          (identifier))))
+    (required_param
+      (identifier))
+    (tag_description)))
+
+============================================
+Scalar type - relationship with type
+============================================
+
+/**
+ * query
+ * @param {relationship<KNOWS>} rel - A relationship
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)
+        (type_argument
+          (identifier))))
+    (required_param
+      (identifier))
+    (tag_description)))
+
+============================================
+Scalar type - list of string
+============================================
+
+/**
+ * query
+ * @param {list<string>} labels - Label list
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)
+        (type_argument
+          (identifier))))
+    (required_param
+      (identifier))
+    (tag_description)))
+
+============================================
+Returns tuple with node type argument
+============================================
+
+/**
+ * query
+ * @returns {[person: node<Person>]} - Matching person
+ */
+
+---
+
+(document
+  (name)
+  (returns_tag
+    (returns_type_annotation
+      (tuple_type
+        (tuple_member
+          (identifier)
+          (scalar_type
+            (identifier)
+            (type_argument
+              (identifier))))))
+    (tag_description)))
+
+============================================
+ERROR - empty type argument
+============================================
+
+/**
+ * query
+ * @param {node<>} n - Node with empty label
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)
+        (type_argument
+          (identifier
+            (MISSING "name_token1")))))
+    (required_param
+      (identifier))
+    (tag_description)))

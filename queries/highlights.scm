@@ -55,6 +55,7 @@
 "descending" @keyword.modifier
 
 ; Comments
+(doc_comment) @comment.documentation
 (comment) @comment
 
 ; Literals

@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/002-syntax-highlighting/plan.md
+at specs/003-cypherdoc-grammar/plan.md
 <!-- SPECKIT END -->
 
 ## Project Overview
@@ -37,6 +37,23 @@ make
 
 # Parse a file and show the syntax tree
 tree-sitter parse example-file
+```
+
+## Cypherdoc Sub-grammar
+
+The `tree-sitter-cypherdoc/` subdirectory is a self-contained Tree-sitter grammar for
+structured `/** */` doc comments. It is injected into `doc_comment` nodes by this grammar
+via `queries/injections.scm`.
+
+```sh
+# From tree-sitter-cypherdoc/ — regenerate after grammar.js changes
+cd tree-sitter-cypherdoc && tree-sitter generate
+
+# Run cypherdoc corpus tests
+cd tree-sitter-cypherdoc && tree-sitter test
+
+# Parse a .cypher file and see cypherdoc injection (from repo root)
+tree-sitter parse cypher/find_person.cypher
 ```
 
 ## Architecture

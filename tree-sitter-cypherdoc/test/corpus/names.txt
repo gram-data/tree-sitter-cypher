@@ -1,0 +1,149 @@
+============================================
+Name only
+============================================
+
+/**
+ * say_hello
+ */
+
+---
+
+(document
+  (name))
+
+============================================
+Name and description
+============================================
+
+/**
+ * find_person_by_name
+ *
+ * Find a Person node by exact name match.
+ */
+
+---
+
+(document
+  (name)
+  (description
+    (description_line)))
+
+============================================
+Multi-paragraph description
+============================================
+
+/**
+ * get_colleagues
+ *
+ * Find people who work at the same company.
+ * Results are ordered by colleague name.
+ */
+
+---
+
+(document
+  (name)
+  (description
+    (description_line)
+    (description_line)))
+
+============================================
+Description is optional - name with tag, no description
+============================================
+
+/**
+ * say_hello
+ * @param {string} name - The name to greet
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (required_param
+      (identifier))
+    (tag_description)))
+
+============================================
+ERROR - missing name, comment starts with tag
+============================================
+
+/**
+ * @param {string} name - no name line
+ */
+
+---
+
+(document
+  (name
+    (MISSING "name_token1"))
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (required_param
+      (identifier))
+    (tag_description)))
+
+============================================
+ERROR - empty doc comment, name missing
+============================================
+
+/** */
+
+---
+
+(document
+  (name
+    (MISSING "name_token1")))
+
+============================================
+ERROR - param description without dash separator
+============================================
+
+/**
+ * query
+ * @param {string} name the name
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (scalar_type
+        (identifier)))
+    (required_param
+      (identifier)))
+  (ERROR))
+
+============================================
+ERROR - param with tuple type instead of scalar
+============================================
+
+/**
+ * query
+ * @param {[person: node<Person>]} name - wrong
+ */
+
+---
+
+(document
+  (name)
+  (param_tag
+    (type_annotation
+      (ERROR
+        (identifier))
+      (scalar_type
+        (identifier)
+        (type_argument
+          (identifier)))
+      (ERROR))
+    (required_param
+      (identifier))
+    (tag_description)))

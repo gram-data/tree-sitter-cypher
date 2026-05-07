@@ -1,0 +1,30 @@
+{
+  "name": "tree-sitter-cypherdoc",
+  "version": "0.0.1",
+  "description": "Tree-sitter grammar for Cypherdoc structured comments",
+  "type": "module",
+  "license": "MIT",
+  "author": {
+    "name": "Andreas Kollegger",
+    "email": "andreas.kollegger@neo4j.com"
+  },
+  "keywords": [
+    "tree-sitter",
+    "cypherdoc",
+    "cypher",
+    "parser"
+  ],
+  "files": [
+    "grammar.js",
+    "tree-sitter.json",
+    "queries/*",
+    "src/**"
+  ],
+  "scripts": {
+    "build": "tree-sitter generate",
+    "test": "tree-sitter test"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.26.5"
+  }
+}
