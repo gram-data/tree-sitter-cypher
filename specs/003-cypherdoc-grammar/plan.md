@@ -1,161 +1,108 @@
-# Implementation Plan: Cypherdoc Injection Grammar
+# Implementation Plan: [FEATURE]
 
-**Branch**: `003-cypherdoc-grammar` | **Date**: 2026-05-07 | **Spec**: [spec.md](spec.md)
-**Input**: Feature specification from `specs/003-cypherdoc-grammar/spec.md`
+**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
+**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+
+**Note**: This template is filled in by the `/speckit-plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
 ## Summary
 
-Build `tree-sitter-cypherdoc`, a self-contained Tree-sitter grammar that parses structured
-`/** ... */` documentation comments attached to Cypher statements. The grammar is injected
-into `doc_comment` nodes by `tree-sitter-cypher` via `queries/injections.scm`. It produces
-a typed AST covering tool names, parameter declarations (required and optional-with-default),
-and named-tuple return shapes with cardinality (one row vs many rows).
+[Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
 
-**Language/Version**: JavaScript (Tree-sitter grammar DSL), same as `tree-sitter-cypher`
-**Primary Dependencies**: `tree-sitter-cli ^0.26.5` (generate + test), `tree-sitter ^0.25.0` (Node binding)
-**Storage**: N/A — grammar/parser only
-**Testing**: `tree-sitter test` (corpus tests in `test/corpus/`)
-**Target Platform**: Any Tree-sitter host (Neovim, Helix, Zed, VS Code, CLI tools)
-**Project Type**: Tree-sitter grammar (injected sub-grammar)
-**Performance Goals**: Parse at Tree-sitter's standard throughput (>100 MB/s); comments are tiny
-**Constraints**: Must correctly handle `/**`/`*/` delimiters and ` * ` line decorations
-**Scale/Scope**: ~15 grammar rules; ~30 corpus tests
+<!--
+  ACTION REQUIRED: Replace the content in this section with the technical details
+  for the project. The structure here is presented in advisory capacity to guide
+  the iteration process.
+-->
+
+**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
+**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
+**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
+**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
+**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
+**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]  
+**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
+**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
+**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
 
-*The project constitution was written for `tree-sitter-cypher` and references the openCypher
-BNF (Fidelity gate) and TCK (TCK gate). Neither applies to cypherdoc, which has no upstream
-spec. Gates are interpreted as follows — no constitution amendment needed.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 | Gate | Status | Notes |
-|---|---|---|
-| **Fidelity gate** | ✅ Adapted | Every rule traces to a tag definition in `proposals/cypherdoc-injection.md` (not openCypher BNF) |
-| **Dual-coverage gate** | ✅ Applicable | ≥1 positive AND ≥1 negative corpus test per grammar rule |
-| **TCK gate** | ✅ Adapted | `tree-sitter parse` on all five `cypher/*.cypher` example files reports zero ERROR nodes in the `doc_comment` subtree |
+|------|--------|-------|
+| **Fidelity gate** | [ ] | Every new rule traces to a BNF production in `references/openCypher/grammar/openCypher.bnf` |
+| **Dual-coverage gate** | [ ] | `tree-sitter test` shows ≥1 positive AND ≥1 negative test per rule |
+| **TCK gate** | [ ] | `tree-sitter parse` on all relevant TCK queries reports zero ERROR nodes |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/003-cypherdoc-grammar/
-├── plan.md              ← this file
-├── research.md          ← Phase 0 (complete)
-├── data-model.md        ← Phase 1 (complete)
-├── contracts/
-│   └── query-patterns.md ← Phase 1 (complete)
-└── tasks.md             ← Phase 2 (/speckit-tasks — not yet created)
+specs/[###-feature]/
+├── plan.md              # This file (/speckit-plan command output)
+├── research.md          # Phase 0 output (/speckit-plan command)
+├── data-model.md        # Phase 1 output (/speckit-plan command)
+├── quickstart.md        # Phase 1 output (/speckit-plan command)
+├── contracts/           # Phase 1 output (/speckit-plan command)
+└── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
 ```
 
-### Source Code
+### Source Code (repository root)
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
 
 ```text
-tree-sitter-cypherdoc/       ← new subdirectory (self-contained grammar)
-  grammar.js                 ← source of truth
-  package.json               ← name: "tree-sitter-cypherdoc"
-  tree-sitter.json           ← registers language name "cypherdoc"
-  queries/
-    highlights.scm           ← syntax highlighting captures
-    tags.scm                 ← symbol indexing (name → @name)
-  test/
-    corpus/
-      names.txt              ← name and description parsing
-      tags.txt               ← @param and @returns parsing
-      types.txt              ← scalar and tuple type parsing
-  src/                       ← generated by tree-sitter generate (not hand-authored)
-    grammar.json
-    parser.c
-    node-types.json
+# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+src/
+├── models/
+├── services/
+├── cli/
+└── lib/
 
-queries/injections.scm       ← already present in tree-sitter-cypher (no changes needed)
+tests/
+├── contract/
+├── integration/
+└── unit/
+
+# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+backend/
+├── src/
+│   ├── models/
+│   ├── services/
+│   └── api/
+└── tests/
+
+frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   └── services/
+└── tests/
+
+# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+api/
+└── [same as backend above]
+
+ios/ or android/
+└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
-**Structure Decision**: Single subdirectory grammar. All grammar source lives under
-`tree-sitter-cypherdoc/`. The parent repo's `queries/injections.scm` already wires the
-injection — no further changes to `tree-sitter-cypher` are required.
-
-## Implementation Slices
-
-### Slice 1 — Scaffold and delimiters
-
-Set up `tree-sitter-cypherdoc/` with `package.json`, `tree-sitter.json`, and a `grammar.js`
-that parses only the `/**` ... `*/` delimiters with no internal content. Verify `tree-sitter
-generate` succeeds and `tree-sitter test` passes a trivial corpus test.
-
-**Fidelity**: `document` rule — anchored to the cypherdoc format spec (opener/closer)
-**Tests**: positive: `/** */` → `(document)`; negative: `/* */` → ERROR (not a doc comment)
-
-### Slice 2 — Name and description
-
-Extend `grammar.js` with the `name` and `description` rules. Implement the `extras` pattern
-for `\n[ \t]*\*[ \t]?` to strip decorative line prefixes. Verify name is captured from the
-first non-empty line, and description from subsequent prose before any `@` tag.
-
-**Fidelity**: `name`, `description`, `description_line` — per format spec
-**Tests**: positive: name-only, name+description, description-only; negative: name starting
-with `@`
-
-### Slice 3 — `@param` with scalar types
-
-Add `param_tag`, `required_param`, `type_annotation`, and `scalar_type` (without type
-argument). Cover all plain scalar types: `string`, `integer`, `float`, `boolean`, `path`,
-`map`, `any`.
-
-**Fidelity**: `param_tag`, `required_param`, `scalar_type` — per format spec
-**Tests**: positive: one `@param` per scalar type; negative: `@param` with no type, `@param`
-with tuple type (not allowed on params)
-
-### Slice 4 — Optional params and defaults
-
-Add `optional_param` and `param_default` (covering `string_default`, `number_default`,
-`boolean_default`). Verify that `[name]` without `=` is a parse error.
-
-**Fidelity**: `optional_param`, `param_default` — per format spec
-**Tests**: positive: string default, integer default, boolean default, negative-number
-default; negative: `[name]` without default → ERROR
-
-### Slice 5 — Type arguments (`node<Label>`, `relationship<TYPE>`, `list<type>`)
-
-Extend `scalar_type` with the optional `<identifier>` type argument. Cover `node<Label>`,
-`relationship<TYPE>`, and `list<scalar_type>` (recursive).
-
-**Fidelity**: `type_argument` — per format spec
-**Tests**: positive: `node<Person>`, `relationship<KNOWS>`, `list<string>`; negative:
-`node<>` (empty argument) → ERROR
-
-### Slice 6 — `@returns` with named tuple
-
-Add `returns_tag`, `tuple_type`, `tuple_member`, and `array_marker`. Implement the `"[]"`
-atomic token to disambiguate the array suffix from the tuple's closing `]`.
-
-**Fidelity**: `returns_tag`, `tuple_type`, `tuple_member`, `array_marker` — per format spec
-**Tests**: positive: single-member tuple (one row), multi-member tuple (one row),
-multi-member with `[]` (many rows); negative: `@returns` with scalar type → ERROR,
-`@returns` with empty tuple `[]` → ERROR
-
-### Slice 7 — Highlights and tags queries
-
-Write `queries/highlights.scm` with distinct captures for: tool name (`@name`), tag
-keywords (`@tag`), type names (`@type`), param/column identifiers (`@variable`), defaults
-(`@constant`), descriptions (`@comment`). Write `queries/tags.scm` to expose `(name)` as
-`@name` for symbol indexing.
-
-**Fidelity**: N/A (query files, not grammar rules)
-**Tests**: Run `tree-sitter highlight` on all five `cypher/*.cypher` example files; confirm
-each capture class appears and that no ERROR nodes exist in the `doc_comment` subtree.
-
-### Slice 8 — End-to-end validation
-
-Run `tree-sitter parse` on all five `cypher/*.cypher` example files. Confirm zero ERROR
-nodes. Run the full `tree-sitter-cypher` corpus (`tree-sitter test` from repo root) to
-confirm the injection wiring causes no regressions.
-
-**Fidelity**: Validates the fidelity and TCK-analog gates for all prior slices.
-**Tests**: All 102 existing Cypher corpus tests pass; all `tree-sitter-cypherdoc` corpus
-tests pass; five example files parse cleanly.
+**Structure Decision**: [Document the selected structure and reference the real
+directories captured above]
 
 ## Complexity Tracking
 
-*No constitution gate violations. No complexity justification required.*
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
