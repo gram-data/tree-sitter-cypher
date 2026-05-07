@@ -32,6 +32,8 @@ These match patterns in the Cypher parse tree regardless of any doc comment.
 ;; Rule: UnlabelledNode
 ;; Severity: Warning
 ;; Message: "MATCH (n)" causes a full node scan. Add a label, e.g., (n:Person).
+;; Note: `!label` is valid tree-sitter query syntax (v0.20+) meaning the `label`
+;; field must be absent from the matched node.
 (node_pattern
   variable: (identifier)
   !label)
@@ -53,17 +55,17 @@ These check the doc comment for internal consistency, independent of the Cypher 
 ;; Rule: OptionalParamMissingDefault
 ;; Severity: Error
 ;; Message: Optional @param must declare a default value — bare [name] is not allowed.
-(document
-  (param_tag
-    param: (optional_param
-      (MISSING))))
+;; The grammar enforces this structurally: a bare [name] produces an ERROR node
+;; inside the param_tag. MISSING nodes are not queryable; match the ERROR instead.
+(param_tag
+  (ERROR) @malformed_param)
 
 ;; Rule: MissingToolName
 ;; Severity: Warning
 ;; Message: Cypherdoc comment has no tool name. Add a name as the first line.
-(document
-  name: (name
-    (MISSING)))
+;; A missing name produces a zero-width MISSING placeholder (not queryable).
+;; Detect it in the Rust layer by checking node.child_by_field_name("name")
+;; and testing that the returned node's byte range is non-empty.
 ```
 
 ### Cross-reference rules (both ASTs)

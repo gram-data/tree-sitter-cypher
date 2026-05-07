@@ -103,7 +103,7 @@ the name, tags, types, and descriptions each receive a distinct capture name.
 
 ### Edge Cases
 
-- A `/** */` block with no name line — should still parse without error (name is absent).
+- A `/** */` block with no name line — the grammar requires a name; a missing name produces a zero-width `MISSING` placeholder and the parser recovers. Consumers should treat a zero-length name node as an error condition.
 - A `/** */` block with only a name and no tags — valid minimal cypherdoc.
 - A `@param` with a default value containing spaces or special characters (e.g., `[label="Person Node"]`).
 - A `node<Label>` type argument containing multiple labels (e.g., `node<Person|Employee>`).

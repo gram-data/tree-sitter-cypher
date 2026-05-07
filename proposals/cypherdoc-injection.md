@@ -126,13 +126,13 @@ doc_comment
       param_default         default literal value
     tag_description         "- The full name to search for"
   returns_tag               one @returns
-    type_annotation         {[person: node<Person>]} or {[...][]}
+    returns_type_annotation {[person: node<Person>]} or {[...][]}
       tuple_type            [col: type, ...]
         tuple_member        col: type
           identifier        col
           scalar_type       node<Person>
             type_argument   Person
-      array_marker          [] (present = many rows)
+        array_marker        [] (present = many rows, child of tuple_type)
     tag_description         "- The matching person..."
 ```
 
@@ -140,9 +140,9 @@ doc_comment
 
 - `required_param` and `optional_param` are distinct node types so consumers can detect
   optionality without inspecting child tokens.
-- `array_marker` is a named child of `type_annotation` rather than a modifier on
-  `tuple_type`, so `@returns {[...][]}` parses without ambiguity between the inner `]`
-  of the tuple and the outer `[]` of the array suffix.
+- `array_marker` is a named child of `tuple_type` (not `type_annotation`). Defining
+  `"[]"` as a single atomic two-character token avoids ambiguity between the tuple's
+  closing `]` and the array suffix `[]`.
 - `tag_description` captures everything after the `-` separator to end-of-line, including
   the dash, so it can be extracted verbatim or stripped.
 - `name` and `description` are captured as named nodes (not anonymous tokens) so query

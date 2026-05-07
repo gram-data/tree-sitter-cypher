@@ -14,7 +14,8 @@ export default grammar({
       '/**',
       $.name,
       optional($.description),
-      repeat(choice($.param_tag, $.returns_tag)),
+      repeat($.param_tag),
+      optional($.returns_tag),
       '*/',
     ),
 
