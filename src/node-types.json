@@ -1608,6 +1608,11 @@
     "named": false
   },
   {
+    "type": "doc_comment",
+    "named": true,
+    "extra": true
+  },
+  {
     "type": "else",
     "named": false
   },

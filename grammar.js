@@ -26,7 +26,7 @@ const commaSep  = rule => optional(commaSep1(rule));
 export default grammar({
   name: 'cypher',
 
-  extras: $ => [/\s/, $.comment],
+  extras: $ => [/\s/, $.comment, $.doc_comment],
 
   // GLR disambiguation for ambiguous token sequences
   conflicts: $ => [
@@ -560,6 +560,8 @@ export default grammar({
       '$',
       choice(/[a-zA-Z_][a-zA-Z0-9_]*/, /[0-9]+/),
     )),
+
+    doc_comment: _ => token(seq('/**', /[^*]*\*+([^/*][^*]*\*+)*/, '/')),
 
     comment: _ => token(choice(
       seq('//', /.*/),

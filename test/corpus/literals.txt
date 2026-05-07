@@ -316,6 +316,54 @@ Block comment
             (integer_literal)))))))
 
 ============================================
+Doc comment
+============================================
+
+/** a cypherdoc comment */ RETURN 42
+
+---
+
+(source_file
+  (doc_comment)
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (integer_literal)))))))
+
+============================================
+Doc comment - multiline
+============================================
+
+/**
+ * @param name the name to match
+ * @returns nodes matching the name
+ */
+MATCH (n {name: $name}) RETURN n
+
+---
+
+(source_file
+  (doc_comment)
+  (statement
+    (match_clause
+      (pattern
+        (path_pattern
+          (node_pattern
+            (identifier)
+            (property_map
+              (property_key_value
+                (identifier)
+                (expression
+                  (parameter))))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
 ERROR - unclosed string literal
 ============================================
 

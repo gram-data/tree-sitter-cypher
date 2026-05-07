@@ -6,11 +6,12 @@
       "camelcase": "Cypher",
       "title": "Cypher",
       "scope": "source.cypher",
-      "file-types": [
-        "cypher"
-      ],
+      "file-types": ["cypher"],
       "injection-regex": "^cypher$",
-      "class-name": "TreeSitterCypher"
+      "class-name": "TreeSitterCypher",
+      "highlights": "queries/highlights.scm",
+      "locals": "queries/locals.scm",
+      "injections": "queries/injections.scm"
     }
   ],
   "metadata": {
