@@ -253,3 +253,262 @@ RETURN CASE x WHEN 1 THEN 'a'
                 (expression
                   (string_literal)))
               (MISSING "end"))))))))
+
+============================================
+Pattern comprehension basic
+============================================
+
+MATCH (n) RETURN [(n)-[:T]->(b) | b.name] AS list
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (pattern_comprehension
+              start: (node_pattern
+                variable: (identifier))
+              (relationship_pattern
+                (relationship_body
+                  label: (label_expression
+                    label_name: (identifier))))
+              (node_pattern
+                variable: (identifier))
+              projection: (expression
+                (property_access
+                  object: (expression
+                    (identifier))
+                  property: (identifier)))))
+          alias: (identifier))))))
+
+============================================
+Pattern comprehension with path variable
+============================================
+
+MATCH (n) RETURN [p = (n)-[:T]->(b) | p] AS list
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (pattern_comprehension
+              variable: (identifier)
+              start: (node_pattern
+                variable: (identifier))
+              (relationship_pattern
+                (relationship_body
+                  label: (label_expression
+                    label_name: (identifier))))
+              (node_pattern
+                variable: (identifier))
+              projection: (expression
+                (identifier))))
+          alias: (identifier))))))
+
+============================================
+Pattern comprehension inside function call
+============================================
+
+MATCH (n) RETURN size([(n)--() | 1]) AS deg
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (function_call
+              name: (function_name
+                (identifier))
+              (expression
+                (pattern_comprehension
+                  start: (node_pattern
+                    variable: (identifier))
+                  (relationship_pattern)
+                  (node_pattern)
+                  projection: (expression
+                    (integer_literal))))))
+          alias: (identifier))))))
+
+============================================
+Pattern predicate in list literal
+============================================
+
+MATCH (n) RETURN [(n)-->(m)] AS x
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (list_literal
+              (expression
+                (pattern_predicate
+                  (node_pattern
+                    variable: (identifier))
+                  (relationship_pattern)
+                  (node_pattern
+                    variable: (identifier))))))
+          alias: (identifier))))))
+
+============================================
+exists subquery graph pattern form
+============================================
+
+MATCH (n) WHERE exists { (n)-->() } RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (exists_expression
+            (pattern
+              (path_pattern
+                (node_pattern
+                  variable: (identifier))
+                (relationship_pattern)
+                (node_pattern)))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+exists subquery graph pattern with type
+============================================
+
+MATCH (n) WHERE exists { (n)-[:NA]->() } RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (exists_expression
+            (pattern
+              (path_pattern
+                (node_pattern
+                  variable: (identifier))
+                (relationship_pattern
+                  (relationship_body
+                    label: (label_expression
+                      label_name: (identifier))))
+                (node_pattern)))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+exists subquery multi-clause form
+============================================
+
+MATCH (n) WHERE exists { MATCH (n)-->(m) RETURN true } RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (exists_expression
+            (exists_subquery
+              (statement
+                (match_clause
+                  pattern: (pattern
+                    (path_pattern
+                      (node_pattern
+                        variable: (identifier))
+                      (relationship_pattern)
+                      (node_pattern
+                        variable: (identifier)))))
+                (return_clause
+                  (return_body
+                    (return_item
+                      (expression
+                        (boolean_literal)))))))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+ERROR - exists with empty braces
+============================================
+
+MATCH (n) WHERE exists { } RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (exists_expression
+            (ERROR)
+            (exists_subquery
+              (statement
+                (return_clause
+                  (return_body
+                    (return_item
+                      (expression
+                        (identifier)))))))
+            (MISSING "}")))))))

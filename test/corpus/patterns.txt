@@ -303,6 +303,166 @@ MATCH (n RETURN n
             (identifier)))))))
 
 ============================================
+Path length upper bound only
+============================================
+
+MATCH (a)-[:T*..2]->(b) RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern
+            (relationship_body
+              label: (label_expression
+                label_name: (identifier))
+              length: (path_length)))
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Path length explicit unbounded
+============================================
+
+MATCH (a)-[:T*..]->(b) RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern
+            (relationship_body
+              label: (label_expression
+                label_name: (identifier))
+              length: (path_length)))
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Bidirectional relationship
+============================================
+
+MATCH (a)<-->(b) RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern)
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Bidirectional relationship with body
+============================================
+
+MATCH (a)<-[r]->(b) RETURN r
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern
+            (relationship_body
+              variable: (identifier)))
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+ERROR - negative path length lower bound
+============================================
+
+MATCH (a)-[:T*-1]->(b) RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern
+            (relationship_body
+              label: (label_expression
+                label_name: (identifier))
+              length: (path_length))
+            (ERROR
+              (integer_literal)))
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+ERROR - bidirectional with no dashes
+============================================
+
+MATCH (a)<->(b) RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      (ERROR
+        (node_pattern
+          variable: (identifier)))
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
 ERROR - relationship without closing bracket
 ============================================
 

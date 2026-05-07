@@ -15,9 +15,9 @@ description: "Task list for completing openCypher TCK conformance"
 
 **Purpose**: Establish the baseline parse state and confirm toolchain before any grammar changes.
 
-- [ ] T001 Run `bash scripts/extract-tck-queries.sh` to populate `/tmp/tck-queries/` with 1617 extracted Cypher snippets
-- [ ] T002 Run `tree-sitter parse /tmp/tck-queries/*.cypher 2>/dev/null | grep -c ERROR` and record the baseline ERROR count (expected: ~307 total = ~210 template + ~97 real)
-- [ ] T003 Run `tree-sitter test` and confirm all 102 existing tests pass with 100% success rate
+- [X] T001 Run `bash scripts/extract-tck-queries.sh` to populate `/tmp/tck-queries/` with 1617 extracted Cypher snippets
+- [X] T002 Run `tree-sitter parse /tmp/tck-queries/*.cypher 2>/dev/null | grep -c ERROR` and record the baseline ERROR count (expected: ~307 total = ~210 template + ~97 real)
+- [X] T003 Run `tree-sitter test` and confirm all 102 existing tests pass with 100% success rate
 
 **Checkpoint**: Baseline established. Any regression from 102 passing tests is a blocker.
 
@@ -31,15 +31,15 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Negative corpus tests for path length
 
-- [ ] T004 [P] Add negative corpus tests to `test/corpus/patterns.txt` for invalid path length forms: `(a)-[:T*-1]->(b)` must produce ERROR at the `-1`; `(a)-[:T..2]->(b)` (no star) must produce ERROR
+- [X] T004 [P] Add negative corpus tests to `test/corpus/patterns.txt` for invalid path length forms: `(a)-[:T*-1]->(b)` must produce ERROR at the `-1`; `(a)-[:T..2]->(b)` (no star) must produce ERROR
 
 ### Positive corpus tests for path length
 
-- [ ] T005 [P] Add positive corpus tests to `test/corpus/patterns.txt` covering the missing `*..N` forms: `(a)-[:T*..2]->(b)` (upper bound only), `(a)-[:T*..]->(b)` (explicit unbounded), `(a)-[:T*1..]->(b)` (lower bound only, already works — confirm)
+- [X] T005 [P] Add positive corpus tests to `test/corpus/patterns.txt` covering the missing `*..N` forms: `(a)-[:T*..2]->(b)` (upper bound only), `(a)-[:T*..]->(b)` (explicit unbounded), `(a)-[:T*1..]->(b)` (lower bound only, already works — confirm)
 
 ### Implementation: path_length fix
 
-- [ ] T006 Replace the `path_length` token rule in `grammar.js` with:
+- [X] T006 Replace the `path_length` token rule in `grammar.js` with:
   ```js
   path_length: _ => token(seq(
     '*',
@@ -54,9 +54,9 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Bidirectional relationship `<-->`
 
-- [ ] T007 [P] Add negative corpus tests to `test/corpus/patterns.txt`: `MATCH (a)<->(b)` (missing dashes) must produce ERROR
-- [ ] T008 [P] Add positive corpus test to `test/corpus/patterns.txt`: `MATCH (a)<-->(b) RETURN a`, `MATCH (a)<-[r]->(b) RETURN r`
-- [ ] T009 Add `<-[optional body]->` as an explicit alternative in `relationship_pattern` in `grammar.js`. Place it BEFORE the existing undirected `-[]-` form so GLR prefers it:
+- [X] T007 [P] Add negative corpus tests to `test/corpus/patterns.txt`: `MATCH (a)<->(b)` (missing dashes) must produce ERROR
+- [X] T008 [P] Add positive corpus test to `test/corpus/patterns.txt`: `MATCH (a)<-->(b) RETURN a`, `MATCH (a)<-[r]->(b) RETURN r`
+- [X] T009 Add `<-[optional body]->` as an explicit alternative in `relationship_pattern` in `grammar.js`. Place it BEFORE the existing undirected `-[]-` form so GLR prefers it:
   ```js
   seq('<-', optional(seq('[', optional($.relationship_body), ']')), '->'),
   ```
@@ -64,7 +64,7 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Checkpoint
 
-- [ ] T010 Run `tree-sitter generate` then `tree-sitter test` — all 102+ tests must pass. Run `tree-sitter parse` on a sample of the new positive test cases to confirm clean trees.
+- [X] T010 Run `tree-sitter generate` then `tree-sitter test` — all 102+ tests must pass. Run `tree-sitter parse` on a sample of the new positive test cases to confirm clean trees.
 
 **Checkpoint**: Path length and bidirectional fixes complete. Foundation ready for expression-level rules.
 
@@ -78,11 +78,11 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Negative corpus tests for US2
 
-- [ ] T011 [P] [US2] Add negative corpus tests to `test/corpus/expressions.txt`: `WHERE n:` (trailing colon with no label) must produce ERROR; `WHERE :Person` (label predicate with no subject) must produce ERROR
+- [X] T011 [P] [US2] Add negative corpus tests to `test/corpus/expressions.txt`: `WHERE n:` (trailing colon with no label) must produce ERROR; `WHERE :Person` (label predicate with no subject) must produce ERROR
 
 ### Positive corpus tests for US2
 
-- [ ] T012 [P] [US2] Add positive corpus tests to `test/corpus/expressions.txt` covering:
+- [X] T012 [P] [US2] Add positive corpus tests to `test/corpus/expressions.txt` covering:
   - `MATCH (a)-[:ADMIN]-(b) WHERE a:A RETURN a.id`
   - `MATCH (n) WHERE n:Person AND n.active = true RETURN n`
   - `MATCH (n) WHERE n IS Person RETURN n`
@@ -93,7 +93,7 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Implementation for US2
 
-- [ ] T013 [US2] Add `is_labeled_expression` rule to `grammar.js`:
+- [X] T013 [US2] Add `is_labeled_expression` rule to `grammar.js`:
   ```js
   // BNF: <is labeled predicate part 2> ::= <is label expression>
   is_labeled_expression: $ => prec.left(5, seq(
@@ -101,13 +101,13 @@ description: "Task list for completing openCypher TCK conformance"
     field('label', $.label_expression),
   )),
   ```
-- [ ] T014 [US2] Add `$.is_labeled_expression` to the `expression` choice list in `grammar.js`, placing it BEFORE `$.identifier` and `$.escaped_identifier` in the choice ordering so GLR prefers it when `:` follows an expression
-- [ ] T015 [US2] Add conflict declarations to the `conflicts` array in `grammar.js`:
+- [X] T014 [US2] Add `$.is_labeled_expression` to the `expression` choice list in `grammar.js`, placing it BEFORE `$.identifier` and `$.escaped_identifier` in the choice ordering so GLR prefers it when `:` follows an expression
+- [X] T015 [US2] Add conflict declarations to the `conflicts` array in `grammar.js`:
   ```js
   [$.is_labeled_expression, $.set_item],    // SET n:Label vs is_labeled
   [$.is_labeled_expression, $.remove_item], // REMOVE n:Label vs is_labeled
   ```
-- [ ] T016 [US2] Run `tree-sitter generate` then `tree-sitter test` — all tests must pass (no regressions on SET/REMOVE corpus tests)
+- [X] T016 [US2] Run `tree-sitter generate` then `tree-sitter test` — all tests must pass (no regressions on SET/REMOVE corpus tests)
 
 **Checkpoint**: US2 independently functional. `WHERE n:Person` and `RETURN n:Foo AS result` parse cleanly.
 
@@ -121,11 +121,11 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Negative corpus tests for pattern comprehension
 
-- [ ] T017 [P] Add negative corpus tests to `test/corpus/union_advanced.txt`: `[(n)-->()]` (no `|` projection operator) must produce ERROR; `[(n) | n]` (no relationship in pattern) should prefer `list_comprehension` form — confirm it parses correctly as list_comprehension
+- [X] T017 [P] Add negative corpus tests to `test/corpus/union_advanced.txt`: `[(n)-->()]` (no `|` projection operator) must produce ERROR; `[(n) | n]` (no relationship in pattern) should prefer `list_comprehension` form — confirm it parses correctly as list_comprehension
 
 ### Positive corpus tests for pattern comprehension
 
-- [ ] T018 [P] Add positive corpus tests to `test/corpus/union_advanced.txt` covering:
+- [X] T018 [P] Add positive corpus tests to `test/corpus/union_advanced.txt` covering:
   - `MATCH (n) RETURN [(n)-[:T]->(b) | b.name] AS list`
   - `MATCH (n) RETURN [p = (n)-->() | p] AS list`
   - `MATCH (a:A), (b:B) RETURN [p = (a)-->(b) | p] AS list`
@@ -135,7 +135,7 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Implementation for pattern comprehension
 
-- [ ] T019 Add `pattern_comprehension` rule to `grammar.js`:
+- [X] T019 Add `pattern_comprehension` rule to `grammar.js`:
   ```js
   // BNF: <pattern comprehension> ::= '[' <pattern source> <pattern filter and projection> ']'
   pattern_comprehension: $ => prec(3, seq(
@@ -149,8 +149,8 @@ description: "Task list for completing openCypher TCK conformance"
   )),
   ```
   Use `prec(3)` — higher than `list_comprehension` (`prec(2)`) so GLR prefers pattern_comprehension when `(` follows `[`.
-- [ ] T020 Add `$.pattern_comprehension` to the `expression` choice list in `grammar.js`
-- [ ] T021 Run `tree-sitter generate` then `tree-sitter test` — all tests must pass; confirm `list_comprehension` tests still pass (no regression)
+- [X] T020 Add `$.pattern_comprehension` to the `expression` choice list in `grammar.js`
+- [X] T021 Run `tree-sitter generate` then `tree-sitter test` — all tests must pass; confirm `list_comprehension` tests still pass (no regression)
 
 **Checkpoint**: Pattern comprehension independently functional. Both `[(n)-->() | e]` and `[p = (n)-->() | p]` parse cleanly.
 
@@ -164,13 +164,13 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Negative corpus tests for US1
 
-- [ ] T022 [P] [US1] Add negative corpus tests to `test/corpus/union_advanced.txt`:
+- [X] T022 [P] [US1] Add negative corpus tests to `test/corpus/union_advanced.txt`:
   - `WHERE exists { }` (empty braces) must produce ERROR
   - `WHERE exists ( (n)-->() )` (parens instead of braces) must produce ERROR — this is parsed as `exists(...)` function call and then fails
 
 ### Positive corpus tests for US1
 
-- [ ] T023 [P] [US1] Add positive corpus tests to `test/corpus/union_advanced.txt` covering:
+- [X] T023 [P] [US1] Add positive corpus tests to `test/corpus/union_advanced.txt` covering:
   - `MATCH (n) WHERE exists { (n)-->() } RETURN n`
   - `MATCH (n) WHERE exists { (n)-[:NA]->() } RETURN n`
   - `MATCH (n) WHERE exists { (n)-->(m) WHERE n.prop = m.prop } RETURN n`
@@ -180,7 +180,7 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Implementation for US1
 
-- [ ] T024 [US1] Add `exists_expression` and `exists_subquery` rules to `grammar.js`:
+- [X] T024 [US1] Add `exists_expression` and `exists_subquery` rules to `grammar.js`:
   ```js
   // BNF: <exists expression> ::= EXISTS { <subquery expression argument> }
   exists_expression: $ => seq(
@@ -193,8 +193,8 @@ description: "Task list for completing openCypher TCK conformance"
   // BNF: <procedure specification> ::= <statement block>
   exists_subquery: $ => repeat1($.statement),
   ```
-- [ ] T025 [US1] Add `$.exists_expression` to the `expression` choice list in `grammar.js`
-- [ ] T026 [US1] Run `tree-sitter generate` then `tree-sitter test` — all tests must pass
+- [X] T025 [US1] Add `$.exists_expression` to the `expression` choice list in `grammar.js`
+- [X] T026 [US1] Run `tree-sitter generate` then `tree-sitter test` — all tests must pass
 
 **Checkpoint**: US1 independently functional. Both graph-pattern and multi-clause `exists { }` forms parse cleanly.
 
@@ -208,13 +208,13 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Negative corpus tests for US4
 
-- [ ] T027 [P] [US4] Add negative corpus tests to `test/corpus/expressions.txt`:
+- [X] T027 [P] [US4] Add negative corpus tests to `test/corpus/expressions.txt`:
   - `WHERE (n)` alone (no relationship following) is parsed as parenthesized expression — confirm no ERROR, no `pattern_predicate` node
   - `WHERE (n)-` (relationship operator but no closing) must produce ERROR
 
 ### Positive corpus tests for US4
 
-- [ ] T028 [P] [US4] Add positive corpus tests to `test/corpus/expressions.txt` covering:
+- [X] T028 [P] [US4] Add positive corpus tests to `test/corpus/expressions.txt` covering:
   - `MATCH (n) WHERE (n)-[]->() RETURN n`
   - `MATCH (n) WHERE (n)-[:REL1]-() RETURN n`
   - `MATCH (n) WHERE (n)<-[:REL1]-() RETURN n`
@@ -227,7 +227,7 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Implementation for US4
 
-- [ ] T029 [US4] Add `pattern_predicate` rule to `grammar.js`:
+- [X] T029 [US4] Add `pattern_predicate` rule to `grammar.js`:
   ```js
   // BNF: <pattern expression> ::= <simple path pattern>
   // Used as <boolean primary> alternative to <predicate>
@@ -240,9 +240,9 @@ description: "Task list for completing openCypher TCK conformance"
     ),
   )),
   ```
-- [ ] T030 [US4] Add `[$.pattern_predicate, $.expression]` to the `conflicts` array in `grammar.js` — this resolves the `(n)` ambiguity between `node_pattern` (start of `pattern_predicate`) and `seq('(', $.expression, ')')`
-- [ ] T031 [US4] Add `$.pattern_predicate` to the `expression` choice list in `grammar.js`
-- [ ] T032 [US4] Run `tree-sitter generate` then `tree-sitter test` — all tests must pass; confirm `WHERE (expr)` parenthesized expressions still parse correctly (no regression)
+- [X] T030 [US4] Add `[$.pattern_predicate, $.expression]` to the `conflicts` array in `grammar.js` — this resolves the `(n)` ambiguity between `node_pattern` (start of `pattern_predicate`) and `seq('(', $.expression, ')')`
+- [X] T031 [US4] Add `$.pattern_predicate` to the `expression` choice list in `grammar.js`
+- [X] T032 [US4] Run `tree-sitter generate` then `tree-sitter test` — all tests must pass; confirm `WHERE (expr)` parenthesized expressions still parse correctly (no regression)
 
 **Checkpoint**: US4 independently functional. Pattern predicates in WHERE parse cleanly; parenthesized expressions are not affected.
 
@@ -256,11 +256,11 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### New corpus test file
 
-- [ ] T033 [P] Create `test/corpus/tck_edge_cases.txt` with the following section headers: `patterns advanced`, `expressions advanced`, `pipeline advanced`, `mutations advanced`, `union advanced extras`
+- [X] T033 [P] Create `test/corpus/tck_edge_cases.txt` with the following section headers: `patterns advanced`, `expressions advanced`, `pipeline advanced`, `mutations advanced`, `union advanced extras`
 
 ### Patterns (add to tck_edge_cases.txt)
 
-- [ ] T034 [P] [US5] Add positive corpus tests for advanced pattern forms:
+- [X] T034 [P] [US5] Add positive corpus tests for advanced pattern forms:
   - `MATCH (a), (b)--(c) RETURN a, b, c` (multiple comma-separated paths)
   - `MATCH (a)-->(b)-->(c)-->(d) RETURN d` (deeply chained)
   - `MATCH ()-->(n) RETURN n` (anonymous start node)
@@ -270,7 +270,7 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Expressions (add to tck_edge_cases.txt)
 
-- [ ] T035 [P] [US5] Add positive corpus tests for expression edge cases:
+- [X] T035 [P] [US5] Add positive corpus tests for expression edge cases:
   - `RETURN NOT a AND b` (NOT precedence)
   - `RETURN a + b * c + d` (arithmetic precedence)
   - `RETURN n.address.city` (chained property access)
@@ -280,14 +280,14 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Expressions (add to tck_edge_cases.txt) — pattern in expression
 
-- [ ] T036 [P] [US5] Add positive corpus tests for pattern used in expression contexts (after Slice F):
+- [X] T036 [P] [US5] Add positive corpus tests for pattern used in expression contexts (after Slice F):
   - `MATCH (n) RETURN (n)-[]->()` (pattern predicate in RETURN)
   - `MATCH (n) WITH (n)-[]->() AS x RETURN x` (pattern in WITH)
   - `MATCH (n) SET n.prop = head(nodes(head((n)-[:REL]->())))` (pattern in expression chain)
 
 ### Pipeline (add to tck_edge_cases.txt)
 
-- [ ] T037 [P] [US5] Add positive corpus tests for pipeline edge cases:
+- [X] T037 [P] [US5] Add positive corpus tests for pipeline edge cases:
   - `MATCH (n) WITH n ORDER BY n.name ASC, n.age DESC RETURN n` (multi-column ORDER BY)
   - `MATCH (n) RETURN * ` (wildcard projection)
   - `UNWIND {name: 'Alice', age: 30} AS x RETURN x` (UNWIND a map)
@@ -295,7 +295,7 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Mutations (add to tck_edge_cases.txt)
 
-- [ ] T038 [P] [US5] Add positive corpus tests for mutation edge cases:
+- [X] T038 [P] [US5] Add positive corpus tests for mutation edge cases:
   - `SET n.a = 1, n.b = 2` (multiple SET items)
   - `SET n = {name: 'Alice'}` (full map replace)
   - `REMOVE n:A, n.prop` (multiple REMOVE items)
@@ -304,13 +304,13 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### UNION and advanced (add to tck_edge_cases.txt)
 
-- [ ] T039 [P] [US5] Add positive corpus tests for UNION and advanced:
+- [X] T039 [P] [US5] Add positive corpus tests for UNION and advanced:
   - `MATCH (n:A) RETURN n UNION MATCH (n:B) RETURN n UNION MATCH (n:C) RETURN n` (chained UNION)
   - `ANY(x IN xs WHERE x > 0)`, `NONE(x IN xs WHERE x > 0)`, `SINGLE(x IN xs WHERE x > 0)` (quantifiers)
 
 ### Negative tests (add to tck_edge_cases.txt)
 
-- [ ] T040 [US5] Add ≥3 negative tests per existing slice for error recovery quality:
+- [X] T040 [US5] Add ≥3 negative tests per existing slice for error recovery quality:
   - `RETURN a + * b` → ERROR (mid-expression unexpected token)
   - `MATCH (n` → ERROR (unclosed node pattern mid-query)
   - `RETURN {name}` → ERROR (map key without value)
@@ -318,7 +318,7 @@ description: "Task list for completing openCypher TCK conformance"
 
 ### Checkpoint
 
-- [ ] T041 Run `tree-sitter test` — must pass 100%; confirm total count ≥200
+- [X] T041 Run `tree-sitter test` — must pass 100%; confirm total count ≥200
 
 **Checkpoint**: US5 complete. ≥200 corpus tests, all passing.
 
@@ -328,15 +328,15 @@ description: "Task list for completing openCypher TCK conformance"
 
 **Purpose**: Run the full TCK gate to confirm ≥98% non-template pass rate. Update highlights.scm for new node types. Run performance benchmarks.
 
-- [ ] T042a Re-run `bash scripts/extract-tck-queries.sh` to refresh `/tmp/tck-queries/` with current 1617 queries
-- [ ] T042b Run `tree-sitter parse /tmp/tck-queries/*.cypher 2>/dev/null | grep -c ERROR` — count must be ≤ ~221 (210 templates + ≤11 intentionally-invalid queries); document the exact count and breakdown in the PR description
-- [ ] T043 [P] Review `queries/highlights.scm` and add captures for new node types:
+- [X] T042a Re-run `bash scripts/extract-tck-queries.sh` to refresh `/tmp/tck-queries/` with current 1617 queries
+- [X] T042b Run `tree-sitter parse /tmp/tck-queries/*.cypher 2>/dev/null | grep -c ERROR` — count must be ≤ ~221 (210 templates + ≤11 intentionally-invalid queries); document the exact count and breakdown in the PR description
+- [X] T043 [P] Review `queries/highlights.scm` and add captures for new node types:
   - `(is_labeled_expression)` — treat the label as `@type`
   - `(exists_expression "EXISTS" @keyword)`
   - `(pattern_predicate)` — no new capture needed (uses existing node/rel captures)
   - `(pattern_comprehension "|" @operator)`
-- [ ] T044 [P] Run `npm test` to confirm Node.js binding smoke test still passes after all grammar changes
-- [ ] T045 [P] Run the T086 benchmark: `time tree-sitter parse` on the 100-line benchmark Cypher file; confirm wall time < 50ms. Document any performance change in a comment on this task.
+- [X] T044 [P] Run `npm test` to confirm Node.js binding smoke test still passes after all grammar changes
+- [X] T045 [P] Run the T086 benchmark: `time tree-sitter parse` on the 100-line benchmark Cypher file; confirm wall time < 50ms. Document any performance change in a comment on this task.
 
 ---
 
