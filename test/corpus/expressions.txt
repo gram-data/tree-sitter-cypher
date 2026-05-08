@@ -373,6 +373,126 @@ RETURN toUpper(
               (MISSING ")"))))))))
 
 ============================================
+Label predicate in WHERE clause
+============================================
+
+MATCH (a) WHERE a:A RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (is_labeled_expression
+            (expression
+              (identifier))
+            label: (label_expression
+              label_name: (identifier))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Label predicate combined with boolean expression
+============================================
+
+MATCH (n) WHERE n:Person AND n.active = true RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (binary_expression
+            left: (expression
+              (is_labeled_expression
+                (expression
+                  (identifier))
+                label: (label_expression
+                  label_name: (identifier))))
+            right: (expression
+              (binary_expression
+                left: (expression
+                  (property_access
+                    object: (expression
+                      (identifier))
+                    property: (identifier)))
+                right: (expression
+                  (boolean_literal))))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Label predicate in RETURN
+============================================
+
+MATCH (n) RETURN n:Foo AS result
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (is_labeled_expression
+              (expression
+                (identifier))
+              label: (label_expression
+                label_name: (identifier))))
+          alias: (identifier))))))
+
+============================================
+ERROR - label predicate with integer label
+============================================
+
+MATCH (n) WHERE n:123 RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (ERROR
+          (expression
+            (identifier)))
+        (expression
+          (integer_literal))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
 ERROR - dangling operator
 ============================================
 
@@ -392,3 +512,93 @@ RETURN a +
               (expression
                 (null_literal
                   (MISSING "is_null_expression_token1"))))))))))
+
+============================================
+Pattern predicate in WHERE
+============================================
+
+MATCH (n) WHERE (n)-[]->() RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (pattern_predicate
+            (node_pattern
+              variable: (identifier))
+            (relationship_pattern)
+            (node_pattern)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Pattern predicate with relationship type
+============================================
+
+MATCH (n) WHERE (n)-[:REL1]-() RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (pattern_predicate
+            (node_pattern
+              variable: (identifier))
+            (relationship_pattern
+              (relationship_body
+                label: (label_expression
+                  label_name: (identifier))))
+            (node_pattern)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Pattern predicate negated
+============================================
+
+MATCH (n) WHERE NOT (n)-->(m) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (unary_expression
+            (expression
+              (pattern_predicate
+                (node_pattern
+                  variable: (identifier))
+                (relationship_pattern)
+                (node_pattern
+                  variable: (identifier))))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))

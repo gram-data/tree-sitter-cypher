@@ -30,9 +30,17 @@ export default grammar({
 
   // GLR disambiguation for ambiguous token sequences
   conflicts: $ => [
-    [$.expression, $.function_name],  // identifier '.' → property_access vs qualified function_name
-    [$.set_item, $.expression],        // SET identifier : → label set vs expression
-    [$.remove_item, $.expression],     // REMOVE identifier : → label remove vs expression
+    [$.expression, $.function_name],           // identifier '.' → property_access vs qualified function_name
+    [$.set_item, $.expression],                // SET identifier : → label set vs expression
+    [$.remove_item, $.expression],             // REMOVE identifier : → label remove vs expression
+    [$.is_labeled_expression, $.set_item],     // n:Label → label predicate vs SET label
+    [$.is_labeled_expression, $.remove_item],  // n:Label → label predicate vs REMOVE label
+    [$.label_expression],                      // :A:B repeat — consume maximally
+    [$.expression, $.pattern_comprehension],   // [ identifier '=' → expression vs path variable
+    [$.node_pattern, $.expression],            // [ (identifier) → node_pattern vs (expr)
+    [$.property_map, $.map_literal],           // [ ({ }) ] → node property vs map literal in expr
+    [$.statement],                             // exists_subquery repeat1(statement) — consume greedily
+    [$.pattern_predicate],                     // pattern_predicate repeat1 — consume path greedily
   ],
 
   rules: {
@@ -84,11 +92,12 @@ export default grammar({
 
     // ─── T029: Node pattern (extended from US2 stub) ─────────────────────────
     // BNF: <node pattern> ::= ( [<binding variable>] [<is label expression>] [<properties>] )
+    // properties: property_map {k:v} or parameter $p (Neo4j extension for node property matching)
     node_pattern: $ => seq(
       '(',
       optional(field('variable', $.identifier)),
       optional(field('label', $.label_expression)),
-      optional(field('properties', $.property_map)),
+      optional(field('properties', choice($.parameter, $.property_map))),
       ')',
     ),
 
@@ -139,39 +148,46 @@ export default grammar({
 
     // ─── T032: Relationship pattern ───────────────────────────────────────────
     // BNF: <relationship pattern> — directed or undirected, with optional body
+    // <-> bidirectional is a Neo4j extension (both-direction explicit markers)
     relationship_pattern: $ => choice(
-      seq('<-', '[', optional($.relationship_body), ']', '-'),
-      seq('-',  '[', optional($.relationship_body), ']', '->'),
-      seq('-',  '[', optional($.relationship_body), ']', '-'),
-      seq('<-', '-'),
-      seq('-',  '->'),
-      seq('-',  '-'),
+      seq('<-', '[', optional($.relationship_body), ']', '->'),  // <-[r]-> bidir
+      seq('<-', '[', optional($.relationship_body), ']', '-'),   // <-[r]- left
+      seq('-',  '[', optional($.relationship_body), ']', '->'),  // -[r]-> right
+      seq('-',  '[', optional($.relationship_body), ']', '-'),   // -[r]- undirected
+      seq('<-', '->'),   // <--> bidir no body
+      seq('<-', '-'),    // <-- left no body
+      seq('-',  '->'),   // --> right no body
+      seq('-',  '-'),    // -- undirected no body
     ),
 
     // ─── T033: Relationship body ─────────────────────────────────────────────
     // BNF: <relationship detail> ::= [<variable>] [<label>] [<path length>] [<properties>]
+    // properties: property_map {k:v} or parameter $p (Neo4j extension)
     // At least one component must be present (tree-sitter cannot parse empty-matching rules).
     // Usage sites use optional($.relationship_body) to handle the no-body case.
+    _rel_props: $ => field('properties', choice($.parameter, $.property_map)),
+
     relationship_body: $ => choice(
       seq(field('variable', $.identifier),
           optional(field('label', $.label_expression)),
           optional(field('length', $.path_length)),
-          optional(field('properties', $.property_map))),
+          optional($._rel_props)),
       seq(field('label', $.label_expression),
           optional(field('length', $.path_length)),
-          optional(field('properties', $.property_map))),
+          optional($._rel_props)),
       seq(field('length', $.path_length),
-          optional(field('properties', $.property_map))),
-      field('properties', $.property_map),
+          optional($._rel_props)),
+      $._rel_props,
     ),
 
     // ─── T034: Path length ────────────────────────────────────────────────────
-    // BNF: <path length> ::= * | *<n> | *<n>..<m> | *..<m>
+    // BNF: <path length> ::= * | *<n> | *<n>..<m> | *<n>.. | *..<m> | *..
     path_length: _ => token(seq(
       '*',
-      optional(seq(
-        /[0-9]+/,
-        optional(seq('..', /[0-9]*/)),
+      optional(choice(
+        seq(/[0-9]+/, '..', /[0-9]*/),  // *N..M or *N..
+        seq('..', /[0-9]*/),            // *..M or *..
+        /[0-9]+/,                       // *N (exact)
       )),
     )),
 
@@ -335,12 +351,16 @@ export default grammar({
       $.binary_expression,
       $.unary_expression,
       $.is_null_expression,
+      $.is_labeled_expression,
+      $.exists_expression,
+      $.pattern_predicate,
       $.in_expression,
       $.starts_with_expression,
       $.ends_with_expression,
       $.contains_expression,
       $.case_expression,
       $.list_comprehension,
+      $.pattern_comprehension,
       $.all_expression,
       $.any_expression,
       $.none_expression,
@@ -480,6 +500,55 @@ export default grammar({
     ),
 
     case_else_clause: $ => seq(kw('ELSE'), $.expression),
+
+    // ─── pattern_predicate: path pattern as boolean expression ───────────────
+    // BNF: <pattern expression> ::= <simple path pattern> (as <boolean primary>)
+    // Handles: WHERE (n)-->(m), WHERE (n)-[:T]-(), WHERE NOT (n)-->(m)
+    // Requires at least one relationship — disambiguates from parenthesized expression
+    pattern_predicate: $ => seq(
+      $.node_pattern,
+      repeat1(seq($.relationship_pattern, $.node_pattern)),
+    ),
+
+    // ─── exists_expression: EXISTS { } subquery predicate ────────────────────
+    // BNF: <exists expression> ::= EXISTS { <subquery expression argument> }
+    // <subquery expression argument> ::= <procedure specification> | <graph pattern>
+    // <graph pattern> includes optional <graph pattern where clause> (WHERE expr)
+    exists_expression: $ => seq(
+      kw('EXISTS'),
+      '{',
+      choice(
+        seq($.pattern, optional($.where_clause)),  // graph pattern form (with optional WHERE)
+        $.exists_subquery,                          // multi-clause form (MATCH ... RETURN ...)
+      ),
+      '}',
+    ),
+
+    // BNF: <procedure specification> ::= <statement block> (multi-clause subquery)
+    exists_subquery: $ => repeat1($.statement),
+
+    // ─── is_labeled_expression: label predicate in boolean context ────────────
+    // BNF: <is labeled predicate part 2> ::= <is label expression>
+    // Handles: WHERE n:Person, WHERE n IS Person, RETURN n:Foo AS result
+    is_labeled_expression: $ => prec.left(5, seq(
+      $.expression,
+      field('label', $.label_expression),
+    )),
+
+    // ─── pattern_comprehension: path pattern as list comprehension ─────────────
+    // BNF: <pattern comprehension> ::= '[' <pattern source> <pattern filter and projection> ']'
+    // Handles: [(n)-->() | n.name], [p = (n)-->() | p]
+    // Requires at least one relationship (disambiguates from list_comprehension / parenthesized expr)
+    pattern_comprehension: $ => seq(
+      '[',
+      optional(seq(field('variable', $.identifier), '=')),
+      field('start', $.node_pattern),
+      repeat1(seq($.relationship_pattern, $.node_pattern)),
+      optional($.where_clause),
+      '|',
+      field('projection', $.expression),
+      ']',
+    ),
 
     // ─── T076: List comprehension ─────────────────────────────────────────────
     // BNF: <list comprehension> ::= '[' <variable> IN <expr> [WHERE <expr>] ['|' <expr>] ']'
