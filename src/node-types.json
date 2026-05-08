@@ -303,6 +303,44 @@
     }
   },
   {
+    "type": "exists_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "exists_subquery",
+          "named": true
+        },
+        {
+          "type": "pattern",
+          "named": true
+        },
+        {
+          "type": "where_clause",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "exists_subquery",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "statement",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "expression",
     "named": true,
     "fields": {},
@@ -347,6 +385,10 @@
           "named": true
         },
         {
+          "type": "exists_expression",
+          "named": true
+        },
+        {
           "type": "expression",
           "named": true
         },
@@ -368,6 +410,10 @@
         },
         {
           "type": "integer_literal",
+          "named": true
+        },
+        {
+          "type": "is_labeled_expression",
           "named": true
         },
         {
@@ -396,6 +442,14 @@
         },
         {
           "type": "parameter",
+          "named": true
+        },
+        {
+          "type": "pattern_comprehension",
+          "named": true
+        },
+        {
+          "type": "pattern_predicate",
           "named": true
         },
         {
@@ -476,6 +530,32 @@
     "fields": {},
     "children": {
       "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "is_labeled_expression",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "label_expression",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
       "required": true,
       "types": [
         {
@@ -670,6 +750,10 @@
         "required": false,
         "types": [
           {
+            "type": "parameter",
+            "named": true
+          },
+          {
             "type": "property_map",
             "named": true
           }
@@ -777,6 +861,79 @@
       "types": [
         {
           "type": "path_pattern",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pattern_comprehension",
+    "named": true,
+    "fields": {
+      "projection": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "expression",
+            "named": true
+          }
+        ]
+      },
+      "start": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "node_pattern",
+            "named": true
+          }
+        ]
+      },
+      "variable": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "node_pattern",
+          "named": true
+        },
+        {
+          "type": "relationship_pattern",
+          "named": true
+        },
+        {
+          "type": "where_clause",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pattern_predicate",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "node_pattern",
+          "named": true
+        },
+        {
+          "type": "relationship_pattern",
           "named": true
         }
       ]
@@ -925,6 +1082,10 @@
         "multiple": false,
         "required": false,
         "types": [
+          {
+            "type": "parameter",
+            "named": true
+          },
           {
             "type": "property_map",
             "named": true
@@ -1627,6 +1788,10 @@
   {
     "type": "escaped_identifier",
     "named": true
+  },
+  {
+    "type": "exists",
+    "named": false
   },
   {
     "type": "float_literal",

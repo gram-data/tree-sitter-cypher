@@ -118,6 +118,14 @@
 ".." @operator
 (binary_expression operator: ["=" "<>" "<" ">" "<=" ">=" "=~" "+" "-" "||" "*" "/" "%" "^"] @operator)
 
+; New node types from TCK conformance (004-tck-conformance)
+(exists_expression "exists" @keyword)
+(exists_expression "{" @punctuation.bracket)
+(exists_expression "}" @punctuation.bracket)
+(is_labeled_expression label: (label_expression) @type)
+(pattern_comprehension "|" @operator)
+(pattern_comprehension variable: (identifier) @variable.special)
+
 ; Generic identifier fallback (must come after all specific captures)
 (identifier) @variable
 (escaped_identifier) @variable

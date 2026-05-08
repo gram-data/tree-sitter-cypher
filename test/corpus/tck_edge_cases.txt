@@ -1,0 +1,606 @@
+============================================
+Multiple comma-separated paths in MATCH
+============================================
+
+MATCH (a), (b)--(c) RETURN a, b, c
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern)
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))
+        (return_item
+          (expression
+            (identifier)))
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Deeply chained path
+============================================
+
+MATCH (a)-->(b)-->(c)-->(d) RETURN d
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern)
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern)
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern)
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Anonymous start node
+============================================
+
+MATCH ()-->(n) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern)
+          (relationship_pattern)
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Relationship label disjunction
+============================================
+
+MATCH (a)-[:KNOWS|LIKES]->(b) RETURN b
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern
+            (relationship_body
+              label: (label_expression
+                label_name: (identifier)
+                label_name: (identifier))))
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Property map in relationship body
+============================================
+
+MATCH (a)-[r:T {since: 2020}]->(b) RETURN r
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))
+          (relationship_pattern
+            (relationship_body
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier))
+              properties: (property_map
+                (property_key_value
+                  (identifier)
+                  (expression
+                    (integer_literal))))))
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Parameter as node properties
+============================================
+
+MATCH (n $param) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            properties: (parameter)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Parameter as relationship properties
+============================================
+
+MATCH ()-[r:FOO $param]->() RETURN r
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern)
+          (relationship_pattern
+            (relationship_body
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier))
+              properties: (parameter)))
+          (node_pattern))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Multiple ORDER BY columns
+============================================
+
+MATCH (n) RETURN n ORDER BY n.name ASC, n.age DESC
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier))))
+      (order_by_clause
+        (sort_item
+          (expression
+            (property_access
+              object: (expression
+                (identifier))
+              property: (identifier))))
+        (sort_item
+          (expression
+            (property_access
+              object: (expression
+                (identifier))
+              property: (identifier))))))))
+
+============================================
+SET with multiple items
+============================================
+
+MATCH (n) SET n.a = 1, n.b = 2 RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (set_clause
+      (set_item
+        (property_access
+          object: (expression
+            (identifier))
+          property: (identifier))
+        (expression
+          (integer_literal)))
+      (set_item
+        (property_access
+          object: (expression
+            (identifier))
+          property: (identifier))
+        (expression
+          (integer_literal))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+DELETE multiple nodes
+============================================
+
+MATCH (n), (m) DELETE n, m
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (delete_clause
+      (expression
+        (identifier))
+      (expression
+        (identifier)))))
+
+============================================
+REMOVE multiple items
+============================================
+
+MATCH (n) REMOVE n:A, n.prop RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)))))
+    (remove_clause
+      (remove_item
+        (identifier)
+        (label_expression
+          label_name: (identifier)))
+      (remove_item
+        (property_access
+          object: (expression
+            (identifier))
+          property: (identifier))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Chained UNION
+============================================
+
+MATCH (n:A) RETURN n UNION MATCH (n:B) RETURN n UNION MATCH (n:C) RETURN n
+
+---
+
+(source_file
+  (union_statement
+    (union_statement
+      (statement
+        (match_clause
+          pattern: (pattern
+            (path_pattern
+              (node_pattern
+                variable: (identifier)
+                label: (label_expression
+                  label_name: (identifier))))))
+        (return_clause
+          (return_body
+            (return_item
+              (expression
+                (identifier))))))
+      (statement
+        (match_clause
+          pattern: (pattern
+            (path_pattern
+              (node_pattern
+                variable: (identifier)
+                label: (label_expression
+                  label_name: (identifier))))))
+        (return_clause
+          (return_body
+            (return_item
+              (expression
+                (identifier)))))))
+    (statement
+      (match_clause
+        pattern: (pattern
+          (path_pattern
+            (node_pattern
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier))))))
+      (return_clause
+        (return_body
+          (return_item
+            (expression
+              (identifier))))))))
+
+============================================
+exists subquery with WHERE inside pattern
+============================================
+
+MATCH (n) WHERE exists { (n)-->(m) WHERE n.prop = m.prop } RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (exists_expression
+            (pattern
+              (path_pattern
+                (node_pattern
+                  variable: (identifier))
+                (relationship_pattern)
+                (node_pattern
+                  variable: (identifier))))
+            (where_clause
+              (expression
+                (binary_expression
+                  left: (expression
+                    (property_access
+                      object: (expression
+                        (identifier))
+                      property: (identifier)))
+                  right: (expression
+                    (property_access
+                      object: (expression
+                        (identifier))
+                      property: (identifier))))))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Pattern predicate with variable-length relationship
+============================================
+
+MATCH (n) WHERE (n)-[:REL1*]->() RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (pattern_predicate
+            (node_pattern
+              variable: (identifier))
+            (relationship_pattern
+              (relationship_body
+                label: (label_expression
+                  label_name: (identifier))
+                length: (path_length)))
+            (node_pattern)))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Pattern predicates combined with AND
+============================================
+
+MATCH (n) WHERE (n)-[:REL1]-() AND (n)-[:REL3]-() RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (binary_expression
+            left: (expression
+              (pattern_predicate
+                (node_pattern
+                  variable: (identifier))
+                (relationship_pattern
+                  (relationship_body
+                    label: (label_expression
+                      label_name: (identifier))))
+                (node_pattern)))
+            right: (expression
+              (pattern_predicate
+                (node_pattern
+                  variable: (identifier))
+                (relationship_pattern
+                  (relationship_body
+                    label: (label_expression
+                      label_name: (identifier))))
+                (node_pattern)))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Label predicate with IS syntax
+============================================
+
+MATCH (n) WHERE n IS Person RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (is_labeled_expression
+            (expression
+              (identifier))
+            label: (label_expression
+              label_name: (identifier))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Label predicate compound AND-OR
+============================================
+
+MATCH (n) WHERE n:A&B RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (is_labeled_expression
+            (expression
+              (identifier))
+            label: (label_expression
+              label_name: (identifier)
+              label_name: (identifier))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+ERROR - mid-expression unexpected token
+============================================
+
+RETURN a + * b
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (binary_expression
+              left: (expression
+                (identifier))
+              (ERROR)
+              right: (expression
+                (identifier)))))))))
+
+============================================
+ERROR - WHERE with no expression
+============================================
+
+MATCH (n) WHERE RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier))))
+      where: (where_clause
+        (expression
+          (identifier)))))
+  (ERROR
+    (UNEXPECTED '\n')))
+
+============================================
+ERROR - map with no key-value separator
+============================================
+
+RETURN {name}
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (map_literal
+              (ERROR
+                (identifier)))))))))
