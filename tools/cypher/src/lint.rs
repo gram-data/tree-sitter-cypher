@@ -62,16 +62,25 @@ pub fn run(args: LintArgs) -> i32 {
     let mut rules = builtin_rules();
 
     if let Some(dir) = &args.rules_dir {
-        let lang: tree_sitter::Language = tree_sitter_cypher::LANGUAGE.into();
+        let cypher_lang: tree_sitter::Language = tree_sitter_cypher::LANGUAGE.into();
+        let cypherdoc_lang: tree_sitter::Language = tree_sitter_cypherdoc::LANGUAGE.into();
         if let Ok(entries) = std::fs::read_dir(dir) {
             for entry in entries.flatten() {
                 let path = entry.path();
                 if path.extension().and_then(|s| s.to_str()) == Some("scm") {
                     match std::fs::read_to_string(&path) {
-                        Ok(src) => match parse_rule_file(&src, lang.clone()) {
-                            Ok(r) => rules.push(r),
-                            Err(e) => eprintln!("warning: {}: {e}", path.display()),
-                        },
+                        Ok(src) => {
+                            // Pick language from the Applies-to: header so contract rules work.
+                            let lang = if applies_to_header(&src) == "contract" {
+                                cypherdoc_lang.clone()
+                            } else {
+                                cypher_lang.clone()
+                            };
+                            match parse_rule_file(&src, lang) {
+                                Ok(r) => rules.push(r),
+                                Err(e) => eprintln!("warning: {}: {e}", path.display()),
+                            }
+                        }
                         Err(e) => eprintln!("warning: {}: {e}", path.display()),
                     }
                 }
@@ -95,6 +104,7 @@ pub fn run(args: LintArgs) -> i32 {
     }
 
     let mut results: Vec<SourceResult> = Vec::new();
+    let mut visited: std::collections::HashSet<std::path::PathBuf> = std::collections::HashSet::new();
 
     if let Some(expr) = &args.expression {
         results.push(analyze(expr.clone(), "-e".to_string(), &rules));
@@ -115,6 +125,8 @@ pub fn run(args: LintArgs) -> i32 {
                     .filter_map(|e| e.ok())
                     .filter(|e| e.path().extension().and_then(|s| s.to_str()) == Some("cypher"))
                 {
+                    let canonical = entry.path().canonicalize().unwrap_or_else(|_| entry.path().to_path_buf());
+                    if !visited.insert(canonical) { continue; }
                     found = true;
                     match std::fs::read_to_string(entry.path()) {
                         Ok(src) => results.push(analyze(
@@ -132,6 +144,8 @@ pub fn run(args: LintArgs) -> i32 {
                     eprintln!("note: no .cypher files found in {}", path.display());
                 }
             } else {
+                let canonical = path.canonicalize().unwrap_or_else(|_| path.clone());
+                if !visited.insert(canonical) { continue; }
                 match std::fs::read_to_string(path) {
                     Ok(src) => results.push(analyze(src, path.display().to_string(), &rules)),
                     Err(e) => {
@@ -225,7 +239,7 @@ fn analyze(source: String, path: String, rules: &[Rule]) -> SourceResult {
                         cursor.matches(&rule.query, dt.root_node(), doc_src.as_bytes());
                     while let Some(m) = qm.next() {
                         let node = m.captures[0].node;
-                        diags.push(make_diagnostic(rule, node, doc_src, *doc_start));
+                        diags.push(make_diagnostic(rule, node, &source, *doc_start));
                     }
                 }
 
@@ -330,7 +344,7 @@ fn analyze(source: String, path: String, rules: &[Rule]) -> SourceResult {
                             while let Some(m) = qm.next() {
                                 for cap in m.captures {
                                     if &doc_src[cap.node.byte_range()] == unused {
-                                        let mut d = make_diagnostic(rule, cap.node, doc_src, *doc_start);
+                                        let mut d = make_diagnostic(rule, cap.node, &source, *doc_start);
                                         d.message = format!(
                                             "@param \"{unused}\" is declared but ${unused} never appears in the query."
                                         );
@@ -433,27 +447,13 @@ fn collect_error_nodes(node: Node<'_>, source: &str, diags: &mut Vec<Diagnostic>
     }
 }
 
-fn make_diagnostic(rule: &Rule, node: Node<'_>, source: &str, byte_offset: usize) -> Diagnostic {
-    let (line, col) = byte_to_line_col(source, node.start_byte());
-    let (end_line, end_col) = byte_to_line_col(source, node.end_byte());
-    let parent_line_offset = if byte_offset > 0 {
-        // Count the lines in the full source before the slice start
-        // (caller passes the offset into the full source)
-        0u32 // will be fixed by caller if needed; for now keep relative
-    } else {
-        0
-    };
-    // When byte_offset > 0 the source is a doc-comment slice; compute absolute lines.
-    let abs_line_base = if byte_offset > 0 {
-        // We don't have the full source here, so the caller must pass pre-computed line offset.
-        // Instead, we track absolute position via the byte_offset from the FULL source.
-        0u32
-    } else {
-        0u32
-    };
-    let _ = parent_line_offset; // suppress warning
-    let _ = abs_line_base;
-
+// `full_source` is always the complete file text; `byte_offset` is the byte position
+// of `node`'s containing slice within `full_source` (0 for nodes already in full_source).
+fn make_diagnostic(rule: &Rule, node: Node<'_>, full_source: &str, byte_offset: usize) -> Diagnostic {
+    let abs_start = (node.start_byte() + byte_offset).min(full_source.len());
+    let abs_end = (node.end_byte() + byte_offset).min(full_source.len());
+    let (line, col) = byte_to_line_col(full_source, abs_start);
+    let (end_line, end_col) = byte_to_line_col(full_source, abs_end);
     Diagnostic {
         severity: rule.severity.clone(),
         rule: rule.name.clone(),
@@ -466,12 +466,15 @@ fn make_diagnostic(rule: &Rule, node: Node<'_>, source: &str, byte_offset: usize
     }
 }
 
+// Returns (zero-based line, UTF-16 code-unit column) — matches LSP Position.
 fn byte_to_line_col(s: &str, byte: usize) -> (usize, usize) {
     let byte = byte.min(s.len());
     let byte = (0..=byte).rev().find(|&i| s.is_char_boundary(i)).unwrap_or(0);
     let prefix = &s[..byte];
     let line = prefix.matches('\n').count();
-    let col = prefix.rfind('\n').map(|p| byte - p - 1).unwrap_or(byte);
+    let line_start = prefix.rfind('\n').map(|p| p + 1).unwrap_or(0);
+    // Count UTF-16 code units from the start of the line.
+    let col = prefix[line_start..].chars().map(|c| if c as u32 > 0xFFFF { 2 } else { 1 }).sum();
     (line, col)
 }
 
@@ -551,25 +554,40 @@ fn print_pretty(results: &[SourceResult]) {
     }
 }
 
-fn line_col_to_byte(s: &str, line: usize, col: usize) -> usize {
+// Inverse of `byte_to_line_col`: `col` is UTF-16 code units from line start.
+fn line_col_to_byte(s: &str, line: usize, col_utf16: usize) -> usize {
+    // Walk to the start of the requested line.
     let mut current_line = 0;
-    let mut last_byte = 0;
+    let mut line_start = 0;
     for (i, ch) in s.char_indices() {
-        if current_line == line {
-            return (i + col).min(s.len());
-        }
-        if ch == '\n' {
-            current_line += 1;
-        }
-        last_byte = i + ch.len_utf8();
+        if current_line == line { line_start = i; break; }
+        if ch == '\n' { current_line += 1; }
+        if i + ch.len_utf8() == s.len() { line_start = s.len(); }
     }
-    last_byte.min(s.len())
+    // Advance col_utf16 UTF-16 code units from line_start.
+    let mut units_remaining = col_utf16;
+    for (byte_off, ch) in s[line_start..].char_indices() {
+        if units_remaining == 0 { return line_start + byte_off; }
+        units_remaining = units_remaining.saturating_sub(if ch as u32 > 0xFFFF { 2 } else { 1 });
+    }
+    s.len()
 }
 
 fn byte_to_char(s: &str, byte: usize) -> usize {
     let byte = byte.min(s.len());
     let byte = (0..=byte).rev().find(|&i| s.is_char_boundary(i)).unwrap_or(0);
     s[..byte].chars().count()
+}
+
+fn applies_to_header(src: &str) -> &str {
+    for line in src.lines() {
+        if let Some(rest) = line.strip_prefix(";; ") {
+            if let Some(v) = rest.strip_prefix("Applies-to: ") {
+                return v.trim();
+            }
+        }
+    }
+    "structural"
 }
 
 fn read_stdin() -> io::Result<String> {

@@ -95,7 +95,13 @@ TARGET="${1:-all}"
 FAILED=0
 
 run_job() {
-    if ! "$1"; then
+    # `set -e` would exit on the inner failure before we can set FAILED=1,
+    # so temporarily disable it around each job invocation.
+    set +e
+    "$1"
+    status=$?
+    set -e
+    if [ $status -ne 0 ]; then
         fail "$2"
         FAILED=1
     fi

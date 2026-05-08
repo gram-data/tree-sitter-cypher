@@ -70,7 +70,7 @@
   - `collect_pairs(tree: &Tree, src: &str) -> Vec<DocStatementPair>` — walk `source_file` children pairing adjacent `doc_comment` + `statement` nodes
   - `parse_doc(doc_src: &str) -> tree_sitter::Tree` using `tree-sitter-cypherdoc`
   - `run_structural_rules(rules, tree, src) -> Vec<Diagnostic>`
-  - `run_contract_rules(rules, doc_tree, doc_src, doc_start_byte) -> Vec<Diagnostic>` including Rust-layer `MissingToolName` check (test `node.child_by_field_name("name")` byte range)
+  - `run_contract_rules(rules, doc_tree, doc_src, doc_start_byte) -> Vec<Diagnostic>` including Rust-layer `MissingToolName` check (test `named_child(0).kind() != "name" || start_byte == end_byte` — the cypherdoc grammar does not expose `name` as a named field, so `child_by_field_name` is unavailable)
   - `run_cross_reference_rules(rules, cypher_tree, doc_tree) -> Vec<Diagnostic>` using HashSet set-difference for declared vs used params
 
 ### Output Formatting
@@ -82,7 +82,7 @@
 ### Fixture Files and Integration Tests
 
 - [x] T019 [P] Create fixture files in `tools/cypher/tests/fixtures/`: `clean.cypher` (valid query), `unlabelled_node.cypher`, `unbounded_relationship.cypher`, `unused_param.cypher` (cypherdoc `@param` declared but unused), `undocumented_param.cypher` (`$param` used but not declared), `optional_param_error.cypher` (cypherdoc `[name]` bare optional param triggering ERROR node), `missing_tool_name.cypher` (cypherdoc comment with no tool name on first line), `parse_error.cypher` (malformed Cypher with a deliberate syntax error), `empty_doc.cypher` (query preceded by an empty `/** */` comment with no declarations)
-- [x] T020 [P] [US1] Create `tools/cypher/tests/lint_integration.rs` with integration tests using `assert_cmd::Command` for: clean file exits 0, unlabelled node exits 1 with "UnlabelledNode" in output, unbounded relationship exits 1, `--json` produces valid JSON with correct `schema_version`, `--strict` exits 1 when only warnings present, unused param exits 1, undocumented param exits 1, optional param error exits 1 with "OptionalParamMissingDefault" in output, missing tool name exits 1 with "MissingToolName" in output, parse error produces a diagnostic and exits 1 (not a panic or silent failure), empty doc comment produces no contract warnings and exits 0
+- [x] T020 [P] [US1] Create `tools/cypher/tests/lint_integration.rs` with integration tests using `assert_cmd::Command` for: clean file exits 0, unlabelled node exits 0 and emits warning in stderr (Warning severity — only errors or `--strict` produce exit 1), unbounded relationship exits 1, `--json` produces valid JSON with correct `schema_version`, `--strict` exits 1 when only warnings present, unused/undocumented param exit 0 and emit warning, optional param error exits 1 with "OptionalParamMissingDefault" in stderr, missing tool name exits 0 and emits warning, parse error produces a diagnostic and exits 1, empty doc comment produces no contract warnings and exits 0
 
 **Checkpoint**: `cargo test -p cypher-data` passes all integration tests; `cypher lint` on every fixture file produces the expected exit code and diagnostic output
 

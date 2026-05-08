@@ -10,8 +10,10 @@ on:
       - bindings/**
       - binding.gyp
       - package.json
+      - package-lock.json
       - tree-sitter.json
       - Cargo.toml
+      - Cargo.lock
       - tree-sitter-cypherdoc/**
       - tools/**
       - .github/workflows/**
@@ -23,8 +25,10 @@ on:
       - bindings/**
       - binding.gyp
       - package.json
+      - package-lock.json
       - tree-sitter.json
       - Cargo.toml
+      - Cargo.lock
       - tree-sitter-cypherdoc/**
       - tools/**
       - .github/workflows/**
@@ -68,7 +72,7 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: tree-sitter-cypherdoc/package.json
+          cache-dependency-path: tree-sitter-cypherdoc/package-lock.json
       - run: npm ci --omit=peer --omit=optional
       - name: Regenerate parser
         run: npx tree-sitter generate

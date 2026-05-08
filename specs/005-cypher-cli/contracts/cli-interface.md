@@ -78,8 +78,8 @@ Exit code: `2`.
 
 ## Standard Streams
 
-- **stdout**: Diagnostic output (pretty or JSON) and `--tree` output
-- **stderr**: Notes, warnings about missing files, and error messages
+- **stdout**: Machine-readable output only — `--json` diagnostics and `--tree` s-expressions
+- **stderr**: Human-readable (pretty) diagnostics, notes, warnings about missing files, and error messages
 - **stdin**: Source input when no paths given to `cypher lint`
 
 ---
