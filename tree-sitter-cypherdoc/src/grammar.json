@@ -28,18 +28,21 @@
         {
           "type": "REPEAT",
           "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "param_tag"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "returns_tag"
-              }
-            ]
+            "type": "SYMBOL",
+            "name": "param_tag"
           }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "returns_tag"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         },
         {
           "type": "STRING",
