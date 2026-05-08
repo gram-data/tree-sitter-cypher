@@ -138,17 +138,19 @@ description: "Task list for completing openCypher TCK conformance"
 - [X] T019 Add `pattern_comprehension` rule to `grammar.js`:
   ```js
   // BNF: <pattern comprehension> ::= '[' <pattern source> <pattern filter and projection> ']'
-  pattern_comprehension: $ => prec(3, seq(
+  // Requires at least one relationship — disambiguates from list_comprehension / parenthesized expr
+  pattern_comprehension: $ => seq(
     '[',
     optional(seq(field('variable', $.identifier), '=')),
-    field('pattern', $.path_pattern),
+    field('start', $.node_pattern),
+    repeat1(seq($.relationship_pattern, $.node_pattern)),
     optional($.where_clause),
     '|',
     field('projection', $.expression),
     ']',
-  )),
+  ),
   ```
-  Use `prec(3)` — higher than `list_comprehension` (`prec(2)`) so GLR prefers pattern_comprehension when `(` follows `[`.
+  No explicit `prec()` needed — requiring at least one `relationship_pattern` (`repeat1`) gives tree-sitter enough context to prefer `pattern_comprehension` over `list_comprehension` when `(` follows `[`. The conflict is resolved via the `conflicts` array entry `[$.expression, $.pattern_comprehension]`.
 - [X] T020 Add `$.pattern_comprehension` to the `expression` choice list in `grammar.js`
 - [X] T021 Run `tree-sitter generate` then `tree-sitter test` — all tests must pass; confirm `list_comprehension` tests still pass (no regression)
 
@@ -231,16 +233,13 @@ description: "Task list for completing openCypher TCK conformance"
   ```js
   // BNF: <pattern expression> ::= <simple path pattern>
   // Used as <boolean primary> alternative to <predicate>
-  pattern_predicate: $ => prec.dynamic(2, seq(
+  // Requires at least one relationship — disambiguates from parenthesized expression
+  pattern_predicate: $ => seq(
     $.node_pattern,
-    choice(
-      $.relationship_pattern,
-      seq($.relationship_pattern, $.node_pattern,
-          repeat(seq($.relationship_pattern, $.node_pattern))),
-    ),
-  )),
+    repeat1(seq($.relationship_pattern, $.node_pattern)),
+  ),
   ```
-- [X] T030 [US4] Add `[$.pattern_predicate, $.expression]` to the `conflicts` array in `grammar.js` — this resolves the `(n)` ambiguity between `node_pattern` (start of `pattern_predicate`) and `seq('(', $.expression, ')')`
+- [X] T030 [US4] Add `[$.pattern_predicate]` to the `conflicts` array in `grammar.js` — the `repeat1` of `(rel, node)` pairs creates an internal GLR ambiguity that tree-sitter resolves by including `pattern_predicate` alone in conflicts (not paired with `expression`)
 - [X] T031 [US4] Add `$.pattern_predicate` to the `expression` choice list in `grammar.js`
 - [X] T032 [US4] Run `tree-sitter generate` then `tree-sitter test` — all tests must pass; confirm `WHERE (expr)` parenthesized expressions still parse correctly (no regression)
 

@@ -43,13 +43,19 @@ label predicate is a child of a boolean expression node with no ERRORs.
 
 **Acceptance Scenarios**:
 
-1. **Given** `WHERE n:Person`, **When** parsed, **Then** a `label_predicate` node appears inside the expression with no ERROR
-2. **Given** `WHERE n:Person AND n.active = true`, **When** parsed, **Then** the label predicate is combined with a boolean expression correctly
-3. **Given** `WHERE n:A|B`, **When** parsed, **Then** the disjunction form of the label predicate is a named node with no ERROR
+1. **Given** `WHERE n:Person`, **When** parsed, **Then** an `is_labeled_expression` node appears inside the expression with no ERROR
+2. **Given** `WHERE n:Person AND n.active = true`, **When** parsed, **Then** the `is_labeled_expression` is combined with a boolean expression correctly
+3. **Given** `WHERE n:A|B`, **When** parsed, **Then** the disjunction form produces an `is_labeled_expression` node with no ERROR
 
 ---
 
-### User Story 3 - FOREACH Clause (Priority: P3)
+### User Story 3 - FOREACH Clause (Priority: P3) — **Deferred**
+
+> **Status**: Out of scope for feature 004. FOREACH requires implementing nested update-clause
+> parsing inside a looping construct, which interacts with the clause-level grammar in non-trivial
+> ways. Research notes (`research.md`) identify this as a high-complexity addition that warrants its
+> own feature branch. No grammar changes, corpus tests, or `foreach_clause` node type are included
+> in this PR.
 
 As a developer running update queries over collections, I need `FOREACH (x IN list | SET x.active = true)`
 to parse correctly so pipeline queries with bulk updates produce clean ASTs.
@@ -57,10 +63,7 @@ to parse correctly so pipeline queries with bulk updates produce clean ASTs.
 **Why this priority**: FOREACH is the standard Cypher mechanism for applying mutations to each element
 in a list. Without it, update pipelines that process multiple nodes are unrepresentable in the grammar.
 
-**Independent Test**: Parse `FOREACH (x IN [1,2,3] | SET x.val = 0)` and confirm a `foreach_clause`
-node with no ERROR children.
-
-**Acceptance Scenarios**:
+**Acceptance Scenarios** *(deferred — not validated in feature 004)*:
 
 1. **Given** `FOREACH (x IN list | SET x.active = true)`, **When** parsed, **Then** a `foreach_clause` node appears with no ERRORs
 2. **Given** `FOREACH (x IN list | CREATE (x)-[:KNOWS]->(y))`, **When** parsed, **Then** the inner mutation clause is correctly nested

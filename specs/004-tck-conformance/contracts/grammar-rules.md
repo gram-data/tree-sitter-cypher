@@ -31,14 +31,16 @@ It is the fidelity gate reference: every rule here must be verifiable against th
 ### `pattern_comprehension`
 
 **BNF**: `<pattern comprehension>` (openCypher.bnf, Map projection section)
-**Prec**: `prec(3, ...)` — higher than `list_comprehension` (`prec(2)`)
+**Prec**: none — disambiguation relies on `repeat1(relationship_pattern, node_pattern)` requiring at least one hop, plus the `conflicts` entry `[$.expression, $.pattern_comprehension]`
 
 **Tree shape**:
 ```
 (pattern_comprehension
   [variable: (identifier)]    ; optional path variable binding
-  pattern: (path_pattern ...)
-  [where: (where_clause ...)]
+  start: (node_pattern ...)   ; first node — named field
+  (relationship_pattern ...)  ; unnamed repeated children
+  (node_pattern ...)          ; unnamed repeated children
+  [where_clause ...]
   projection: <expression>)
 ```
 

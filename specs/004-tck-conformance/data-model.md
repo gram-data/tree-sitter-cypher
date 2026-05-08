@@ -37,8 +37,9 @@ Represents a path-pattern comprehension: `[(n)-->() | expr]` or `[p = (n)-->() |
 | Field | Cardinality | Type | BNF anchor |
 |-------|-------------|------|-----------|
 | `variable` | 0..1 | `identifier` | `<binding variable>` |
-| `pattern` | 1 | `path_pattern` | `<simple path pattern>` |
-| `where` | 0..1 | `where_clause` | `<pattern filter>` |
+| `start` | 1 | `node_pattern` | `<simple path pattern>` start node |
+| (unnamed) | 1..N | alternating `relationship_pattern` / `node_pattern` | `<simple path pattern>` hops |
+| (unnamed) | 0..1 | `where_clause` | `<pattern filter>` |
 | `projection` | 1 | `expression` | `<pattern projection>` |
 
 BNF: `<pattern comprehension> ::= '[' <pattern source> <pattern filter and projection> ']'`
@@ -47,11 +48,11 @@ Example tree:
 ```
 (pattern_comprehension
   variable: (identifier "p")
-  pattern: (path_pattern
-    (node_pattern variable: (identifier "n"))
-    (relationship_pattern)
-    (node_pattern))
-  projection: (expression (identifier "p")))
+  start: (node_pattern
+    (identifier "n"))
+  (relationship_pattern)
+  (node_pattern)
+  projection: (identifier "p"))
 ```
 
 ---

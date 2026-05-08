@@ -149,16 +149,19 @@ Add `$.is_labeled_expression` to the `expression` choice list.
 
 **Grammar change**: Add `pattern_comprehension` rule, add to `expression`:
 ```js
-pattern_comprehension: $ => prec(3, seq(
+// Requires at least one relationship hop — disambiguates from list_comprehension / parenthesized expr
+pattern_comprehension: $ => seq(
   '[',
   optional(seq(field('variable', $.identifier), '=')),
-  field('pattern', $.path_pattern),
+  field('start', $.node_pattern),
+  repeat1(seq($.relationship_pattern, $.node_pattern)),
   optional($.where_clause),
   '|',
   field('projection', $.expression),
   ']',
-)),
+),
 ```
+No explicit `prec()` needed. The `repeat1` requirement resolves the conflict with `list_comprehension`. Add `[$.expression, $.pattern_comprehension]` to the `conflicts` array.
 
 **Tests** (add to `test/corpus/union_advanced.txt`):
 - Positive: `[(n)-->() | n.name]`, `[p = (n)-->() | p]`, `[(n)-[:T]->(m) WHERE m.active | m.name]`, `size([(n)-->() | 1])` (inside function call)
@@ -200,19 +203,18 @@ Add `$.exists_expression` to the `expression` choice list.
 
 **Grammar change**: Add `pattern_predicate` rule and conflict, add to `expression`:
 ```js
-pattern_predicate: $ => prec.dynamic(2, seq(
+// Requires at least one relationship — disambiguates from parenthesized expression
+pattern_predicate: $ => seq(
   $.node_pattern,
-  choice(
-    $.relationship_pattern,
-    seq($.relationship_pattern, $.node_pattern, repeat(seq($.relationship_pattern, $.node_pattern))),
-  ),
-)),
+  repeat1(seq($.relationship_pattern, $.node_pattern)),
+),
 ```
 
 Add to `conflicts: $ => [...]`:
 ```js
-[$.pattern_predicate, $.expression],
+[$.pattern_predicate],
 ```
+The `repeat1` of `(rel, node)` pairs creates an internal GLR ambiguity resolved by listing `pattern_predicate` alone in conflicts. No `prec.dynamic` is needed because requiring at least one hop already eliminates the `(n)` vs `(expr)` ambiguity at parse time.
 
 **Tests** (add to `test/corpus/expressions.txt`):
 - Positive: `WHERE (n)-[]->()`, `WHERE (n)-[:REL1]-()`, `WHERE (n)-[:REL1*]->()`, `WHERE NOT (n)-->(m)`, `WHERE (n)-[]->(m) AND n.active`
