@@ -15,9 +15,9 @@
 
 **Purpose**: Create the `tools/cypher/` package and wire it into the repo workspace.
 
-- [ ] T001 Verify `tree-sitter-cypherdoc/Cargo.toml` exists and is not already a member of another Cargo workspace, then add `[workspace]` section to root `Cargo.toml` with members `[".","tools/cypher","tree-sitter-cypherdoc"]` and a `[workspace.package]` block mirroring the gram repo layout
-- [ ] T002 Create directory tree: `tools/cypher/src/`, `tools/cypher/rules/structural/`, `tools/cypher/rules/contract/`, `tools/cypher/rules/cross_reference/`, `tools/cypher/tests/fixtures/`
-- [ ] T003 Create `tools/cypher/Cargo.toml` declaring package `cypher-data`, binary `cypher`, with deps: clap 4.5 (derive+cargo features), ariadne 0.6, walkdir 2, serde 1 (derive), serde_json 1, tree-sitter 0.25, tree-sitter-cypher (path `../..`), tree-sitter-cypherdoc (path `../../tree-sitter-cypherdoc`), directories 5; dev-deps: assert_cmd 2, predicates 3, tempfile 3
+- [x] T001 Verify `tree-sitter-cypherdoc/Cargo.toml` exists and is not already a member of another Cargo workspace, then add `[workspace]` section to root `Cargo.toml` with members `[".","tools/cypher","tree-sitter-cypherdoc"]` and a `[workspace.package]` block mirroring the gram repo layout
+- [x] T002 Create directory tree: `tools/cypher/src/`, `tools/cypher/rules/structural/`, `tools/cypher/rules/contract/`, `tools/cypher/rules/cross_reference/`, `tools/cypher/tests/fixtures/`
+- [x] T003 Create `tools/cypher/Cargo.toml` declaring package `cypher-data`, binary `cypher`, with deps: clap 4.5 (derive+cargo features), ariadne 0.6, walkdir 2, serde 1 (derive), serde_json 1, tree-sitter 0.25, tree-sitter-cypher (path `../..`), tree-sitter-cypherdoc (path `../../tree-sitter-cypherdoc`), directories 5; dev-deps: assert_cmd 2, predicates 3, tempfile 3
 
 **Checkpoint**: `cargo build -p cypher-data` compiles (empty main is fine at this stage)
 
@@ -29,11 +29,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 Create `tools/cypher/src/types.rs` with `Severity`, `Position`, `Range`, `Diagnostic`, `FileResult`, `LintResult` — mirror `gram/src/types.rs`; add `rule: String` field to `Diagnostic`; derive `serde::Serialize/Deserialize` on all types
-- [ ] T005 [P] Create `tools/cypher/src/dispatch.rs` — external `cypher-<name>` PATH dispatch; copy structure of `gram/src/dispatch.rs` substituting `cypher-` prefix
-- [ ] T006 Create `tools/cypher/src/rules.rs` — define `AppliesTo` enum (`Structural | Contract | CrossReference`), `Rule` struct (`name`, `severity`, `applies_to`, `message`, `query: tree_sitter::Query`), and `parse_rule_file(src: &str, language: tree_sitter::Language) -> Result<Rule, String>` that reads `;;`-prefixed header lines then compiles the remainder as a `tree_sitter::Query`
-- [ ] T007 Create `tools/cypher/src/main.rs` with `Cli` struct, `Commands` enum (`Lint(lint::LintArgs)`, `#[command(external_subcommand)] External(Vec<String>)`), and `main()` dispatching to `lint::run` or `dispatch::run`; add `mod` declarations for all modules
-- [ ] T008 Create stub `tools/cypher/src/lint.rs` with `LintArgs` (all flags from `contracts/cli-interface.md`: `-e/--expression`, `--json`, `--tree`, `--strict`, `--rule`, `--rules-dir`, `paths`) and a `pub fn run(args: LintArgs) -> i32` that returns `0` (will be filled in Phase 3)
+- [x] T004 Create `tools/cypher/src/types.rs` with `Severity`, `Position`, `Range`, `Diagnostic`, `FileResult`, `LintResult` — mirror `gram/src/types.rs`; add `rule: String` field to `Diagnostic`; derive `serde::Serialize/Deserialize` on all types
+- [x] T005 [P] Create `tools/cypher/src/dispatch.rs` — external `cypher-<name>` PATH dispatch; copy structure of `gram/src/dispatch.rs` substituting `cypher-` prefix
+- [x] T006 Create `tools/cypher/src/rules.rs` — define `AppliesTo` enum (`Structural | Contract | CrossReference`), `Rule` struct (`name`, `severity`, `applies_to`, `message`, `query: tree_sitter::Query`), and `parse_rule_file(src: &str, language: tree_sitter::Language) -> Result<Rule, String>` that reads `;;`-prefixed header lines then compiles the remainder as a `tree_sitter::Query`
+- [x] T007 Create `tools/cypher/src/main.rs` with `Cli` struct, `Commands` enum (`Lint(lint::LintArgs)`, `#[command(external_subcommand)] External(Vec<String>)`), and `main()` dispatching to `lint::run` or `dispatch::run`; add `mod` declarations for all modules
+- [x] T008 Create stub `tools/cypher/src/lint.rs` with `LintArgs` (all flags from `contracts/cli-interface.md`: `-e/--expression`, `--json`, `--tree`, `--strict`, `--rule`, `--rules-dir`, `paths`) and a `pub fn run(args: LintArgs) -> i32` that returns `0` (will be filled in Phase 3)
 
 **Checkpoint**: `cargo build -p cypher-data` produces a `cypher` binary; `cypher --help` lists the `lint` sub-command and `cypher lint --help` shows all flags
 
@@ -47,25 +47,25 @@
 
 ### Structural Rule Files
 
-- [ ] T009 [P] Create `tools/cypher/rules/structural/unlabelled_node.scm` per `proposals/cypher-linter.md` (matches `(node_pattern variable: (identifier) !label)`)
-- [ ] T010 [P] Create `tools/cypher/rules/structural/unbounded_relationship.scm` per `proposals/cypher-linter.md`
+- [x] T009 [P] Create `tools/cypher/rules/structural/unlabelled_node.scm` per `proposals/cypher-linter.md` (matches `(node_pattern variable: (identifier) !label)`)
+- [x] T010 [P] Create `tools/cypher/rules/structural/unbounded_relationship.scm` per `proposals/cypher-linter.md`
 
 ### Contract Rule Files
 
-- [ ] T011 [P] Create `tools/cypher/rules/contract/optional_param_missing_default.scm` matching `(param_tag (ERROR) @malformed_param)` per `proposals/cypher-linter.md`
+- [x] T011 [P] Create `tools/cypher/rules/contract/optional_param_missing_default.scm` matching `(param_tag (ERROR) @malformed_param)` per `proposals/cypher-linter.md`
 
 ### Cross-Reference Rule Files
 
-- [ ] T012 [P] Create `tools/cypher/rules/cross_reference/undocumented_parameter.scm` matching `(parameter) @used_param`
-- [ ] T013 [P] Create `tools/cypher/rules/cross_reference/unused_parameter.scm` matching `(param_tag param: [(required_param)(optional_param)] name: (identifier) @declared_param)`
+- [x] T012 [P] Create `tools/cypher/rules/cross_reference/undocumented_parameter.scm` matching `(parameter) @used_param`
+- [x] T013 [P] Create `tools/cypher/rules/cross_reference/unused_parameter.scm` matching `(param_tag param: [(required_param)(optional_param)] name: (identifier) @declared_param)`
 
 ### Rule Registration
 
-- [ ] T014 Update `tools/cypher/src/rules.rs` to export a `builtin_rules() -> Vec<Rule>` function that loads all five `.scm` files via `include_str!()` using the Cypher language for structural/cross-ref rules and the cypherdoc language for contract rules
+- [x] T014 Update `tools/cypher/src/rules.rs` to export a `builtin_rules() -> Vec<Rule>` function that loads all five `.scm` files via `include_str!()` using the Cypher language for structural/cross-ref rules and the cypherdoc language for contract rules
 
 ### Lint Engine — Single File
 
-- [ ] T015 Implement core of `tools/cypher/src/lint.rs`:
+- [x] T015 Implement core of `tools/cypher/src/lint.rs`:
   - `parse_source(src: &str) -> tree_sitter::Tree` using `tree-sitter-cypher`
   - `collect_pairs(tree: &Tree, src: &str) -> Vec<DocStatementPair>` — walk `source_file` children pairing adjacent `doc_comment` + `statement` nodes
   - `parse_doc(doc_src: &str) -> tree_sitter::Tree` using `tree-sitter-cypherdoc`
@@ -75,14 +75,14 @@
 
 ### Output Formatting
 
-- [ ] T016 Implement pretty output path in `lint.rs`: use `ariadne` `Report::build` for each `Diagnostic`; match severity to `ReportKind` (error/warning/advice); `byte_to_char` helper; include rule name in report code
-- [ ] T017 Implement `--json` output path in `lint.rs`: serialize `LintResult` via `serde_json::to_string_pretty`; conflicts with `--tree` (return exit code 2 if both set)
-- [ ] T018 Wire `--strict` flag: treat any warning-severity diagnostic as an error for exit-code purposes
+- [x] T016 Implement pretty output path in `lint.rs`: use `ariadne` `Report::build` for each `Diagnostic`; match severity to `ReportKind` (error/warning/advice); `byte_to_char` helper; include rule name in report code
+- [x] T017 Implement `--json` output path in `lint.rs`: serialize `LintResult` via `serde_json::to_string_pretty`; conflicts with `--tree` (return exit code 2 if both set)
+- [x] T018 Wire `--strict` flag: treat any warning-severity diagnostic as an error for exit-code purposes
 
 ### Fixture Files and Integration Tests
 
-- [ ] T019 [P] Create fixture files in `tools/cypher/tests/fixtures/`: `clean.cypher` (valid query), `unlabelled_node.cypher`, `unbounded_relationship.cypher`, `unused_param.cypher` (cypherdoc `@param` declared but unused), `undocumented_param.cypher` (`$param` used but not declared), `optional_param_error.cypher` (cypherdoc `[name]` bare optional param triggering ERROR node), `missing_tool_name.cypher` (cypherdoc comment with no tool name on first line), `parse_error.cypher` (malformed Cypher with a deliberate syntax error), `empty_doc.cypher` (query preceded by an empty `/** */` comment with no declarations)
-- [ ] T020 [P] [US1] Create `tools/cypher/tests/lint_integration.rs` with integration tests using `assert_cmd::Command` for: clean file exits 0, unlabelled node exits 1 with "UnlabelledNode" in output, unbounded relationship exits 1, `--json` produces valid JSON with correct `schema_version`, `--strict` exits 1 when only warnings present, unused param exits 1, undocumented param exits 1, optional param error exits 1 with "OptionalParamMissingDefault" in output, missing tool name exits 1 with "MissingToolName" in output, parse error produces a diagnostic and exits 1 (not a panic or silent failure), empty doc comment produces no contract warnings and exits 0
+- [x] T019 [P] Create fixture files in `tools/cypher/tests/fixtures/`: `clean.cypher` (valid query), `unlabelled_node.cypher`, `unbounded_relationship.cypher`, `unused_param.cypher` (cypherdoc `@param` declared but unused), `undocumented_param.cypher` (`$param` used but not declared), `optional_param_error.cypher` (cypherdoc `[name]` bare optional param triggering ERROR node), `missing_tool_name.cypher` (cypherdoc comment with no tool name on first line), `parse_error.cypher` (malformed Cypher with a deliberate syntax error), `empty_doc.cypher` (query preceded by an empty `/** */` comment with no declarations)
+- [x] T020 [P] [US1] Create `tools/cypher/tests/lint_integration.rs` with integration tests using `assert_cmd::Command` for: clean file exits 0, unlabelled node exits 1 with "UnlabelledNode" in output, unbounded relationship exits 1, `--json` produces valid JSON with correct `schema_version`, `--strict` exits 1 when only warnings present, unused param exits 1, undocumented param exits 1, optional param error exits 1 with "OptionalParamMissingDefault" in output, missing tool name exits 1 with "MissingToolName" in output, parse error produces a diagnostic and exits 1 (not a panic or silent failure), empty doc comment produces no contract warnings and exits 0
 
 **Checkpoint**: `cargo test -p cypher-data` passes all integration tests; `cypher lint` on every fixture file produces the expected exit code and diagnostic output
 
@@ -96,9 +96,9 @@
 
 ### Implementation
 
-- [ ] T021 [US2] Extend `lint.rs` `run()` to handle directory paths using `walkdir::WalkDir` filtering on `*.cypher` extension; print a `note: no .cypher files found in <dir>` to stderr and exit 0 when directory is empty of `.cypher` files
-- [ ] T022 [US2] Implement stdin mode in `lint.rs`: when `paths` is empty and `-e` is not given, read `io::stdin()` to string; label diagnostics with path `-`
-- [ ] T023 [P] [US2] Add integration tests to `lint_integration.rs`: directory mode checks all fixtures and exits non-zero, empty directory exits 0 with note, stdin mode produces diagnostics on a piped unlabelled-node query
+- [x] T021 [US2] Extend `lint.rs` `run()` to handle directory paths using `walkdir::WalkDir` filtering on `*.cypher` extension; print a `note: no .cypher files found in <dir>` to stderr and exit 0 when directory is empty of `.cypher` files
+- [x] T022 [US2] Implement stdin mode in `lint.rs`: when `paths` is empty and `-e` is not given, read `io::stdin()` to string; label diagnostics with path `-`
+- [x] T023 [P] [US2] Add integration tests to `lint_integration.rs`: directory mode checks all fixtures and exits non-zero, empty directory exits 0 with note, stdin mode produces diagnostics on a piped unlabelled-node query
 
 **Checkpoint**: `cypher lint tools/cypher/tests/fixtures/` exits 1 and reports diagnostics from every non-clean fixture; `echo 'MATCH (n) RETURN n' | cypher lint` exits 1
 
@@ -112,8 +112,8 @@
 
 ### Implementation
 
-- [ ] T024 [US3] Implement `--tree` output path in `lint.rs` (depends on T017): parse source, call `tree.root_node().to_sexp()`, print to stdout; the `--json`/`--tree` mutual-exclusion check lives in T017; accept at most one path (exit 2 if more than one path + `--tree`)
-- [ ] T025 [P] [US3] Add integration tests to `lint_integration.rs`: `--tree` on a single file outputs s-expression starting with `(source_file`, `--tree --json` together exits 2 with an error message
+- [x] T024 [US3] Implement `--tree` output path in `lint.rs` (depends on T017): parse source, call `tree.root_node().to_sexp()`, print to stdout; the `--json`/`--tree` mutual-exclusion check lives in T017; accept at most one path (exit 2 if more than one path + `--tree`)
+- [x] T025 [P] [US3] Add integration tests to `lint_integration.rs`: `--tree` on a single file outputs s-expression starting with `(source_file`, `--tree --json` together exits 2 with an error message
 
 **Checkpoint**: `cypher lint --tree tests/fixtures/clean.cypher` outputs a valid s-expression
 
@@ -127,8 +127,8 @@
 
 ### Implementation
 
-- [ ] T026 [US4] Finalize `tools/cypher/src/dispatch.rs` — `run(args: &[String]) -> i32` with PATH binary lookup and `exec` on Unix / `Command::status` on Windows; error message lists built-in commands when binary not found; mirrors `gram/src/dispatch.rs` exactly
-- [ ] T027 [P] [US4] Add integration test to `lint_integration.rs`: unknown sub-command exits 2 with "unknown sub-command" in stderr; (external dispatch with a real stub binary can be a manual test or skipped in CI if PATH manipulation is brittle)
+- [x] T026 [US4] Finalize `tools/cypher/src/dispatch.rs` — `run(args: &[String]) -> i32` with PATH binary lookup and `exec` on Unix / `Command::status` on Windows; error message lists built-in commands when binary not found; mirrors `gram/src/dispatch.rs` exactly
+- [x] T027 [P] [US4] Add integration test to `lint_integration.rs`: unknown sub-command exits 2 with "unknown sub-command" in stderr; (external dispatch with a real stub binary can be a manual test or skipped in CI if PATH manipulation is brittle)
 
 **Checkpoint**: `cypher bogus` exits 2 with the correct error message; external dispatch works on macOS/Linux
 
@@ -138,11 +138,11 @@
 
 **Purpose**: Rule filtering flag, distribution configuration, and documentation.
 
-- [ ] T028 Implement `--rule <NAME>` filtering in `lint.rs`: after loading built-in rules, filter the `Vec<Rule>` to retain only rules whose `name` matches any value in `args.rule`; if a given name matches no loaded rule, print an error to stderr and exit 2
-- [ ] T029 [P] Add `--rules-dir <PATH>` support in `lint.rs`: load all `.scm` files from the given directory; append to the built-in rule list; errors loading a rule file print a warning to stderr but do not abort
-- [ ] T030 [P] Add `[package.metadata.dist]` targets to `tools/cypher/Cargo.toml` matching gram's distribution targets: `x86_64-unknown-linux-musl`, `aarch64-unknown-linux-musl`, `x86_64-apple-darwin`, `aarch64-apple-darwin`, `x86_64-pc-windows-msvc`
-- [ ] T031 [P] Create `tools/cypher/README.md` with install, usage examples (one per rule category), and JSON output sample from `contracts/json-output-schema.md`
-- [ ] T032 Run `cargo test -p cypher-data` end-to-end to confirm all phases pass; run `cypher lint` against `references/neo4j-skills/` and verify no false-positive errors (SC-006); time `cypher lint <single-fixture-file>` with `time` and assert wall-clock is under 500 ms on the CI runner (SC-001)
+- [x] T028 Implement `--rule <NAME>` filtering in `lint.rs`: after loading built-in rules, filter the `Vec<Rule>` to retain only rules whose `name` matches any value in `args.rule`; if a given name matches no loaded rule, print an error to stderr and exit 2
+- [x] T029 [P] Add `--rules-dir <PATH>` support in `lint.rs`: load all `.scm` files from the given directory; append to the built-in rule list; errors loading a rule file print a warning to stderr but do not abort
+- [x] T030 [P] Add `[package.metadata.dist]` targets to `tools/cypher/Cargo.toml` matching gram's distribution targets: `x86_64-unknown-linux-musl`, `aarch64-unknown-linux-musl`, `x86_64-apple-darwin`, `aarch64-apple-darwin`, `x86_64-pc-windows-msvc`
+- [x] T031 [P] Create `tools/cypher/README.md` with install, usage examples (one per rule category), and JSON output sample from `contracts/json-output-schema.md`
+- [x] T032 Run `cargo test -p cypher-data` end-to-end to confirm all phases pass; run `cypher lint` against `references/neo4j-skills/` and verify no false-positive errors (SC-006); time `cypher lint <single-fixture-file>` with `time` and assert wall-clock is under 500 ms on the CI runner (SC-001)
 
 **Checkpoint**: `cargo build -p cypher-data --release` succeeds; `cypher --version` prints the correct version; full test suite green
 
