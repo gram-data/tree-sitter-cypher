@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - grammar.js
+      - src/**
+      - test/**
+      - bindings/**
+      - binding.gyp
+      - package.json
+      - package-lock.json
+      - tree-sitter.json
+      - Cargo.toml
+      - Cargo.lock
+      - tree-sitter-cypherdoc/**
+      - tools/**
+      - .github/workflows/**
+  pull_request:
+    paths:
+      - grammar.js
+      - src/**
+      - test/**
+      - bindings/**
+      - binding.gyp
+      - package.json
+      - package-lock.json
+      - tree-sitter.json
+      - Cargo.toml
+      - Cargo.lock
+      - tree-sitter-cypherdoc/**
+      - tools/**
+      - .github/workflows/**
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── 1. Main Cypher grammar ────────────────────────────────────────────────
+  test-cypher-grammar:
+    name: Test Cypher grammar
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci --omit=peer --omit=optional
+      - name: Regenerate parser
+        run: npx tree-sitter generate
+        env:
+          TREE_SITTER_ABI_VERSION: 15
+      - name: Corpus tests
+        run: npx tree-sitter test
+      - name: Node binding tests
+        run: npm test
+
+  # ── 2. Cypherdoc sub-grammar ──────────────────────────────────────────────
+  test-cypherdoc-grammar:
+    name: Test cypherdoc grammar
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: tree-sitter-cypherdoc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: tree-sitter-cypherdoc/package-lock.json
+      - run: npm ci --omit=peer --omit=optional
+      - name: Regenerate parser
+        run: npx tree-sitter generate
+        env:
+          TREE_SITTER_ABI_VERSION: 15
+      - name: Corpus tests
+        run: npx tree-sitter test
+
+  # ── 3. cypher-data CLI tool ───────────────────────────────────────────────
+  test-cypher-tool:
+    name: Test cypher CLI tool
+    runs-on: ubuntu-24.04
+    needs: [test-cypher-grammar, test-cypherdoc-grammar]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+      - name: Build
+        run: cargo build -p cypher-data
+      - name: Test
+        run: cargo test -p cypher-data

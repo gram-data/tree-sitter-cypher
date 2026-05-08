@@ -1,21 +1,10 @@
-[workspace]
-members = [".", "tree-sitter-cypherdoc", "tools/cypher"]
-resolver = "2"
-
-[workspace.package]
-version = "0.1.0"
-license = "MIT"
-repository = "https://github.com/gram-data/tree-sitter-cypher"
-edition = "2021"
-
 [package]
-name = "tree-sitter-cypher"
-description = "Graph query language"
-version = "0.1.0"
+name = "tree-sitter-cypherdoc"
+description = "Structured documentation comments for Cypher statements"
+version = "0.0.1"
 authors = ["Andreas Kollegger <andreas.kollegger@neo4j.com>"]
 license = "MIT"
-readme = "README.md"
-keywords = ["incremental", "parsing", "tree-sitter", "cypher"]
+keywords = ["incremental", "parsing", "tree-sitter", "cypherdoc", "cypher"]
 categories = ["parser-implementations", "parsing", "text-editors"]
 repository = "https://github.com/gram-data/tree-sitter-cypher"
 edition = "2021"
@@ -28,7 +17,6 @@ include = [
   "queries/*",
   "src/*",
   "tree-sitter.json",
-  "/LICENSE",
 ]
 
 [lib]
