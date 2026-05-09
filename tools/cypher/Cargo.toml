@@ -2,16 +2,24 @@
 name = "cypher-data"
 version.workspace = true
 edition.workspace = true
-description = "Unified cypher CLI for linting and extending .cypher files"
+description = "Cypher linting CLI and library for .cypher files"
 license.workspace = true
 repository.workspace = true
+readme = "README.md"
+keywords = ["cypher", "lint", "tree-sitter", "neo4j", "graph"]
+categories = ["command-line-utilities", "development-tools"]
 publish = true
+
+[lib]
+name = "cypher_data"
+path = "src/lib.rs"
 
 [[bin]]
 name = "cypher"
 path = "src/main.rs"
 
 [dependencies]
+anyhow = "1"
 clap = { version = "4.5", features = ["derive", "cargo"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

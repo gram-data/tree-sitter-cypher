@@ -1,9 +1,7 @@
 use clap::{Parser, Subcommand};
+use cypher_data::lint;
 
 mod dispatch;
-mod lint;
-mod rules;
-mod types;
 
 #[derive(Parser)]
 #[command(name = "cypher", version = env!("CARGO_PKG_VERSION"), about = "Unified cypher CLI")]

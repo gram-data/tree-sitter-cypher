@@ -2,7 +2,7 @@ use ariadne::{Color, Label, Report, ReportKind, sources};
 use clap::Args;
 use std::collections::HashSet;
 use std::io::{self, Read};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tree_sitter::{Node, StreamingIterator, Tree};
 use walkdir::WalkDir;
 
@@ -39,6 +39,20 @@ pub struct LintArgs {
     /// Files, directories, or paths to lint (omit to read from stdin)
     #[arg(num_args = 0..)]
     pub paths: Vec<PathBuf>,
+}
+
+pub struct LintOptions {
+    pub strict: bool,
+}
+
+pub fn lint_source(source: &str, _options: &LintOptions) -> Vec<Diagnostic> {
+    let rules = builtin_rules();
+    analyze(source.to_owned(), "-".to_owned(), &rules).diags
+}
+
+pub fn lint_file(path: &Path, options: &LintOptions) -> anyhow::Result<Vec<Diagnostic>> {
+    let source = std::fs::read_to_string(path)?;
+    Ok(lint_source(&source, options))
 }
 
 struct SourceResult {
