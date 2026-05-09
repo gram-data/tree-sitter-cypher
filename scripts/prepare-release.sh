@@ -38,15 +38,22 @@ tree-sitter version "$VERSION"
 echo "    tree-sitter-cypherdoc"
 (cd tree-sitter-cypherdoc && tree-sitter version "$VERSION")
 
+# Patch version constraints in cypher-data's path dependencies.
+# These must match the published crate versions; tree-sitter version doesn't touch them.
+sed -i.bak "s/\(tree-sitter-cypher = {[^}]*version = \"\)[^\"]*\"/\1$VERSION\"/" tools/cypher/Cargo.toml
+sed -i.bak "s/\(tree-sitter-cypherdoc = {[^}]*version = \"\)[^\"]*\"/\1$VERSION\"/" tools/cypher/Cargo.toml
+rm tools/cypher/Cargo.toml.bak
+
 echo ""
 echo "Updated files:"
 echo "  Cargo.toml                          ([workspace.package] + [package])"
 echo "  package.json"
 echo "  tree-sitter-cypherdoc/Cargo.toml"
 echo "  tree-sitter-cypherdoc/package.json"
+echo "  tools/cypher/Cargo.toml             (dependency version constraints)"
 echo ""
 echo "Next steps:"
 echo "  git diff                            # verify changes"
-echo "  git add Cargo.toml Cargo.lock package.json tree-sitter-cypherdoc/Cargo.toml tree-sitter-cypherdoc/package.json"
+echo "  git add Cargo.toml Cargo.lock package.json tree-sitter-cypherdoc/Cargo.toml tree-sitter-cypherdoc/package.json tools/cypher/Cargo.toml"
 echo "  git commit -m 'chore: release v$VERSION'"
 echo "  git tag v$VERSION && git push origin main --tags"
