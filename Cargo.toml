@@ -3,7 +3,7 @@ members = [".", "tree-sitter-cypherdoc", "tools/cypher"]
 resolver = "2"
 
 [workspace.package]
-version = "0.2.0"
+version = "0.2.1"
 license = "MIT"
 repository = "https://github.com/gram-data/tree-sitter-cypher"
 edition = "2021"
@@ -11,7 +11,7 @@ edition = "2021"
 [package]
 name = "tree-sitter-cypher"
 description = "Graph query language"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Andreas Kollegger <andreas.kollegger@neo4j.com>"]
 license = "MIT"
 readme = "README.md"
