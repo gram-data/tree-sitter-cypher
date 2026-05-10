@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 use tree_sitter::{Node, StreamingIterator, Tree};
 use walkdir::WalkDir;
 
+use crate::markdown::extract_cypher_snippets;
 use crate::rules::{AppliesTo, Rule, builtin_rules, parse_rule_file};
 use crate::types::{Diagnostic, FileResult, LintResult, Position, Range, Severity};
 
@@ -35,6 +36,10 @@ pub struct LintArgs {
     /// Load additional .scm rule files from this directory
     #[arg(long = "rules-dir")]
     pub rules_dir: Option<PathBuf>,
+
+    /// Skip .md files during directory traversal and explicit-path processing
+    #[arg(long = "no-markdown")]
+    pub no_markdown: bool,
 
     /// Files, directories, or paths to lint (omit to read from stdin)
     #[arg(num_args = 0..)]
@@ -137,34 +142,67 @@ pub fn run(args: LintArgs) -> i32 {
                 for entry in WalkDir::new(path)
                     .into_iter()
                     .filter_map(|e| e.ok())
-                    .filter(|e| e.path().extension().and_then(|s| s.to_str()) == Some("cypher"))
+                    .filter(|e| {
+                        let ext = e.path().extension().and_then(|s| s.to_str());
+                        ext == Some("cypher") || (!args.no_markdown && ext == Some("md"))
+                    })
                 {
                     let canonical = entry.path().canonicalize().unwrap_or_else(|_| entry.path().to_path_buf());
                     if !visited.insert(canonical) { continue; }
                     found = true;
-                    match std::fs::read_to_string(entry.path()) {
-                        Ok(src) => results.push(analyze(
-                            src,
-                            entry.path().display().to_string(),
-                            &rules,
-                        )),
-                        Err(e) => {
-                            eprintln!("{}: {e}", entry.path().display());
-                            return 2;
+                    let ext = entry.path().extension().and_then(|s| s.to_str());
+                    if ext == Some("md") {
+                        match lint_markdown_file(entry.path(), &rules) {
+                            Ok(r) => results.push(r),
+                            Err(e) => {
+                                eprintln!("{}: {e}", entry.path().display());
+                                return 2;
+                            }
+                        }
+                    } else {
+                        match std::fs::read_to_string(entry.path()) {
+                            Ok(src) => results.push(analyze(
+                                src,
+                                entry.path().display().to_string(),
+                                &rules,
+                            )),
+                            Err(e) => {
+                                eprintln!("{}: {e}", entry.path().display());
+                                return 2;
+                            }
                         }
                     }
                 }
                 if !found {
-                    eprintln!("note: no .cypher files found in {}", path.display());
+                    if args.no_markdown {
+                        eprintln!("note: no .cypher files found in {}", path.display());
+                    } else {
+                        eprintln!("note: no .cypher or .md files found in {}", path.display());
+                    }
                 }
             } else {
+                let ext = path.extension().and_then(|s| s.to_str());
+                if args.no_markdown && ext == Some("md") {
+                    eprintln!("note: {}: skipped (--no-markdown)", path.display());
+                    continue;
+                }
                 let canonical = path.canonicalize().unwrap_or_else(|_| path.clone());
                 if !visited.insert(canonical) { continue; }
-                match std::fs::read_to_string(path) {
-                    Ok(src) => results.push(analyze(src, path.display().to_string(), &rules)),
-                    Err(e) => {
-                        eprintln!("{}: {e}", path.display());
-                        return 2;
+                if ext == Some("md") {
+                    match lint_markdown_file(path, &rules) {
+                        Ok(r) => results.push(r),
+                        Err(e) => {
+                            eprintln!("{}: {e}", path.display());
+                            return 2;
+                        }
+                    }
+                } else {
+                    match std::fs::read_to_string(path) {
+                        Ok(src) => results.push(analyze(src, path.display().to_string(), &rules)),
+                        Err(e) => {
+                            eprintln!("{}: {e}", path.display());
+                            return 2;
+                        }
                     }
                 }
             }
@@ -406,6 +444,25 @@ fn analyze(source: String, path: String, rules: &[Rule]) -> SourceResult {
     }
 
     SourceResult { path, source, diags }
+}
+
+fn lint_markdown_file(path: &Path, rules: &[Rule]) -> anyhow::Result<SourceResult> {
+    let full_source = std::fs::read_to_string(path)?;
+    let path_str = path.display().to_string();
+    let snippets = extract_cypher_snippets(&full_source);
+    let mut all_diags: Vec<Diagnostic> = Vec::new();
+    for snippet in snippets {
+        if snippet.content.trim().is_empty() {
+            continue;
+        }
+        let mut result = analyze(snippet.content.clone(), path_str.clone(), rules);
+        for d in &mut result.diags {
+            d.range.start.line += snippet.start_line;
+            d.range.end.line += snippet.start_line;
+        }
+        all_diags.extend(result.diags);
+    }
+    Ok(SourceResult { path: path_str, source: full_source, diags: all_diags })
 }
 
 fn collect_pairs(tree: &Tree, _source: &str) -> Vec<DocStatementPair> {

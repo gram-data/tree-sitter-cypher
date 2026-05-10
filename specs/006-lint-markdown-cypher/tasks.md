@@ -16,7 +16,7 @@
 
 **Purpose**: Register the new module in the existing project.
 
-- [ ] T001 Add `mod markdown;` to `tools/cypher/src/main.rs`
+- [x] T001 Add `mod markdown;` to `tools/cypher/src/main.rs`
 
 ---
 
@@ -26,9 +26,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T002 Create `tools/cypher/src/markdown.rs` with `CypherSnippet { content: String, start_line: u32 }` struct and `extract_cypher_snippets(source: &str) -> Vec<CypherSnippet>` using a line-based state machine (see data-model.md for the algorithm)
-- [ ] T003 Add unit tests inside `tools/cypher/src/markdown.rs` covering: single snippet, multiple snippets, no snippets, empty snippet, mixed-case ` ```Cypher `, fence with trailing annotation ` ```cypher title="x" `, skipped language tags (` ```cql `, ` ```cypher-shell `)
-- [ ] T004 Verify `cargo test --manifest-path tools/cypher/Cargo.toml markdown` passes
+- [x] T002 Create `tools/cypher/src/markdown.rs` with `CypherSnippet { content: String, start_line: u32 }` struct and `extract_cypher_snippets(source: &str) -> Vec<CypherSnippet>` using a line-based state machine (see data-model.md for the algorithm)
+- [x] T003 Add unit tests inside `tools/cypher/src/markdown.rs` covering: single snippet, multiple snippets, no snippets, empty snippet, mixed-case ` ```Cypher `, fence with trailing annotation ` ```cypher title="x" `, skipped language tags (` ```cql `, ` ```cypher-shell `)
+- [x] T004 Verify `cargo test --manifest-path tools/cypher/Cargo.toml markdown` passes
 
 **Checkpoint**: `extract_cypher_snippets` is correct and tested — user story phases can now begin.
 
@@ -42,13 +42,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T005 [P] [US1] Create fixture `tools/cypher/tests/fixtures/markdown_clean.md` — a markdown file with one valid ` ```cypher ` block and surrounding prose
-- [ ] T006 [P] [US1] Create fixture `tools/cypher/tests/fixtures/markdown_unlabelled.md` — a markdown file with a ` ```cypher ` block containing `MATCH (n) RETURN n` (unlabelled node) at a non-line-1 position (e.g., line 10 inside the markdown)
-- [ ] T007 [P] [US1] Create fixture `tools/cypher/tests/fixtures/markdown_multi_snippet.md` — a markdown file with three ` ```cypher ` blocks: one clean, one with an unlabelled node, one with an unbounded relationship; each block at different line positions
-- [ ] T008 [US1] Add `lint_markdown_file(path: &Path, rules: &[Rule]) -> anyhow::Result<SourceResult>` to `tools/cypher/src/lint.rs`: reads full markdown source, calls `extract_cypher_snippets()`, calls `analyze()` per snippet, offsets each diagnostic's `range.start.line` and `range.end.line` by `snippet.start_line`, merges all snippet diagnostics into one `SourceResult` with `source = full_markdown_text` and `path = markdown file path string`
-- [ ] T009 [US1] Extend the explicit-path branch of `run()` in `tools/cypher/src/lint.rs` to detect `.md` extension and route to `lint_markdown_file()` instead of `analyze()`
-- [ ] T010 [US1] Add integration tests in `tools/cypher/tests/lint_integration.rs`: `markdown_clean.md` → `success()` with empty stderr; `markdown_unlabelled.md` → `failure()` with stderr containing `"UnlabelledNode"` and the correct absolute line number; `markdown_multi_snippet.md` → `failure()` with diagnostics attributed to correct lines for each block
-- [ ] T011 [US1] Verify `cargo test --manifest-path tools/cypher/Cargo.toml lint_markdown` passes and `cypher lint tests/fixtures/markdown_unlabelled.md` reports the correct line
+- [x] T005 [P] [US1] Create fixture `tools/cypher/tests/fixtures/markdown_clean.md` — a markdown file with one valid ` ```cypher ` block and surrounding prose
+- [x] T006 [P] [US1] Create fixture `tools/cypher/tests/fixtures/markdown_unlabelled.md` — a markdown file with a ` ```cypher ` block containing `MATCH (n) RETURN n` (unlabelled node) at a non-line-1 position (e.g., line 10 inside the markdown)
+- [x] T007 [P] [US1] Create fixture `tools/cypher/tests/fixtures/markdown_multi_snippet.md` — a markdown file with three ` ```cypher ` blocks: one clean, one with an unlabelled node, one with an unbounded relationship; each block at different line positions
+- [x] T008 [US1] Add `lint_markdown_file(path: &Path, rules: &[Rule]) -> anyhow::Result<SourceResult>` to `tools/cypher/src/lint.rs`: reads full markdown source, calls `extract_cypher_snippets()`, calls `analyze()` per snippet, offsets each diagnostic's `range.start.line` and `range.end.line` by `snippet.start_line`, merges all snippet diagnostics into one `SourceResult` with `source = full_markdown_text` and `path = markdown file path string`
+- [x] T009 [US1] Extend the explicit-path branch of `run()` in `tools/cypher/src/lint.rs` to detect `.md` extension and route to `lint_markdown_file()` instead of `analyze()`
+- [x] T010 [US1] Add integration tests in `tools/cypher/tests/lint_integration.rs`: `markdown_clean.md` → `success()` with empty stderr; `markdown_unlabelled.md` → `failure()` with stderr containing `"UnlabelledNode"` and the correct absolute line number; `markdown_multi_snippet.md` → `failure()` with diagnostics attributed to correct lines for each block
+- [x] T011 [US1] Verify `cargo test --manifest-path tools/cypher/Cargo.toml lint_markdown` passes and `cypher lint tests/fixtures/markdown_unlabelled.md` reports the correct line
 
 **Checkpoint**: `cypher lint <file>.md` fully functional — single markdown file linting works end-to-end.
 
@@ -62,11 +62,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T012 [P] [US2] Create fixture `tools/cypher/tests/fixtures/markdown_no_fence.md` — a markdown file with no code blocks (used to verify clean exit for `.md` files without Cypher)
-- [ ] T013 [US2] Extend the directory-walk branch of `run()` in `tools/cypher/src/lint.rs` to include `extension == "md"` alongside `extension == "cypher"` in the `WalkDir` filter; route `.md` entries to `lint_markdown_file()`
-- [ ] T014 [US2] Update the "no eligible files found" note in `run()` to say `"no .cypher or .md files found"` instead of `"no .cypher files found"`
-- [ ] T015 [US2] Add integration tests in `tools/cypher/tests/lint_integration.rs`: directory containing both `.cypher` and `.md` files → both types checked; directory with only `.md` files → snippets checked; `markdown_no_fence.md` in a directory → exit 0 with no diagnostics; mixed directory with one `.md` error → aggregate exit code 1
-- [ ] T016 [US2] Verify `cargo test --manifest-path tools/cypher/Cargo.toml lint_markdown` still passes with the new directory tests
+- [x] T012 [P] [US2] Create fixture `tools/cypher/tests/fixtures/markdown_no_fence.md` — a markdown file with no code blocks (used to verify clean exit for `.md` files without Cypher)
+- [x] T013 [US2] Extend the directory-walk branch of `run()` in `tools/cypher/src/lint.rs` to include `extension == "md"` alongside `extension == "cypher"` in the `WalkDir` filter; route `.md` entries to `lint_markdown_file()`
+- [x] T014 [US2] Update the "no eligible files found" note in `run()` to say `"no .cypher or .md files found"` instead of `"no .cypher files found"`
+- [x] T015 [US2] Add integration tests in `tools/cypher/tests/lint_integration.rs`: directory containing both `.cypher` and `.md` files → both types checked; directory with only `.md` files → snippets checked; `markdown_no_fence.md` in a directory → exit 0 with no diagnostics; mixed directory with one `.md` error → aggregate exit code 1
+- [x] T016 [US2] Verify `cargo test --manifest-path tools/cypher/Cargo.toml lint_markdown` still passes with the new directory tests
 
 **Checkpoint**: `cypher lint <dir>` checks both `.cypher` and `.md` files uniformly.
 
@@ -80,11 +80,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T017 [US3] Add `#[arg(long = "no-markdown")] pub no_markdown: bool` field to `LintArgs` struct in `tools/cypher/src/lint.rs`
-- [ ] T018 [US3] In the directory-walk branch of `run()`, skip files with `.md` extension when `args.no_markdown` is true
-- [ ] T019 [US3] In the explicit-path branch of `run()`, when an explicit `.md` path is given and `args.no_markdown` is true, print `"note: {path}: skipped (--no-markdown)"` to stderr and continue without adding to results; do not change exit code
-- [ ] T020 [US3] Add integration tests in `tools/cypher/tests/lint_integration.rs`: `--no-markdown` with directory → only `.cypher` files checked; `--no-markdown` with explicit `.md` path → note printed, exit 0; `--no-markdown` with no `.cypher` files in directory → "no .cypher or .md files found" note, exit 0
-- [ ] T021 [US3] Verify `cargo test --manifest-path tools/cypher/Cargo.toml` passes (full suite)
+- [x] T017 [US3] Add `#[arg(long = "no-markdown")] pub no_markdown: bool` field to `LintArgs` struct in `tools/cypher/src/lint.rs`
+- [x] T018 [US3] In the directory-walk branch of `run()`, skip files with `.md` extension when `args.no_markdown` is true
+- [x] T019 [US3] In the explicit-path branch of `run()`, when an explicit `.md` path is given and `args.no_markdown` is true, print `"note: {path}: skipped (--no-markdown)"` to stderr and continue without adding to results; do not change exit code
+- [x] T020 [US3] Add integration tests in `tools/cypher/tests/lint_integration.rs`: `--no-markdown` with directory → only `.cypher` files checked; `--no-markdown` with explicit `.md` path → note printed, exit 0; `--no-markdown` with no `.cypher` files in directory → "no .cypher or .md files found" note, exit 0
+- [x] T021 [US3] Verify `cargo test --manifest-path tools/cypher/Cargo.toml` passes (full suite)
 
 **Checkpoint**: All three user stories functional. `--no-markdown` correctly suppresses markdown processing.
 
@@ -94,11 +94,11 @@
 
 **Purpose**: Edge-case fixtures, unclosed-fence handling, `--json` contract validation.
 
-- [ ] T022 [P] Create fixture `tools/cypher/tests/fixtures/markdown_empty_snippet.md` — a markdown file with an empty ` ```cypher\n``` ` block (only whitespace between fences)
-- [ ] T023 [P] Add unit test in `tools/cypher/src/markdown.rs` for unclosed fence: last snippet includes all remaining content as `content` with correct `start_line`
-- [ ] T024 [P] Add integration test for `markdown_empty_snippet.md` → exit 0, no diagnostics (empty snippets silently skipped)
-- [ ] T025 [P] Add integration test for `--json` with a markdown file: verify the JSON output path field is the `.md` filename, `range.start.line` is the absolute markdown line, and output validates against the schema documented in `specs/005-cypher-cli/contracts/json-output-schema.md`
-- [ ] T026 Run `cargo test --manifest-path tools/cypher/Cargo.toml` to confirm full suite passes
+- [x] T022 [P] Create fixture `tools/cypher/tests/fixtures/markdown_empty_snippet.md` — a markdown file with an empty ` ```cypher\n``` ` block (only whitespace between fences)
+- [x] T023 [P] Add unit test in `tools/cypher/src/markdown.rs` for unclosed fence: last snippet includes all remaining content as `content` with correct `start_line`
+- [x] T024 [P] Add integration test for `markdown_empty_snippet.md` → exit 0, no diagnostics (empty snippets silently skipped)
+- [x] T025 [P] Add integration test for `--json` with a markdown file: verify the JSON output path field is the `.md` filename, `range.start.line` is the absolute markdown line, and output validates against the schema documented in `specs/005-cypher-cli/contracts/json-output-schema.md`
+- [x] T026 Run `cargo test --manifest-path tools/cypher/Cargo.toml` to confirm full suite passes
 
 ---
 
