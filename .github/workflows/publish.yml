@@ -57,8 +57,11 @@ jobs:
         run: cargo test -p cypher-data
 
   # ── npm ───────────────────────────────────────────────────────────────────
-  # NPM_TOKEN authenticates; id-token:write supplies the OIDC token that
-  # --provenance uses for the Sigstore attestation (separate from auth).
+  # Uses npm trusted-publisher (OIDC): no NPM_TOKEN needed.
+  # setup-node with registry-url configures .npmrc; id-token:write lets
+  # setup-node exchange the GitHub OIDC token for a temporary npm publish
+  # token tied to whichever npm package has this repo configured as a
+  # trusted publisher.
   publish-npm:
     name: Publish to npm
     needs: test
@@ -73,16 +76,20 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - run: npm ci --omit=peer --omit=optional
-      - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish tree-sitter-cypher
+        run: |
+          if ! npm publish --provenance --access public 2>&1 | tee /tmp/npm.log; then
+            grep -q "previously published" /tmp/npm.log || exit 1
+          fi
 
       - run: npm ci --omit=peer --omit=optional
         working-directory: tree-sitter-cypherdoc
-      - run: npm publish --provenance --access public
+      - name: Publish tree-sitter-cypherdoc
         working-directory: tree-sitter-cypherdoc
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if ! npm publish --provenance --access public 2>&1 | tee /tmp/npm-doc.log; then
+            grep -q "previously published" /tmp/npm-doc.log || exit 1
+          fi
 
   # ── crates.io ─────────────────────────────────────────────────────────────
   publish-crates:
@@ -103,9 +110,10 @@ jobs:
 
       - name: Publish tree-sitter-cypher
         run: |
-          out=$(cargo publish -p tree-sitter-cypher --allow-dirty 2>&1); rc=$?
-          echo "$out"
-          [[ $rc -eq 0 ]] || echo "$out" | grep -q "already exists" || exit $rc
+          if ! cargo publish -p tree-sitter-cypher --allow-dirty >/tmp/cargo.log 2>&1; then
+            cat /tmp/cargo.log
+            grep -q "already exists" /tmp/cargo.log
+          fi
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
@@ -114,9 +122,10 @@ jobs:
 
       - name: Publish tree-sitter-cypherdoc
         run: |
-          out=$(cargo publish -p tree-sitter-cypherdoc --allow-dirty 2>&1); rc=$?
-          echo "$out"
-          [[ $rc -eq 0 ]] || echo "$out" | grep -q "already exists" || exit $rc
+          if ! cargo publish -p tree-sitter-cypherdoc --allow-dirty >/tmp/cargo.log 2>&1; then
+            cat /tmp/cargo.log
+            grep -q "already exists" /tmp/cargo.log
+          fi
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
@@ -125,9 +134,10 @@ jobs:
 
       - name: Publish cypher-data
         run: |
-          out=$(cargo publish -p cypher-data --allow-dirty 2>&1); rc=$?
-          echo "$out"
-          [[ $rc -eq 0 ]] || echo "$out" | grep -q "already exists" || exit $rc
+          if ! cargo publish -p cypher-data --allow-dirty >/tmp/cargo.log 2>&1; then
+            cat /tmp/cargo.log
+            grep -q "already exists" /tmp/cargo.log
+          fi
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
