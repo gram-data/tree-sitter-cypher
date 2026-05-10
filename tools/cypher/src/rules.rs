@@ -88,6 +88,7 @@ pub fn builtin_rules() -> Vec<Rule> {
         include_str!("../rules/structural/cartesian_product.scm"),
         include_str!("../rules/structural/deprecated_id_function.scm"),
         include_str!("../rules/structural/dynamic_property.scm"),
+        include_str!("../rules/structural/aggregation_skipped_null.scm"),
     ];
     let contract_sources: &[&str] = &[
         include_str!("../rules/contract/optional_param_missing_default.scm"),
