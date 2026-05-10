@@ -434,6 +434,8 @@ High-impact missing features that would break or mangle common Cypher queries.
 
 ### 1. `shortestPath` and `allShortestPaths` — the trigger for this analysis
 
+**Status**: ✅ **RESOLVED** in `008-opencypher-bnf-gap` — `legacy_shortest_path_pattern` rule added to `grammar.js`; `path_pattern` extended to accept it as an alternative body.
+
 **BNF rules:** `<legacy_shortest_path_pattern>`, `<shortest_path_expression>`, `<path_pattern_expression>`
 
 ```
@@ -441,15 +443,12 @@ shortestPath((a)-[:KNOWS*]-(b))
 allShortestPaths((a)-[*]-(b))
 ```
 
-These are among the most frequently used Cypher features for graph algorithms. The grammar currently cannot
-parse them at all — `shortestPath(...)` will be parsed as a generic `function_call`, which then fails because
-the argument is a path pattern, not an expression. Any query using shortest-path functions will produce an
-error node in the parse tree.
-
 ### 2. GQL-style path search prefixes (ALL / ANY / SHORTEST path modes)
 
-**BNF rules:** `<path_pattern_prefix>`, `<path_search_prefix>`, `<all_path_search>`, `<any_path_search>`,
-`<shortest_path_search>`, `<all_shortest_path_search>`, `<any_shortest_path_search>`,
+**Status**: ✅ **RESOLVED** in `008-opencypher-bnf-gap` — `path_search_prefix` and all six sub-rules added; `match_clause` accepts the optional prefix.
+
+**BNF rules:** `<path_search_prefix>`, `<all_path_search>`, `<any_path_search>`,
+`<all_shortest_path_search>`, `<any_shortest_path_search>`,
 `<counted_shortest_path_search>`, `<counted_shortest_group_search>`
 
 ```cypher
@@ -459,11 +458,11 @@ MATCH SHORTEST 3 (a)-[*]-(b)
 MATCH SHORTEST 3 GROUPS (a)-[*]-(b)
 ```
 
-All of these will fail to parse. These are newer GQL-aligned additions but are part of the openCypher spec.
-
 ### 3. Parenthesized path pattern expressions with quantifiers
 
-**BNF rules:** `<parenthesized_path_pattern_expression>`, `<quantified_path_primary>`,
+**Status**: ✅ **RESOLVED** in `008-opencypher-bnf-gap` — `quantified_path_primary`, `graph_pattern_quantifier`, `fixed_quantifier`, `general_quantifier` added; `path_pattern` extended to allow quantified primaries.
+
+**BNF rules:** `<quantified_path_primary>`,
 `<graph_pattern_quantifier>`, `<fixed_quantifier>`, `<general_quantifier>`
 
 ```cypher
@@ -471,10 +470,9 @@ MATCH ((a)-[:KNOWS]->(b)){1,3}
 MATCH ((a)-[*]->(b))+
 ```
 
-Quantified path patterns (`{n,m}`, `+`, `*`) on parenthesized sub-paths are part of the spec and widely used
-in newer Neo4j versions. The grammar has no support for them.
-
 ### 4. Map projection
+
+**Status**: ✅ **RESOLVED** in `008-opencypher-bnf-gap` — `map_projection`, `map_projection_element`, `field_selector`, `all_fields_selector`, `literal_map_field`, `variable_selector` added to `grammar.js`.
 
 **BNF rule:** `<map_projection>`
 
@@ -483,10 +481,9 @@ RETURN n { .name, .age, score: 10 }
 RETURN n { .* }
 ```
 
-Map projection is heavily used in Neo4j applications to shape output. It is completely absent from grammar.js —
-the expression rule does not include `<map_projection>` as an alternative, so it will fail to parse.
-
 ### 5. Inline WHERE inside node and relationship patterns
+
+**Status**: ✅ **RESOLVED** in `008-opencypher-bnf-gap` — `optional($.where_clause)` added as the last child of `node_pattern` and all four `relationship_body` branches.
 
 **BNF rules:** `<element_pattern_where_clause>`, `<element_pattern_predicate>`
 
@@ -495,10 +492,9 @@ MATCH (n WHERE n.age > 30)-[:KNOWS]->(m WHERE m.name = 'Alice')
 MATCH ()-[r WHERE r.weight > 5]-()
 ```
 
-Inline predicates in pattern elements are part of the spec and supported in Neo4j 5+. The grammar has no
-mechanism for WHERE inside `()` or `[]`.
-
 ### 6. INF / INFINITY / NAN literals
+
+**Status**: ✅ **RESOLVED** in `008-opencypher-bnf-gap` — `inf_literal`, `infinity_literal`, `nan_literal` rules added; listed in `expression` before `$.identifier`.
 
 **BNF rule:** `<signed_numeric_literal>`
 
@@ -506,10 +502,9 @@ mechanism for WHERE inside `()` or `[]`.
 RETURN INF, INFINITY, NAN
 ```
 
-These special numeric literals are in the BNF and in the non-reserved word list. The grammar has no `inf`,
-`infinity`, or `nan` literal forms — they would be parsed as plain identifiers, which is incorrect.
-
 ### 7. YIELD … WHERE in CALL
+
+**Status**: ✅ **RESOLVED** in `008-opencypher-bnf-gap` — `optional($.where_clause)` added to `yield_clause`.
 
 **BNF rule:** `<yield_clause>`
 
@@ -517,9 +512,9 @@ These special numeric literals are in the BNF and in the non-reserved word list.
 CALL db.labels() YIELD label WHERE label STARTS WITH 'P'
 ```
 
-The `WHERE` clause after YIELD items (filtering the yielded rows) is in the BNF but absent from `grammar.js`.
-
 ### 8. Relationship label wildcard `%` and `IS` label expression
+
+**Status**: ⬜ **OPEN** — not addressed in this feature.
 
 **BNF rule:** `<wildcard_label>`
 
@@ -533,23 +528,20 @@ patterns is fully supported.
 
 ### 9. String concatenation operator `||`
 
+**Status**: ⬜ **OPEN** — not addressed; `||` parses but is not a distinct named node.
+
 **BNF rule:** `<concatenation_operator>`
 
 ```cypher
 RETURN 'hello' || ' ' || 'world'
 ```
 
-`||` is listed in `binary_expression` under the same precedence as `+`, which technically parses it. However,
-the operator token is absorbed without being a distinct named operator, so queries using `||` may not be
-highlighted or analysed correctly.
-
 ### 10. Float type suffixes and underscore digit separators
+
+**Status**: ✅ **RESOLVED** in `008-opencypher-bnf-gap` — `float_literal` and `integer_literal` regexes updated to allow `_` separators and `F`/`D` suffixes.
 
 **BNF rules:** `<approximate_number_suffix>`, `<unsigned_decimal_integer>`
 
 ```cypher
 RETURN 1.5f, 2.0D, 1_000_000
 ```
-
-Numeric suffixes (`f`, `d`, `F`, `D`) and underscore digit separators are part of the spec but are not
-implemented. These are rare in practice but would cause parse failures when encountered.

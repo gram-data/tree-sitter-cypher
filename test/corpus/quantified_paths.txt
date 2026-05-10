@@ -1,0 +1,119 @@
+============================================
+Quantified path - general quantifier {n,m}
+============================================
+
+MATCH ((a)-[:KNOWS]->(b)){1,3} RETURN a, b
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (quantified_path_primary
+            (node_pattern variable: (identifier))
+            (relationship_pattern
+              (relationship_body
+                label: (label_expression label_name: (identifier))))
+            (node_pattern variable: (identifier))
+            quantifier: (graph_pattern_quantifier
+              (general_quantifier
+                lower: (integer_literal)
+                upper: (integer_literal)))))))
+    (return_clause
+      (return_body
+        (return_item (expression (identifier)))
+        (return_item (expression (identifier)))))))
+
+============================================
+Quantified path - plus quantifier
+============================================
+
+MATCH ((a)-[r]->(b))+ RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (quantified_path_primary
+            (node_pattern variable: (identifier))
+            (relationship_pattern
+              (relationship_body variable: (identifier)))
+            (node_pattern variable: (identifier))
+            quantifier: (graph_pattern_quantifier)))))
+    (return_clause
+      (return_body
+        (return_item (expression (identifier)))))))
+
+============================================
+Quantified path - fixed quantifier {n}
+============================================
+
+MATCH ((a)-[r]->(b)){3} RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (quantified_path_primary
+            (node_pattern variable: (identifier))
+            (relationship_pattern
+              (relationship_body variable: (identifier)))
+            (node_pattern variable: (identifier))
+            quantifier: (graph_pattern_quantifier
+              (fixed_quantifier count: (integer_literal)))))))
+    (return_clause
+      (return_body
+        (return_item (expression (identifier)))))))
+
+============================================
+Quantified path - unbounded upper {n,}
+============================================
+
+MATCH ((a)-[r]->(b)){2,} RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (quantified_path_primary
+            (node_pattern variable: (identifier))
+            (relationship_pattern
+              (relationship_body variable: (identifier)))
+            (node_pattern variable: (identifier))
+            quantifier: (graph_pattern_quantifier
+              (general_quantifier
+                lower: (integer_literal)))))))
+    (return_clause
+      (return_body
+        (return_item (expression (identifier)))))))
+
+============================================
+ERROR - quantifier on bare node (not path)
+============================================
+
+MATCH (a){2} RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern variable: (identifier)))))
+    (ERROR
+      (integer_literal))
+    (return_clause
+      (return_body
+        (return_item (expression (identifier)))))))

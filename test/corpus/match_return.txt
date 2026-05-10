@@ -159,3 +159,78 @@ MATCH (n RETURN n
         (return_item
           (expression
             (identifier)))))))
+
+============================================
+MATCH ALL path search prefix
+============================================
+
+MATCH ALL (a:Person)-[*]-(b:Person) RETURN a, b
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      (path_search_prefix
+        (all_path_search))
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            label: (label_expression label_name: (identifier)))
+          (relationship_pattern
+            (relationship_body length: (path_length)))
+          (node_pattern
+            variable: (identifier)
+            label: (label_expression label_name: (identifier))))))
+    (return_clause
+      (return_body
+        (return_item (expression (identifier)))
+        (return_item (expression (identifier)))))))
+
+============================================
+MATCH ANY SHORTEST path search prefix
+============================================
+
+MATCH ANY SHORTEST (a)-[*]-(b) RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      (path_search_prefix
+        (any_shortest_path_search))
+      pattern: (pattern
+        (path_pattern
+          (node_pattern variable: (identifier))
+          (relationship_pattern
+            (relationship_body length: (path_length)))
+          (node_pattern variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item (expression (identifier)))))))
+
+============================================
+MATCH SHORTEST n path search prefix
+============================================
+
+MATCH SHORTEST 3 (a)-[*]-(b) RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      (path_search_prefix
+        (counted_shortest_path_search
+          (integer_literal)))
+      pattern: (pattern
+        (path_pattern
+          (node_pattern variable: (identifier))
+          (relationship_pattern
+            (relationship_body length: (path_length)))
+          (node_pattern variable: (identifier)))))
+    (return_clause
+      (return_body
+        (return_item (expression (identifier)))))))

@@ -213,3 +213,45 @@ UNWIND [1, 2, 3]
         (integer_literal))
       (expression
         (integer_literal)))))
+
+============================================
+CALL with YIELD WHERE
+============================================
+
+CALL db.labels() YIELD label WHERE label STARTS WITH 'A' RETURN label
+
+---
+
+(source_file
+  (statement
+    (call_clause
+      name: (procedure_name (identifier) (identifier))
+      (yield_clause
+        (yield_item name: (identifier))
+        (where_clause
+          (expression
+            (starts_with_expression
+              (expression (identifier))
+              (expression (string_literal)))))))
+    (return_clause
+      (return_body
+        (return_item (expression (identifier)))))))
+
+============================================
+CALL with YIELD star and WHERE
+============================================
+
+CALL db.labels() YIELD * WHERE true RETURN label
+
+---
+
+(source_file
+  (statement
+    (call_clause
+      name: (procedure_name (identifier) (identifier))
+      (yield_clause
+        (where_clause
+          (expression (boolean_literal)))))
+    (return_clause
+      (return_body
+        (return_item (expression (identifier)))))))

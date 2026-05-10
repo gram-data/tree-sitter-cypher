@@ -39,8 +39,10 @@ export default grammar({
     [$.expression, $.pattern_comprehension],   // [ identifier '=' → expression vs path variable
     [$.node_pattern, $.expression],            // [ (identifier) → node_pattern vs (expr)
     [$.property_map, $.map_literal],           // [ ({ }) ] → node property vs map literal in expr
+    [$.map_projection, $.map_literal],         // expr { } → map projection vs standalone map literal
     [$.statement],                             // exists_subquery repeat1(statement) — consume greedily
     [$.pattern_predicate],                     // pattern_predicate repeat1 — consume path greedily
+    [$.legacy_shortest_path_pattern, $.function_call], // shortestPath( → path pattern vs function call
   ],
 
   rules: {
@@ -86,8 +88,54 @@ export default grammar({
     match_clause: $ => seq(
       optional(kw('OPTIONAL')),
       kw('MATCH'),
+      optional($.path_search_prefix),
       field('pattern', $.pattern),
       optional(field('where', $.where_clause)),
+    ),
+
+    // BNF: <path search prefix> — GQL-aligned path search modes
+    path_search_prefix: $ => choice(
+      $.all_path_search,
+      $.any_path_search,
+      $.all_shortest_path_search,
+      $.any_shortest_path_search,
+      $.counted_shortest_path_search,
+      $.counted_shortest_group_search,
+    ),
+
+    // BNF: <all path search> ::= ALL [PATH|PATHS]
+    all_path_search: $ => seq(kw('ALL'), optional(choice(kw('PATH'), kw('PATHS')))),
+
+    // BNF: <any path search> ::= ANY [n] [PATH|PATHS]
+    any_path_search: $ => seq(
+      kw('ANY'),
+      optional($.integer_literal),
+      optional(choice(kw('PATH'), kw('PATHS'))),
+    ),
+
+    // BNF: <all shortest path search> ::= ALL SHORTEST [PATH|PATHS]
+    all_shortest_path_search: $ => seq(
+      kw('ALL'), kw('SHORTEST'), optional(choice(kw('PATH'), kw('PATHS'))),
+    ),
+
+    // BNF: <any shortest path search> ::= ANY SHORTEST [PATH|PATHS]
+    any_shortest_path_search: $ => seq(
+      kw('ANY'), kw('SHORTEST'), optional(choice(kw('PATH'), kw('PATHS'))),
+    ),
+
+    // BNF: <counted shortest path search> ::= SHORTEST n [PATH|PATHS]
+    counted_shortest_path_search: $ => seq(
+      kw('SHORTEST'),
+      $.integer_literal,
+      optional(choice(kw('PATH'), kw('PATHS'))),
+    ),
+
+    // BNF: <counted shortest group search> ::= SHORTEST [n] [PATH|PATHS] GROUP|GROUPS
+    counted_shortest_group_search: $ => seq(
+      kw('SHORTEST'),
+      optional($.integer_literal),
+      optional(choice(kw('PATH'), kw('PATHS'))),
+      choice(kw('GROUP'), kw('GROUPS')),
     ),
 
     // ─── T029: Node pattern (extended from US2 stub) ─────────────────────────
@@ -98,6 +146,7 @@ export default grammar({
       optional(field('variable', $.identifier)),
       optional(field('label', $.label_expression)),
       optional(field('properties', choice($.parameter, $.property_map))),
+      optional(field('where', $.where_clause)),
       ')',
     ),
 
@@ -140,10 +189,49 @@ export default grammar({
     pattern: $ => commaSep1($.path_pattern),
 
     // BNF: <path pattern> ::= [<path variable> =] <path pattern expression>
+    // BNF: <path pattern expression> ::= <path term> | <legacy shortest path pattern>
     path_pattern: $ => seq(
       optional(seq(field('variable', $.identifier), '=')),
+      choice(
+        $.legacy_shortest_path_pattern,
+        seq(
+          choice($.quantified_path_primary, $.node_pattern),
+          repeat(seq($.relationship_pattern, choice($.quantified_path_primary, $.node_pattern))),
+        ),
+      ),
+    ),
+
+    // BNF: <quantified path primary> ::= '(' <node pattern> <relationship pattern> <node pattern>... ')' <quantifier>
+    quantified_path_primary: $ => seq(
+      '(',
       $.node_pattern,
-      repeat(seq($.relationship_pattern, $.node_pattern)),
+      repeat1(seq($.relationship_pattern, $.node_pattern)),
+      ')',
+      field('quantifier', $.graph_pattern_quantifier),
+    ),
+
+    // BNF: <graph pattern quantifier> ::= '+' | '*' | <fixed quantifier> | <general quantifier>
+    graph_pattern_quantifier: $ => choice(
+      '+',
+      '*',
+      $.fixed_quantifier,
+      $.general_quantifier,
+    ),
+
+    // BNF: <fixed quantifier> ::= '{' n '}'
+    fixed_quantifier: $ => seq(
+      '{',
+      field('count', $.integer_literal),
+      '}',
+    ),
+
+    // BNF: <general quantifier> ::= '{' [lower] ',' [upper] '}'
+    general_quantifier: $ => seq(
+      '{',
+      field('lower', optional($.integer_literal)),
+      ',',
+      field('upper', optional($.integer_literal)),
+      '}',
     ),
 
     // ─── T032: Relationship pattern ───────────────────────────────────────────
@@ -171,13 +259,17 @@ export default grammar({
       seq(field('variable', $.identifier),
           optional(field('label', $.label_expression)),
           optional(field('length', $.path_length)),
-          optional($._rel_props)),
+          optional($._rel_props),
+          optional(field('where', $.where_clause))),
       seq(field('label', $.label_expression),
           optional(field('length', $.path_length)),
-          optional($._rel_props)),
+          optional($._rel_props),
+          optional(field('where', $.where_clause))),
       seq(field('length', $.path_length),
-          optional($._rel_props)),
-      $._rel_props,
+          optional($._rel_props),
+          optional(field('where', $.where_clause))),
+      seq($._rel_props,
+          optional(field('where', $.where_clause))),
     ),
 
     // ─── T034: Path length ────────────────────────────────────────────────────
@@ -261,10 +353,11 @@ export default grammar({
     ),
 
     // ─── T068: YIELD clause ───────────────────────────────────────────────────
-    // BNF: <yield clause> ::= YIELD <yield item list> | *
+    // BNF: <yield clause> ::= YIELD (<yield item list> | *) [WHERE <expr>]
     yield_clause: $ => seq(
       kw('YIELD'),
       choice('*', commaSep1($.yield_item)),
+      optional($.where_clause),
     ),
 
     // BNF: <yield item> ::= <field name> [AS <identifier>]
@@ -367,7 +460,9 @@ export default grammar({
       $.single_expression,
       $.reduce_expression,
       $.count_star,
+      $.legacy_shortest_path_pattern,
       $.function_call,
+      $.map_projection,
       $.subscript_expression,
       $.property_access,
       $.list_literal,
@@ -379,6 +474,9 @@ export default grammar({
       $.null_literal,
       $.parameter,
       $.escaped_identifier,
+      $.infinity_literal,
+      $.inf_literal,
+      $.nan_literal,
       $.identifier,
     ),
 
@@ -439,6 +537,17 @@ export default grammar({
       $.expression, kw('CONTAINS'), $.expression,
     )),
 
+    // BNF: <legacy shortest path pattern>
+    // shortestPath((a)-[*]-(b)) or allShortestPaths((a)-[:T*]-(b))
+    legacy_shortest_path_pattern: $ => seq(
+      field('function', choice(kw('SHORTESTPATH'), kw('ALLSHORTESTPATHS'))),
+      '(',
+      field('start', $.node_pattern),
+      $.relationship_pattern,
+      field('end', $.node_pattern),
+      ')',
+    ),
+
     // T043: Function calls — simple and qualified names (e.g., db.labels)
     // BNF: <function invocation>
     function_call: $ => seq(
@@ -462,6 +571,39 @@ export default grammar({
 
     // BNF: <map literal> — same syntax as property_map but used as an expression value
     map_literal: $ => seq('{', commaSep($.property_key_value), '}'),
+
+    // BNF: <map projection> ::= <expression> '{' [<map projection element list>] '}'
+    // e.g., n { .name, .age, score: 10, .* }
+    map_projection: $ => prec.left(10, seq(
+      field('object', $.expression),
+      '{',
+      commaSep($.map_projection_element),
+      '}',
+    )),
+
+    // BNF: <map projection element> — one of four forms
+    map_projection_element: $ => choice(
+      $.all_fields_selector,   // .*
+      $.field_selector,        // .name
+      $.literal_map_field,     // key: expr
+      $.variable_selector,     // bareVar
+    ),
+
+    // BNF: <all fields selector> ::= '.' '*'
+    all_fields_selector: _ => seq('.', '*'),
+
+    // BNF: <field selector> ::= '.' <property name>
+    field_selector: $ => seq('.', field('property', $._symbolic_name)),
+
+    // BNF: <literal map field> ::= <field name> ':' <expression>
+    literal_map_field: $ => seq(
+      field('key', $.identifier),
+      ':',
+      field('value', $.expression),
+    ),
+
+    // BNF: <variable selector> ::= <variable>
+    variable_selector: $ => field('variable', $.identifier),
 
     // T045: Subscript / index access and slice notation
     // BNF: <subscript operator>, <list slice>
@@ -601,17 +743,24 @@ export default grammar({
 
     // ─── T010–T015: Literals and terminals (from US1) ────────────────────────
 
+    // BNF: <unsigned decimal integer> — allows underscore digit separators (e.g. 1_000_000)
     integer_literal: _ => token(choice(
-      /0[xX][0-9a-fA-F]+/,
-      /0[oO][0-7]+/,
-      /[0-9]+/,
+      /0[xX][0-9a-fA-F][0-9a-fA-F_]*/,
+      /0[oO][0-7][0-7_]*/,
+      /[0-9][0-9_]*/,
     )),
 
+    // BNF: <approximate numeric literal> — allows underscore separators and F/D type suffixes
     float_literal: _ => token(choice(
-      /[0-9]+\.[0-9]+([eE][+-]?[0-9]+)?/,
-      /\.[0-9]+([eE][+-]?[0-9]+)?/,
-      /[0-9]+[eE][+-]?[0-9]+/,
+      /[0-9][0-9_]*\.[0-9][0-9_]*([eE][+-]?[0-9][0-9_]*)?[fFdD]?/,
+      /\.[0-9][0-9_]*([eE][+-]?[0-9][0-9_]*)?[fFdD]?/,
+      /[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*[fFdD]?/,
     )),
+
+    // BNF: <signed numeric literal> — INF, INFINITY, NAN special numeric values
+    inf_literal:      _ => token(/[Ii][Nn][Ff]/),
+    infinity_literal: _ => token(/[Ii][Nn][Ff][Ii][Nn][Ii][Tt][Yy]/),
+    nan_literal:      _ => token(/[Nn][Aa][Nn]/),
 
     string_literal: _ => token(choice(
       seq('"', /([^"\\]|\\.)*/,  '"'),

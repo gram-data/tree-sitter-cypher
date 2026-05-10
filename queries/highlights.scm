@@ -62,6 +62,9 @@
 (string_literal) @string
 (integer_literal) @number
 (float_literal) @number
+(inf_literal) @number
+(infinity_literal) @number
+(nan_literal) @number
 (path_length) @number
 (count_star) @function
 (boolean_literal) @boolean
@@ -117,6 +120,35 @@
 "|" @operator
 ".." @operator
 (binary_expression operator: ["=" "<>" "<" ">" "<=" ">=" "=~" "+" "-" "||" "*" "/" "%" "^"] @operator)
+
+; Quantified path patterns
+(fixed_quantifier "{" @punctuation.bracket)
+(fixed_quantifier "}" @punctuation.bracket)
+(general_quantifier "{" @punctuation.bracket)
+(general_quantifier "}" @punctuation.bracket)
+(general_quantifier "," @punctuation.delimiter)
+
+; GQL path-search prefix keywords
+(all_path_search "all" @keyword)
+(any_path_search "any" @keyword)
+(all_shortest_path_search "all" @keyword)
+(all_shortest_path_search "shortest" @keyword)
+(any_shortest_path_search "any" @keyword)
+(any_shortest_path_search "shortest" @keyword)
+(counted_shortest_path_search "shortest" @keyword)
+(counted_shortest_group_search "shortest" @keyword)
+(counted_shortest_group_search "groups" @keyword)
+(counted_shortest_group_search "group" @keyword)
+
+; Map projection
+(field_selector "." @punctuation.delimiter)
+(field_selector property: (identifier) @property)
+(all_fields_selector) @operator
+(literal_map_field key: (identifier) @property)
+
+; Shortest path functions (legacy openCypher shortestPath / allShortestPaths)
+"shortestpath" @function.builtin
+"allshortestpaths" @function.builtin
 
 ; New node types from TCK conformance (004-tck-conformance)
 (exists_expression "exists" @keyword)
