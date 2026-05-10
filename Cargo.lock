@@ -179,7 +179,7 @@ checksum = "1d07550c9036bf2ae0c684c4297d503f838287c83c53686d05370d0e139ae570"
 
 [[package]]
 name = "cypher-data"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "anyhow",
  "ariadne",
@@ -292,9 +292,9 @@ dependencies = [
 
 [[package]]
 name = "gram-diagnostics"
-version = "0.3.9"
+version = "0.3.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6ea1d5b1480dfe2847bdc94157a0174fd6db4941862344393581fa3afa023b7"
+checksum = "af8fb8eee53795b4213d06ca6d0b02611580ad81b925b305b660a19a75711325"
 dependencies = [
  "serde",
 ]
@@ -682,7 +682,7 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-cypher"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "cc",
  "tree-sitter",
@@ -691,7 +691,7 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-cypherdoc"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "cc",
  "tree-sitter",

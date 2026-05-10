@@ -312,6 +312,7 @@ fn analyze(source: String, path: String, rules: &[Rule]) -> SourceResult {
                             end: Position { line: line as u32, character: col as u32 },
                         },
                         code: None,
+                        help: None,
                     });
                 }
             }
@@ -435,6 +436,7 @@ fn analyze(source: String, path: String, rules: &[Rule]) -> SourceResult {
                                     },
                                 },
                                 code: None,
+                                help: Some(format!("Add @param {{type}} {param_text} - description to the doc comment.")),
                             });
                         }
                     }
@@ -513,6 +515,7 @@ fn collect_error_nodes(node: Node<'_>, source: &str, diags: &mut Vec<Diagnostic>
                 end: Position { line: end_line as u32, character: end_col as u32 },
             },
             code: None,
+            help: None,
         });
         return;
     }
@@ -538,6 +541,7 @@ fn make_diagnostic(rule: &Rule, node: Node<'_>, full_source: &str, byte_offset: 
             end: Position { line: end_line as u32, character: end_col as u32 },
         },
         code: rule.code.clone(),
+        help: rule.help.clone(),
     }
 }
 
@@ -614,7 +618,7 @@ fn print_pretty(results: &[SourceResult]) {
             let start_char = byte_to_char(&r.source, start_byte);
             let end_char = byte_to_char(&r.source, end_byte).max(start_char + 1);
 
-            Report::build(kind, (r.path.clone(), start_char..end_char))
+            let mut builder = Report::build(kind, (r.path.clone(), start_char..end_char))
                 .with_message(&d.message)
                 .with_label(
                     Label::new((r.path.clone(), start_char..end_char))
@@ -624,7 +628,11 @@ fn print_pretty(results: &[SourceResult]) {
                 .with_code(match &d.code {
                     Some(c) => format!("{}/{}", d.rule, c),
                     None => d.rule.clone(),
-                }.as_str())
+                }.as_str());
+            if let Some(h) = &d.help {
+                builder = builder.with_help(h);
+            }
+            builder
                 .finish()
                 .eprint(sources([(r.path.clone(), r.source.as_str())]))
                 .ok();

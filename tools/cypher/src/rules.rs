@@ -15,6 +15,7 @@ pub struct Rule {
     pub applies_to: AppliesTo,
     pub message: String,
     pub code: Option<String>,
+    pub help: Option<String>,
     pub query: tree_sitter::Query,
 }
 
@@ -24,6 +25,7 @@ pub fn parse_rule_file(src: &str, language: Language) -> Result<Rule, String> {
     let mut applies_to = None;
     let mut message = None;
     let mut code = None;
+    let mut help = None;
     let mut query_lines: Vec<&str> = Vec::new();
     let mut in_query = false;
 
@@ -51,6 +53,8 @@ pub fn parse_rule_file(src: &str, language: Language) -> Result<Rule, String> {
                     message = Some(v.trim().to_string());
                 } else if let Some(v) = rest.strip_prefix("Code: ") {
                     code = Some(v.trim().to_string());
+                } else if let Some(v) = rest.strip_prefix("Help: ") {
+                    help = Some(v.trim().to_string());
                 }
             } else if line.strip_prefix(";;").is_some() || line.trim().is_empty() {
                 // bare ";;" comment or blank line before query starts — skip
@@ -71,7 +75,7 @@ pub fn parse_rule_file(src: &str, language: Language) -> Result<Rule, String> {
     let query = tree_sitter::Query::new(&language, &query_src)
         .map_err(|e| format!("query compile error in rule '{name}': {e}"))?;
 
-    Ok(Rule { name, severity, applies_to, message, code, query })
+    Ok(Rule { name, severity, applies_to, message, code, help, query })
 }
 
 pub fn builtin_rules() -> Vec<Rule> {
