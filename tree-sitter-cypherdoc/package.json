@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-cypherdoc",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Tree-sitter grammar for Cypherdoc structured comments",
   "type": "module",
   "license": "MIT",
