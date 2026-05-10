@@ -186,8 +186,8 @@ dependencies = [
  "assert_cmd",
  "clap",
  "directories",
+ "gram-diagnostics",
  "predicates",
- "serde",
  "serde_json",
  "tempfile",
  "tree-sitter",
@@ -288,6 +288,15 @@ dependencies = [
  "r-efi",
  "wasip2",
  "wasip3",
+]
+
+[[package]]
+name = "gram-diagnostics"
+version = "0.3.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6ea1d5b1480dfe2847bdc94157a0174fd6db4941862344393581fa3afa023b7"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

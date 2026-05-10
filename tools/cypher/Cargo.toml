@@ -19,9 +19,9 @@ name = "cypher"
 path = "src/main.rs"
 
 [dependencies]
+gram-diagnostics = "0.3"
 anyhow = "1"
 clap = { version = "4.5", features = ["derive", "cargo"] }
-serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 ariadne = "0.6"
 walkdir = "2"
