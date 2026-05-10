@@ -93,5 +93,4 @@ Detects dynamic property access `n[$key]` or `n[variable]` that prevents index u
 
 ## Validation Rules
 
-- A `Rule` with a non-`None` `code` MUST have a code matching the pattern `[0-9]{2}[A-Z][0-9]{2}` (Neo4j GQLSTATUS format).
-- The `Code:` header value is stored as-is; no validation of the code value is performed at rule load time (avoids coupling to a Neo4j code registry).
+- **Convention** (not enforced at load time): `Code:` values should match the Neo4j GQLSTATUS format `[0-9]{2}[A-Z][0-9]{2}` (e.g. `03N90`). This is a guideline for rule authors, not a runtime invariant — the value is stored and emitted as-is to avoid coupling to a Neo4j code registry. A typo will produce a non-standard code in output rather than a build error.

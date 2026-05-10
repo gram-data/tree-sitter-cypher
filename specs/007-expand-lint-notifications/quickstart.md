@@ -7,7 +7,7 @@ After implementation, these new warnings are available out of the box.
 ```cypher
 # Bad: disconnected MATCH produces a cross-product
 MATCH (u:User), (o:Order) RETURN u, o
-# Warning: CartesianProduct [03N90]
+# [CartesianProduct/03N90] Warning: Multiple comma-separated MATCH patterns may produce a cartesian product...
 
 # Good: connected patterns
 MATCH (u:User)-[:PLACED]->(o:Order) RETURN u, o
@@ -18,7 +18,7 @@ MATCH (u:User)-[:PLACED]->(o:Order) RETURN u, o
 ```cypher
 # Bad: id() is deprecated in Neo4j 5
 MATCH (n:Person) RETURN id(n)
-# Warning: DeprecatedFunction [01N01]
+# [DeprecatedFunction/01N01] Warning: id() is deprecated in Neo4j 5...
 
 # Good: use elementId()
 MATCH (n:Person) RETURN elementId(n)
@@ -29,7 +29,7 @@ MATCH (n:Person) RETURN elementId(n)
 ```cypher
 # Bad: prevents index use
 MATCH (n:Person) WHERE n[$prop] IS NOT NULL RETURN n
-# Information: DynamicProperty [03N95]
+# [DynamicProperty/03N95] Advice: Dynamic property key prevents index use...
 
 # Good: static property name
 MATCH (n:Person) WHERE n.name IS NOT NULL RETURN n

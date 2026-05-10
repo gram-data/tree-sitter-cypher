@@ -335,12 +335,18 @@ fn rule_with_code_header_emits_code_in_json() {
 
 #[test]
 fn rule_without_code_header_omits_code_from_json() {
-    // UnlabelledNode has no Code: header — verify "code" key is absent from its diagnostic
-    cypher()
-        .args(["lint", "--json", "-e", "MATCH (n) RETURN n"])
+    // Run only UnlabelledNode (which has no Code: header) to ensure the absence check
+    // is not affected by other rules that may carry a code field.
+    let out = cypher()
+        .args(["lint", "--json", "--rule", "UnlabelledNode", "-e", "MATCH (n) RETURN n"])
         .assert()
         .success()
-        .stdout(predicates::str::contains("\"code\"").not());
+        .stdout(contains("UnlabelledNode"))
+        .get_output()
+        .stdout
+        .clone();
+    let json = std::str::from_utf8(&out).unwrap();
+    assert!(!json.contains("\"code\""), "UnlabelledNode diagnostic should not include a code field");
 }
 
 // ── Phase 3: US1 — CartesianProduct ──────────────────────────────────────────
@@ -473,6 +479,28 @@ fn dynamic_property_fires_in_return_clause() {
         .assert()
         .success()
         .stderr(contains("DynamicProperty"));
+}
+
+#[test]
+fn dynamic_property_fires_on_function_call_key() {
+    // n[toLower("name")] — function-call key is dynamic; rule fires
+    cypher()
+        .args(["lint", "-e", r#"MATCH (n:Node) RETURN n[toLower("name")]"#])
+        .assert()
+        .success()
+        .stderr(contains("DynamicProperty"));
+}
+
+#[test]
+fn dynamic_property_fires_on_set_despite_parse_error() {
+    // SET n[$key] = 1 is not valid in the current grammar, so ParseError also fires.
+    // DynamicProperty still fires over the partial parse tree, documenting the behaviour.
+    cypher()
+        .args(["lint", "-e", "MATCH (n) SET n[$key] = 1"])
+        .assert()
+        .failure()
+        .stderr(contains("DynamicProperty"))
+        .stderr(contains("ParseError"));
 }
 
 // ── Phase 6: US5 — JSON code field for each rule ─────────────────────────────

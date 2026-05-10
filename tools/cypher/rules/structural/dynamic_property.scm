@@ -6,4 +6,4 @@
 (subscript_expression
   (expression)
   (expression
-    [(parameter) (identifier)] @key))
+    [(parameter) (identifier) (function_call)] @key))

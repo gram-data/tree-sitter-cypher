@@ -1,7 +1,7 @@
 ;; Rule: CartesianProduct
 ;; Severity: Warning
 ;; Applies-to: structural
-;; Message: Disconnected MATCH patterns produce a cartesian product. Connect the patterns with a relationship or split into separate MATCH clauses.
+;; Message: Multiple comma-separated MATCH patterns may produce a cartesian product if they share no variables. This is a conservative heuristic — connect patterns with a relationship or split into separate MATCH clauses to be explicit.
 ;; Code: 03N90
 (match_clause
   pattern: (pattern

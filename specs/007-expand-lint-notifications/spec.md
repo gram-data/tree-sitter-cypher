@@ -53,8 +53,8 @@ A developer accesses a property with a variable key: `n[$prop]` or `n[someExpr]`
 
 1. **Given** `n[$prop]` in a WHERE clause, **When** linted, **Then** a `DynamicProperty` information diagnostic is reported at the dynamic key.
 2. **Given** `n.name` (static property access), **When** linted, **Then** no diagnostic is emitted.
-3. **Given** `n[expr()]` where the key is a function call, **When** linted, **Then** a `DynamicProperty` diagnostic is emitted.
-4. **Given** `SET n[$key] = 1`, **When** linted, **Then** the same rule fires for the write side as well.
+3. **Given** `n[expr()]` where the key is a function call (e.g. `n[toLower("name")]`), **When** linted, **Then** a `DynamicProperty` diagnostic is emitted.
+4. **Given** `MATCH (n) SET n[$key] = 1`, **When** linted, **Then** a `DynamicProperty` diagnostic is emitted (note: the current grammar does not parse this SET form cleanly, so a `ParseError` also fires; `DynamicProperty` fires over the partial parse tree).
 
 ---
 
@@ -85,7 +85,7 @@ Every new lint rule includes a `code` field in its diagnostic output that refere
 **Acceptance Scenarios**:
 
 1. **Given** any new rule fires, **When** `--json` output is inspected, **Then** the `code` field is non-null and matches the corresponding Neo4j notification code.
-2. **Given** human-readable (`--pretty`) output, **When** a new rule fires, **Then** the rule code shown in the report matches the Neo4j notification code.
+2. **Given** human-readable output, **When** a new rule fires, **Then** the report header shows both the rule name and the Neo4j notification code (e.g. `[CartesianProduct/03N90]`).
 
 ---
 

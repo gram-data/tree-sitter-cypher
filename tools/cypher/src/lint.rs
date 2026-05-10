@@ -621,7 +621,10 @@ fn print_pretty(results: &[SourceResult]) {
                         .with_message(&d.message)
                         .with_color(color),
                 )
-                .with_code(&d.rule)
+                .with_code(match &d.code {
+                    Some(c) => format!("{}/{}", d.rule, c),
+                    None => d.rule.clone(),
+                }.as_str())
                 .finish()
                 .eprint(sources([(r.path.clone(), r.source.as_str())]))
                 .ok();
