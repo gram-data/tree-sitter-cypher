@@ -61,7 +61,7 @@ A developer wants to lint only `.cypher` files and skip markdown, for performanc
 - What happens when a fenced block uses an alternate language tag such as ` ```Cypher ` (mixed case) or ` ```cypher-shell `? Tags are matched case-insensitively for `cypher`; `cypher-shell` is treated as a distinct language and skipped.
 - What happens when a fenced block is not terminated before end-of-file? The extractor treats the rest of the file as the block content and emits a warning about the unclosed fence.
 - What happens when a Cypher snippet is empty (only whitespace)? The snippet is skipped silently — no diagnostics, no errors.
-- How are line numbers reported for snippets inside deeply nested markdown (blockquotes, list items)? Line numbers always refer to the raw line in the source file, regardless of nesting.
+- How are line numbers reported for snippets inside indented list items? Line numbers always refer to the raw line in the source file. Note: blockquote-prefixed fences (lines starting with `> `) are not recognized by the extractor and will be silently skipped — only fences where the opening backticks appear after optional whitespace are matched.
 
 ## Requirements *(mandatory)*
 

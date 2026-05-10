@@ -3,6 +3,8 @@ pub struct CypherSnippet {
     pub content: String,
     /// Zero-based index of the first content line in the source markdown file.
     pub start_line: u32,
+    /// `false` when end-of-file was reached before the closing ` ``` ` fence.
+    pub closed: bool,
 }
 
 pub fn extract_cypher_snippets(source: &str) -> Vec<CypherSnippet> {
@@ -22,17 +24,19 @@ pub fn extract_cypher_snippets(source: &str) -> Vec<CypherSnippet> {
             snippets.push(CypherSnippet {
                 content: content_lines.join("\n"),
                 start_line: fence_start_line,
+                closed: true,
             });
             in_fence = false;
         } else {
             content_lines.push(line);
         }
     }
-    // Unclosed fence: include remaining content
+    // Unclosed fence: include remaining content, mark as unclosed
     if in_fence && !content_lines.is_empty() {
         snippets.push(CypherSnippet {
             content: content_lines.join("\n"),
             start_line: fence_start_line,
+            closed: false,
         });
     }
     snippets
@@ -44,8 +48,8 @@ fn is_cypher_fence_open(line: &str) -> bool {
         Some(r) => r,
         None => return false,
     };
-    let lang = rest.split_whitespace().next().unwrap_or("").to_lowercase();
-    lang == "cypher"
+    let lang = rest.split_whitespace().next().unwrap_or("");
+    lang.eq_ignore_ascii_case("cypher")
 }
 
 fn is_fence_close(line: &str) -> bool {
@@ -63,6 +67,7 @@ mod tests {
         assert_eq!(snippets.len(), 1);
         assert_eq!(snippets[0].content, "MATCH (n) RETURN n");
         assert_eq!(snippets[0].start_line, 3);
+        assert!(snippets[0].closed);
     }
 
     #[test]
@@ -72,8 +77,10 @@ mod tests {
         assert_eq!(snippets.len(), 2);
         assert_eq!(snippets[0].content, "A");
         assert_eq!(snippets[0].start_line, 1);
+        assert!(snippets[0].closed);
         assert_eq!(snippets[1].content, "B");
         assert_eq!(snippets[1].start_line, 5);
+        assert!(snippets[1].closed);
     }
 
     #[test]
@@ -88,6 +95,7 @@ mod tests {
         assert_eq!(snippets.len(), 1);
         assert_eq!(snippets[0].content, "");
         assert_eq!(snippets[0].start_line, 1);
+        assert!(snippets[0].closed);
     }
 
     #[test]
@@ -109,12 +117,13 @@ mod tests {
     }
 
     #[test]
-    fn unclosed_fence() {
+    fn unclosed_fence_marked_not_closed() {
         let src = "```cypher\nMATCH (n) RETURN n\n";
         let snippets = extract_cypher_snippets(src);
         assert_eq!(snippets.len(), 1);
         assert_eq!(snippets[0].content, "MATCH (n) RETURN n");
         assert_eq!(snippets[0].start_line, 1);
+        assert!(!snippets[0].closed);
     }
 
     #[test]
@@ -124,5 +133,6 @@ mod tests {
         let snippets = extract_cypher_snippets(src);
         assert_eq!(snippets.len(), 1);
         assert_eq!(snippets[0].start_line, 7);
+        assert!(snippets[0].closed);
     }
 }

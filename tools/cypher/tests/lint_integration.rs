@@ -291,7 +291,16 @@ fn no_markdown_empty_dir_note_uses_cypher_only_message() {
         .stderr(contains("no .cypher files found"));
 }
 
-// ── Polish: edge cases ───────────────────────────────────────────────────────
+// ── Polish: edge cases + unclosed fence ─────────────────────────────────────
+
+#[test]
+fn markdown_unclosed_fence_emits_note() {
+    cypher()
+        .args(["lint", fixture("markdown_unclosed_fence.md").to_str().unwrap()])
+        .assert()
+        .success()
+        .stderr(contains("unclosed ```cypher fence"));
+}
 
 #[test]
 fn markdown_empty_snippet_exits_zero() {

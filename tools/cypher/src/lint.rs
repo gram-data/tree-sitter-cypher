@@ -452,6 +452,10 @@ fn lint_markdown_file(path: &Path, rules: &[Rule]) -> anyhow::Result<SourceResul
     let snippets = extract_cypher_snippets(&full_source);
     let mut all_diags: Vec<Diagnostic> = Vec::new();
     for snippet in snippets {
+        if !snippet.closed {
+            // start_line is 0-based content; fence opening is one line earlier = 1-based start_line
+            eprintln!("note: {path_str}: unclosed ```cypher fence at line {}", snippet.start_line);
+        }
         if snippet.content.trim().is_empty() {
             continue;
         }

@@ -16,7 +16,7 @@
 
 **Purpose**: Register the new module in the existing project.
 
-- [x] T001 Add `mod markdown;` to `tools/cypher/src/main.rs`
+- [x] T001 Add `pub(crate) mod markdown;` to `tools/cypher/src/lib.rs` (not `main.rs` — `main.rs` uses the `cypher_data` lib crate, so module registration belongs in `lib.rs`)
 
 ---
 
