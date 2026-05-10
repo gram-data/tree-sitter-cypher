@@ -14,6 +14,7 @@ pub struct Rule {
     pub severity: Severity,
     pub applies_to: AppliesTo,
     pub message: String,
+    pub code: Option<String>,
     pub query: tree_sitter::Query,
 }
 
@@ -22,6 +23,7 @@ pub fn parse_rule_file(src: &str, language: Language) -> Result<Rule, String> {
     let mut severity = None;
     let mut applies_to = None;
     let mut message = None;
+    let mut code = None;
     let mut query_lines: Vec<&str> = Vec::new();
     let mut in_query = false;
 
@@ -47,6 +49,8 @@ pub fn parse_rule_file(src: &str, language: Language) -> Result<Rule, String> {
                     });
                 } else if let Some(v) = rest.strip_prefix("Message: ") {
                     message = Some(v.trim().to_string());
+                } else if let Some(v) = rest.strip_prefix("Code: ") {
+                    code = Some(v.trim().to_string());
                 }
             } else if line.strip_prefix(";;").is_some() || line.trim().is_empty() {
                 // bare ";;" comment or blank line before query starts — skip
@@ -67,7 +71,7 @@ pub fn parse_rule_file(src: &str, language: Language) -> Result<Rule, String> {
     let query = tree_sitter::Query::new(&language, &query_src)
         .map_err(|e| format!("query compile error in rule '{name}': {e}"))?;
 
-    Ok(Rule { name, severity, applies_to, message, query })
+    Ok(Rule { name, severity, applies_to, message, code, query })
 }
 
 pub fn builtin_rules() -> Vec<Rule> {
@@ -77,6 +81,9 @@ pub fn builtin_rules() -> Vec<Rule> {
     let structural_sources: &[&str] = &[
         include_str!("../rules/structural/unlabelled_node.scm"),
         include_str!("../rules/structural/unbounded_relationship.scm"),
+        include_str!("../rules/structural/cartesian_product.scm"),
+        include_str!("../rules/structural/deprecated_id_function.scm"),
+        include_str!("../rules/structural/dynamic_property.scm"),
     ];
     let contract_sources: &[&str] = &[
         include_str!("../rules/contract/optional_param_missing_default.scm"),

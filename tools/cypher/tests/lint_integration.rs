@@ -1,4 +1,5 @@
 use assert_cmd::Command;
+use predicates::prelude::PredicateBooleanExt;
 use predicates::str::contains;
 
 fn cypher() -> Command {
@@ -318,6 +319,217 @@ fn markdown_json_schema_version_present() {
         .success()
         .stdout(contains("\"schema_version\": 1"))
         .stdout(contains("\"tool\": \"cypher/"));
+}
+
+// ── Phase 2: Code field infrastructure (US5) ─────────────────────────────────
+
+#[test]
+fn rule_with_code_header_emits_code_in_json() {
+    // CartesianProduct has Code: 03N90 — verify it appears in JSON output
+    cypher()
+        .args(["lint", "--json", "-e", "MATCH (a:A), (b:B) RETURN a, b"])
+        .assert()
+        .success()
+        .stdout(contains("\"code\": \"03N90\""));
+}
+
+#[test]
+fn rule_without_code_header_omits_code_from_json() {
+    // Run only UnlabelledNode (which has no Code: header) to ensure the absence check
+    // is not affected by other rules that may carry a code field.
+    let out = cypher()
+        .args(["lint", "--json", "--rule", "UnlabelledNode", "-e", "MATCH (n) RETURN n"])
+        .assert()
+        .success()
+        .stdout(contains("UnlabelledNode"))
+        .get_output()
+        .stdout
+        .clone();
+    let json = std::str::from_utf8(&out).unwrap();
+    assert!(!json.contains("\"code\""), "UnlabelledNode diagnostic should not include a code field");
+}
+
+// ── Phase 3: US1 — CartesianProduct ──────────────────────────────────────────
+
+#[test]
+fn cartesian_product_warns_on_disconnected_match() {
+    cypher()
+        .args(["lint", "-e", "MATCH (a:User), (b:Order) RETURN a, b"])
+        .assert()
+        .success()
+        .stderr(contains("CartesianProduct"));
+}
+
+#[test]
+fn cartesian_product_clean_on_connected_match() {
+    cypher()
+        .args(["lint", "-e", "MATCH (a:User)-[:PLACED]->(b:Order) RETURN a, b"])
+        .assert()
+        .success()
+        .stderr(predicates::str::contains("CartesianProduct").not());
+}
+
+#[test]
+fn cartesian_product_three_patterns_two_warnings() {
+    // Three disconnected patterns → two CartesianProduct warnings (second and third)
+    let output = cypher()
+        .args(["lint", "--json", "-e", "MATCH (a:A), (b:B), (c:C) RETURN a, b, c"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let json = std::str::from_utf8(&output).unwrap();
+    let count = json.matches("CartesianProduct").count();
+    assert_eq!(count, 2, "expected 2 CartesianProduct diagnostics, got {count}");
+}
+
+// ── Phase 4: US2 — DeprecatedFunction (id()) ─────────────────────────────────
+
+#[test]
+fn deprecated_id_warns_on_bare_id_call() {
+    cypher()
+        .args(["lint", "-e", "MATCH (n) RETURN id(n)"])
+        .assert()
+        .success()
+        .stderr(contains("DeprecatedFunction"))
+        .stderr(contains("elementId"));
+}
+
+#[test]
+fn deprecated_id_clean_on_element_id() {
+    cypher()
+        .args(["lint", "-e", "MATCH (n) RETURN elementId(n)"])
+        .assert()
+        .success()
+        .stderr(predicates::str::contains("DeprecatedFunction").not());
+}
+
+#[test]
+fn deprecated_id_fires_in_where_clause() {
+    cypher()
+        .args(["lint", "-e", "MATCH (n) WHERE id(n) > 0 RETURN n"])
+        .assert()
+        .success()
+        .stderr(contains("DeprecatedFunction"));
+}
+
+#[test]
+fn deprecated_id_fires_on_relationship() {
+    cypher()
+        .args(["lint", "-e", "MATCH ()-[r:REL]->() WHERE id(r) > 0 RETURN r"])
+        .assert()
+        .success()
+        .stderr(contains("DeprecatedFunction"));
+}
+
+#[test]
+fn deprecated_id_clean_on_qualified_name() {
+    // apoc.id() is a qualified name — should NOT be flagged
+    cypher()
+        .args(["lint", "-e", "MATCH (n) RETURN apoc.id(n)"])
+        .assert()
+        .success()
+        .stderr(predicates::str::contains("DeprecatedFunction").not());
+}
+
+// ── Phase 5: US3 — DynamicProperty ───────────────────────────────────────────
+
+#[test]
+fn dynamic_property_info_on_parameter_key() {
+    cypher()
+        .args(["lint", "-e", "MATCH (n) WHERE n[$key] IS NOT NULL RETURN n"])
+        .assert()
+        .success()
+        .stderr(contains("DynamicProperty"));
+}
+
+#[test]
+fn dynamic_property_clean_on_dot_access() {
+    cypher()
+        .args(["lint", "-e", "MATCH (n) RETURN n.name"])
+        .assert()
+        .success()
+        .stderr(predicates::str::contains("DynamicProperty").not());
+}
+
+#[test]
+fn dynamic_property_clean_on_integer_index() {
+    cypher()
+        .args(["lint", "-e", "MATCH (n) RETURN n[0]"])
+        .assert()
+        .success()
+        .stderr(predicates::str::contains("DynamicProperty").not());
+}
+
+#[test]
+fn dynamic_property_clean_on_string_literal_key() {
+    cypher()
+        .args(["lint", "-e", r#"MATCH (n) RETURN n["name"]"#])
+        .assert()
+        .success()
+        .stderr(predicates::str::contains("DynamicProperty").not());
+}
+
+#[test]
+fn dynamic_property_fires_in_return_clause() {
+    // Dynamic key in RETURN clause — valid Cypher, DynamicProperty fires regardless of clause context
+    cypher()
+        .args(["lint", "-e", "MATCH (n:Node) RETURN n[$key]"])
+        .assert()
+        .success()
+        .stderr(contains("DynamicProperty"));
+}
+
+#[test]
+fn dynamic_property_fires_on_function_call_key() {
+    // n[toLower("name")] — function-call key is dynamic; rule fires
+    cypher()
+        .args(["lint", "-e", r#"MATCH (n:Node) RETURN n[toLower("name")]"#])
+        .assert()
+        .success()
+        .stderr(contains("DynamicProperty"));
+}
+
+#[test]
+fn dynamic_property_fires_on_set_despite_parse_error() {
+    // SET n[$key] = 1 is not valid in the current grammar, so ParseError also fires.
+    // DynamicProperty still fires over the partial parse tree, documenting the behaviour.
+    cypher()
+        .args(["lint", "-e", "MATCH (n) SET n[$key] = 1"])
+        .assert()
+        .failure()
+        .stderr(contains("DynamicProperty"))
+        .stderr(contains("ParseError"));
+}
+
+// ── Phase 6: US5 — JSON code field for each rule ─────────────────────────────
+
+#[test]
+fn cartesian_product_json_has_code_03n90() {
+    cypher()
+        .args(["lint", "--json", "-e", "MATCH (a:A), (b:B) RETURN a, b"])
+        .assert()
+        .success()
+        .stdout(contains("\"code\": \"03N90\""));
+}
+
+#[test]
+fn deprecated_id_json_has_code_01n01() {
+    cypher()
+        .args(["lint", "--json", "-e", "MATCH (n) RETURN id(n)"])
+        .assert()
+        .success()
+        .stdout(contains("\"code\": \"01N01\""));
+}
+
+#[test]
+fn dynamic_property_json_has_code_03n95() {
+    cypher()
+        .args(["lint", "--json", "-e", "MATCH (n) WHERE n[$key] IS NOT NULL RETURN n"])
+        .assert()
+        .success()
+        .stdout(contains("\"code\": \"03N95\""));
 }
 
 // ── US4: External dispatch ───────────────────────────────────────────────────
