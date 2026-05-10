@@ -155,6 +155,7 @@
 ; Map projection
 (field_selector "." @punctuation.delimiter)
 (field_selector property: (identifier) @property)
+(field_selector property: (escaped_identifier) @property)
 (all_fields_selector) @keyword.operator
 (literal_map_field key: (identifier) @property)
 

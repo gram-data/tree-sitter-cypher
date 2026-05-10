@@ -465,3 +465,41 @@ RETURN 1_000_000
         (return_item
           (expression
             (integer_literal)))))))
+
+============================================
+ERROR - trailing underscore in integer
+============================================
+
+RETURN 1_
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (integer_literal))))))
+  (ERROR
+    (UNEXPECTED '_')))
+
+============================================
+ERROR - consecutive underscores in integer
+============================================
+
+RETURN 1__0
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (ERROR
+        (expression
+          (integer_literal))
+        (UNEXPECTED '_'))
+      (return_body
+        (return_item
+          (expression
+            (integer_literal)))))))

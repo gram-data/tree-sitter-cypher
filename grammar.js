@@ -39,7 +39,8 @@ export default grammar({
     [$.expression, $.pattern_comprehension],   // [ identifier '=' → expression vs path variable
     [$.node_pattern, $.expression],            // [ (identifier) → node_pattern vs (expr)
     [$.property_map, $.map_literal],           // [ ({ }) ] → node property vs map literal in expr
-    [$.map_projection, $.map_literal],         // expr { } → map projection vs standalone map literal
+    [$.map_projection, $.node_pattern],        // (identifier { → map_projection object vs node property_map
+    [$._symbolic_name, $.node_pattern],        // GLR: _symbolic_name expansion of map_projection object
     [$.statement],                             // exists_subquery repeat1(statement) — consume greedily
     [$.pattern_predicate],                     // pattern_predicate repeat1 — consume path greedily
     [$.legacy_shortest_path_pattern, $.function_call], // shortestPath( → path pattern vs function call
@@ -572,14 +573,15 @@ export default grammar({
     // BNF: <map literal> — same syntax as property_map but used as an expression value
     map_literal: $ => seq('{', commaSep($.property_key_value), '}'),
 
-    // BNF: <map projection> ::= <expression> '{' [<map projection element list>] '}'
+    // BNF: <map projection> ::= <variable> '{' [<map projection element list>] '}'
     // e.g., n { .name, .age, score: 10, .* }
-    map_projection: $ => prec.left(10, seq(
-      field('object', $.expression),
+    // Object is a variable reference (identifier or escaped identifier), not an arbitrary expression.
+    map_projection: $ => seq(
+      field('object', $._symbolic_name),
       '{',
       commaSep($.map_projection_element),
       '}',
-    )),
+    ),
 
     // BNF: <map projection element> — one of four forms
     map_projection_element: $ => choice(
@@ -743,18 +745,19 @@ export default grammar({
 
     // ─── T010–T015: Literals and terminals (from US1) ────────────────────────
 
-    // BNF: <unsigned decimal integer> — allows underscore digit separators (e.g. 1_000_000)
+    // BNF: <unsigned decimal integer> — digit separators only between digit groups (not trailing)
+    // Pattern: digits(_digits)* so `1_000` ok but `1_` and `1__0` are not.
     integer_literal: _ => token(choice(
-      /0[xX][0-9a-fA-F][0-9a-fA-F_]*/,
-      /0[oO][0-7][0-7_]*/,
-      /[0-9][0-9_]*/,
+      /0[xX][0-9a-fA-F]+(_[0-9a-fA-F]+)*/,
+      /0[oO][0-7]+(_[0-7]+)*/,
+      /[0-9]+(_[0-9]+)*/,
     )),
 
-    // BNF: <approximate numeric literal> — allows underscore separators and F/D type suffixes
+    // BNF: <approximate numeric literal> — underscore separators between digit groups only
     float_literal: _ => token(choice(
-      /[0-9][0-9_]*\.[0-9][0-9_]*([eE][+-]?[0-9][0-9_]*)?[fFdD]?/,
-      /\.[0-9][0-9_]*([eE][+-]?[0-9][0-9_]*)?[fFdD]?/,
-      /[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*[fFdD]?/,
+      /[0-9]+(_[0-9]+)*\.[0-9]+(_[0-9]+)*([eE][+-]?[0-9]+(_[0-9]+)*)?[fFdD]?/,
+      /\.[0-9]+(_[0-9]+)*([eE][+-]?[0-9]+(_[0-9]+)*)?[fFdD]?/,
+      /[0-9]+(_[0-9]+)*[eE][+-]?[0-9]+(_[0-9]+)*[fFdD]?/,
     )),
 
     // BNF: <signed numeric literal> — INF, INFINITY, NAN special numeric values

@@ -908,7 +908,11 @@
         "required": true,
         "types": [
           {
-            "type": "expression",
+            "type": "escaped_identifier",
+            "named": true
+          },
+          {
+            "type": "identifier",
             "named": true
           }
         ]

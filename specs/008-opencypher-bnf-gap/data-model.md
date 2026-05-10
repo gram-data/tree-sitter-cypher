@@ -15,12 +15,14 @@ children, and the existing parent rules that gain it as a child.
 
 | Child field | Type | Cardinality |
 |---|---|---|
-| `function` | anonymous keyword (`shortestpath` or `allshortestpaths`) | 1 |
-| — | `node_pattern` | 1 (start node) |
+| — | anonymous keyword (`shortestpath` or `allshortestpaths`) | 1 |
+| `start` | `node_pattern` | 1 |
 | — | `relationship_pattern` | 1 |
-| — | `node_pattern` | 1 (end node) |
+| `end` | `node_pattern` | 1 |
 
-**Parent rules updated**: `expression` (new alternative)
+Note: the keyword token is anonymous and does not carry a field label; distinguish `shortestPath` vs `allShortestPaths` by reading the node's text.
+
+**Parent rules updated**: `expression` (new alternative), `path_pattern` (alternative body)
 
 ---
 
@@ -43,10 +45,10 @@ No new named rules. Existing rules gain an optional child:
 
 | Child field | Type | Cardinality |
 |---|---|---|
-| `object` | `expression` | 1 |
+| `object` | `identifier` or `escaped_identifier` (variable reference) | 1 |
 | — | `map_projection_element` (via commaSep) | 0..N |
 
-**Parent rules updated**: `expression` (new alternative), `conflicts` (+ `map_literal`)
+**Parent rules updated**: `expression` (new alternative)
 
 ---
 
@@ -58,7 +60,7 @@ A choice node — exactly one of the four sub-types below:
 
 | Sub-type rule | Shape | BNF anchor |
 |---|---|---|
-| `field_selector` | `'.' identifier` | `<field_selector>` |
+| `field_selector` | `'.' (identifier \| escaped_identifier)` | `<field_selector>` |
 | `all_fields_selector` | `'.' '*'` | `<all_fields_selector>` |
 | `literal_map_field` | `identifier ':' expression` | `<literal_map_field>` |
 | `variable_selector` | `identifier` | `<variable_selector>` |
@@ -74,7 +76,7 @@ A choice node — exactly one of the four sub-types below:
 | Child | Type | Cardinality |
 |---|---|---|
 | — | `.` token | 1 |
-| `property` | `identifier` | 1 |
+| `property` | `identifier` or `escaped_identifier` | 1 |
 
 ---
 

@@ -29,13 +29,13 @@ A Cypher developer writing Neo4j 5+ queries uses inline WHERE clauses inside nod
 
 **Why this priority**: Inline predicates are part of the openCypher spec and are increasingly common in modern Neo4j queries. Without support, all such queries contain ERROR nodes.
 
-**Independent Test**: A query `MATCH (n WHERE n.active = true) RETURN n` parses with an `element_pattern_where_clause` node inside the `node_pattern` and no ERROR nodes.
+**Independent Test**: A query `MATCH (n WHERE n.active = true) RETURN n` parses with a `where_clause` field inside the `node_pattern` and no ERROR nodes.
 
 **Acceptance Scenarios**:
 
-1. **Given** `MATCH (n WHERE n.age > 30) RETURN n`, **When** parsed, **Then** the `node_pattern` contains an `element_pattern_where_clause` child and no ERROR nodes.
-2. **Given** `MATCH ()-[r WHERE r.weight > 5]-() RETURN r`, **When** parsed, **Then** the `relationship_body` contains an `element_pattern_where_clause` child and no ERROR nodes.
-3. **Given** a pattern with both inline WHERE and property map `(n:Person {name: $name} WHERE n.active)`, **When** parsed, **Then** both the property map and the where clause appear as distinct nodes with no ERROR.
+1. **Given** `MATCH (n WHERE n.age > 30) RETURN n`, **When** parsed, **Then** the `node_pattern` has a `where` field containing a `where_clause` node and no ERROR nodes.
+2. **Given** `MATCH ()-[r WHERE r.weight > 5]-() RETURN r`, **When** parsed, **Then** the `relationship_body` has a `where` field containing a `where_clause` node and no ERROR nodes.
+3. **Given** a pattern with both inline WHERE and property map `(n:Person {name: $name} WHERE n.active)`, **When** parsed, **Then** both the `properties` field and the `where` field appear as distinct named fields with no ERROR.
 
 ---
 

@@ -17,11 +17,13 @@ Represents a `shortestPath(...)` or `allShortestPaths(...)` expression.
 
 ```
 (legacy_shortest_path_pattern
-  function: (shortestpath | allshortestpaths)   ; anonymous keyword node
-  (node_pattern)                                 ; start node
+  ; anonymous keyword (shortestpath or allshortestpaths) — no field label
+  start: (node_pattern)
   (relationship_pattern)
-  (node_pattern))                                ; end node
+  end: (node_pattern))
 ```
+
+The leading keyword token is anonymous; distinguish `shortestPath` from `allShortestPaths` by reading the node's text content, not a field.
 
 **Example**:
 ```cypher
@@ -36,7 +38,7 @@ Represents a `variable { ... }` map projection expression.
 
 ```
 (map_projection
-  object: (expression)
+  object: (identifier | escaped_identifier)   ; variable reference only, not arbitrary expression
   (map_projection_element)*)
 ```
 
@@ -54,9 +56,9 @@ A union of four concrete shapes:
 ### `field_selector`
 ```
 (field_selector
-  property: (identifier))
+  property: (identifier | escaped_identifier))
 ```
-Example: `.name`
+Example: `.name`, `.`first-name``
 
 ### `all_fields_selector`
 ```

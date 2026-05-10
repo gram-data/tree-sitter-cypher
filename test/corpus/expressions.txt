@@ -618,7 +618,7 @@ RETURN n { .name, .age }
         (return_item
           (expression
             (map_projection
-              object: (expression (identifier))
+              object: (identifier)
               (map_projection_element
                 (field_selector property: (identifier)))
               (map_projection_element
@@ -639,7 +639,7 @@ RETURN n { .* }
         (return_item
           (expression
             (map_projection
-              object: (expression (identifier))
+              object: (identifier)
               (map_projection_element
                 (all_fields_selector)))))))))
 
@@ -658,7 +658,7 @@ RETURN n { .name, score: 10 }
         (return_item
           (expression
             (map_projection
-              object: (expression (identifier))
+              object: (identifier)
               (map_projection_element
                 (field_selector property: (identifier)))
               (map_projection_element
@@ -700,7 +700,7 @@ RETURN n { name, .age }
         (return_item
           (expression
             (map_projection
-              object: (expression (identifier))
+              object: (identifier)
               (map_projection_element
                 (variable_selector variable: (identifier)))
               (map_projection_element
