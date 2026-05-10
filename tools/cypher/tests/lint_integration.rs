@@ -132,7 +132,7 @@ fn empty_directory_exits_zero_with_note() {
         .args(["lint", dir.path().to_str().unwrap()])
         .assert()
         .success()
-        .stderr(contains("no .cypher files found"));
+        .stderr(contains("no .cypher or .md files found"));
 }
 
 #[test]
@@ -163,6 +163,161 @@ fn tree_and_json_together_exit_two() {
         .args(["lint", "--tree", "--json", fixture("clean.cypher").to_str().unwrap()])
         .assert()
         .code(2);
+}
+
+// ── US1 (markdown): Single markdown file lint ────────────────────────────────
+
+#[test]
+fn markdown_clean_exits_zero() {
+    cypher()
+        .args(["lint", fixture("markdown_clean.md").to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn markdown_unlabelled_warns() {
+    // UnlabelledNode is Warning — exits 0 but appears in stderr
+    cypher()
+        .args(["lint", fixture("markdown_unlabelled.md").to_str().unwrap()])
+        .assert()
+        .success()
+        .stderr(contains("UnlabelledNode"));
+}
+
+#[test]
+fn markdown_unlabelled_json_has_correct_line() {
+    // MATCH (n) is at 0-based markdown line 8; JSON uses 0-based lines
+    cypher()
+        .args(["lint", "--json", fixture("markdown_unlabelled.md").to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(contains("\"line\": 8"));
+}
+
+#[test]
+fn markdown_unlabelled_json_has_md_path() {
+    cypher()
+        .args(["lint", "--json", fixture("markdown_unlabelled.md").to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(contains("markdown_unlabelled.md"));
+}
+
+#[test]
+fn markdown_multi_snippet_reports_both_rules() {
+    // The multi-snippet file has UnlabelledNode (warning) and UnboundedRelationship (error)
+    cypher()
+        .args(["lint", fixture("markdown_multi_snippet.md").to_str().unwrap()])
+        .assert()
+        .failure()
+        .code(1)
+        .stderr(contains("UnlabelledNode"))
+        .stderr(contains("UnboundedRelationship"));
+}
+
+#[test]
+fn markdown_multi_snippet_json_has_offset_lines() {
+    // Snippet 2 content starts at 0-based line 15; snippet 3 at line 24
+    cypher()
+        .args(["lint", "--json", fixture("markdown_multi_snippet.md").to_str().unwrap()])
+        .assert()
+        .failure()
+        .stdout(contains("\"line\": 15"))
+        .stdout(contains("\"line\": 24"));
+}
+
+// ── US2 (markdown): Directory scan includes .md files ────────────────────────
+
+#[test]
+fn directory_includes_md_files() {
+    // fixtures/ has both .cypher and .md files; at least one .md has an error
+    let fixtures_dir = fixture(".");
+    cypher()
+        .args(["lint", fixtures_dir.to_str().unwrap()])
+        .assert()
+        .failure()
+        .code(1);
+}
+
+#[test]
+fn markdown_no_fence_exits_zero() {
+    cypher()
+        .args(["lint", fixture("markdown_no_fence.md").to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn empty_directory_note_without_no_markdown() {
+    let dir = tempfile::tempdir().unwrap();
+    cypher()
+        .args(["lint", dir.path().to_str().unwrap()])
+        .assert()
+        .success()
+        .stderr(contains("no .cypher or .md files found"));
+}
+
+// ── US3 (markdown): --no-markdown flag ───────────────────────────────────────
+
+#[test]
+fn no_markdown_skips_md_in_directory() {
+    // fixtures/ contains .md files with warnings/errors; --no-markdown should
+    // produce results only from .cypher files (which still have errors)
+    let fixtures_dir = fixture(".");
+    cypher()
+        .args(["lint", "--no-markdown", fixtures_dir.to_str().unwrap()])
+        .assert()
+        .failure()
+        .code(1);
+}
+
+#[test]
+fn no_markdown_with_explicit_md_path_exits_zero() {
+    cypher()
+        .args(["lint", "--no-markdown", fixture("markdown_unlabelled.md").to_str().unwrap()])
+        .assert()
+        .success()
+        .stderr(contains("skipped (--no-markdown)"));
+}
+
+#[test]
+fn no_markdown_empty_dir_note_uses_cypher_only_message() {
+    let dir = tempfile::tempdir().unwrap();
+    cypher()
+        .args(["lint", "--no-markdown", dir.path().to_str().unwrap()])
+        .assert()
+        .success()
+        .stderr(contains("no .cypher files found"));
+}
+
+// ── Polish: edge cases + unclosed fence ─────────────────────────────────────
+
+#[test]
+fn markdown_unclosed_fence_emits_note() {
+    cypher()
+        .args(["lint", fixture("markdown_unclosed_fence.md").to_str().unwrap()])
+        .assert()
+        .success()
+        .stderr(contains("unclosed ```cypher fence"));
+}
+
+#[test]
+fn markdown_empty_snippet_exits_zero() {
+    cypher()
+        .args(["lint", fixture("markdown_empty_snippet.md").to_str().unwrap()])
+        .assert()
+        .success();
+}
+
+#[test]
+fn markdown_json_schema_version_present() {
+    cypher()
+        .args(["lint", "--json", fixture("markdown_unlabelled.md").to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(contains("\"schema_version\": 1"))
+        .stdout(contains("\"tool\": \"cypher/"));
 }
 
 // ── US4: External dispatch ───────────────────────────────────────────────────
