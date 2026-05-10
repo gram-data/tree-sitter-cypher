@@ -20,6 +20,8 @@ jobs:
 
       # ── Cypher grammar ──────────────────────────────────────────────────
       - run: npm ci --omit=peer --omit=optional
+        env:
+          CXXFLAGS: "-std=c++20"
       - name: Regenerate parser
         run: npx tree-sitter generate
         env:
@@ -32,6 +34,8 @@ jobs:
       # ── Cypherdoc sub-grammar ───────────────────────────────────────────
       - run: npm ci --omit=peer --omit=optional
         working-directory: tree-sitter-cypherdoc
+        env:
+          CXXFLAGS: "-std=c++20"
       - name: Regenerate cypherdoc parser
         run: npx tree-sitter generate
         working-directory: tree-sitter-cypherdoc
@@ -76,6 +80,8 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - run: npm ci --omit=peer --omit=optional
+        env:
+          CXXFLAGS: "-std=c++20"
       - name: Publish tree-sitter-cypher
         run: |
           if ! npm publish --provenance --access public 2>&1 | tee /tmp/npm.log; then
@@ -84,6 +90,8 @@ jobs:
 
       - run: npm ci --omit=peer --omit=optional
         working-directory: tree-sitter-cypherdoc
+        env:
+          CXXFLAGS: "-std=c++20"
       - name: Publish tree-sitter-cypherdoc
         working-directory: tree-sitter-cypherdoc
         run: |

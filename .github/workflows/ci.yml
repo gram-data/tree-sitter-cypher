@@ -50,6 +50,8 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci --omit=peer --omit=optional
+        env:
+          CXXFLAGS: "-std=c++20"
       - name: Regenerate parser
         run: npx tree-sitter generate
         env:
@@ -74,6 +76,8 @@ jobs:
           cache: npm
           cache-dependency-path: tree-sitter-cypherdoc/package-lock.json
       - run: npm ci --omit=peer --omit=optional
+        env:
+          CXXFLAGS: "-std=c++20"
       - name: Regenerate parser
         run: npx tree-sitter generate
         env:
