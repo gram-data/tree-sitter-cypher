@@ -188,7 +188,6 @@ dependencies = [
  "directories",
  "gram-diagnostics",
  "predicates",
- "serde",
  "serde_json",
  "tempfile",
  "tree-sitter",
