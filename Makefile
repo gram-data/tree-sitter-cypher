@@ -1,6 +1,6 @@
 LANGUAGE_NAME := tree-sitter-cypher
 HOMEPAGE_URL := https://github.com/gram-data/tree-sitter-cypher
-VERSION := 0.2.2
+VERSION := 0.2.3
 
 # repository
 SRC_DIR := src
