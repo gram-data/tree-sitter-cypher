@@ -27,8 +27,8 @@ ariadne = "0.6"
 walkdir = "2"
 directories = "5"
 tree-sitter = "0.26.5"
-tree-sitter-cypher = { path = "../..", version = "0.2.3" }
-tree-sitter-cypherdoc = { path = "../../tree-sitter-cypherdoc", version = "0.2.3" }
+tree-sitter-cypher = { path = "../..", version = "0.2.4" }
+tree-sitter-cypherdoc = { path = "../../tree-sitter-cypherdoc", version = "0.2.4" }
 
 [dev-dependencies]
 assert_cmd = "2"

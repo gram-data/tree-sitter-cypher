@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 project(tree-sitter-cypher
-        VERSION "0.2.3"
+        VERSION "0.2.4"
         DESCRIPTION "Graph query language"
         HOMEPAGE_URL "https://github.com/gram-data/tree-sitter-cypher"
         LANGUAGES C)
