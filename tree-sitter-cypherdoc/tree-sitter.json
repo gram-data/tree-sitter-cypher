@@ -12,7 +12,7 @@
     }
   ],
   "metadata": {
-    "version": "0.2.5",
+    "version": "0.2.6",
     "license": "MIT",
     "description": "Structured documentation comments for Cypher statements",
     "authors": [
