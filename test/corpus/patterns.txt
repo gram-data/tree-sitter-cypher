@@ -487,3 +487,204 @@ MATCH (a)-[r->(b) RETURN r
         (return_item
           (expression
             (identifier)))))))
+
+============================================
+shortestPath basic
+============================================
+
+MATCH path = shortestPath((a:Person)-[*]-(b:Person)) RETURN path
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          variable: (identifier)
+          (legacy_shortest_path_pattern
+            start: (node_pattern
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier)))
+            (relationship_pattern
+              (relationship_body
+                length: (path_length)))
+            end: (node_pattern
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier)))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+allShortestPaths basic
+============================================
+
+MATCH path = allShortestPaths((a:Person)-[:KNOWS*]-(b:Person)) RETURN path
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          variable: (identifier)
+          (legacy_shortest_path_pattern
+            start: (node_pattern
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier)))
+            (relationship_pattern
+              (relationship_body
+                label: (label_expression
+                  label_name: (identifier))
+                length: (path_length)))
+            end: (node_pattern
+              variable: (identifier)
+              label: (label_expression
+                label_name: (identifier)))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+shortestPath without path variable
+============================================
+
+MATCH shortestPath((a)-[*]-(b)) RETURN a, b
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (legacy_shortest_path_pattern
+            start: (node_pattern
+              variable: (identifier))
+            (relationship_pattern
+              (relationship_body
+                length: (path_length)))
+            end: (node_pattern
+              variable: (identifier))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+ERROR - shortestPath with expression argument
+============================================
+
+MATCH shortestPath(42) RETURN n
+
+---
+
+(source_file
+  (ERROR
+    (integer_literal))
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (identifier)))))))
+
+============================================
+Node pattern with inline WHERE
+============================================
+
+MATCH (n WHERE n.active = true) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            where: (where_clause
+              (expression
+                (binary_expression
+                  left: (expression
+                    (property_access
+                      object: (expression (identifier))
+                      property: (identifier)))
+                  right: (expression (boolean_literal)))))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression (identifier)))))))
+
+============================================
+Relationship body with inline WHERE
+============================================
+
+MATCH ()-[r WHERE r.weight > 5]-() RETURN r
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern)
+          (relationship_pattern
+            (relationship_body
+              variable: (identifier)
+              where: (where_clause
+                (expression
+                  (binary_expression
+                    left: (expression
+                      (property_access
+                        object: (expression (identifier))
+                        property: (identifier)))
+                    right: (expression (integer_literal)))))))
+          (node_pattern))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression (identifier)))))))
+
+============================================
+Node pattern with label, properties and inline WHERE
+============================================
+
+MATCH (n:Person {name: $name} WHERE n.active) RETURN n
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (node_pattern
+            variable: (identifier)
+            label: (label_expression label_name: (identifier))
+            properties: (property_map
+              (property_key_value (identifier) (expression (parameter))))
+            where: (where_clause
+              (expression
+                (property_access
+                  object: (expression (identifier))
+                  property: (identifier))))))))
+    (return_clause
+      (return_body
+        (return_item
+          (expression (identifier)))))))

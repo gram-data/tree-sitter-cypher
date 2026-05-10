@@ -602,3 +602,106 @@ MATCH (n) WHERE NOT (n)-->(m) RETURN n
         (return_item
           (expression
             (identifier)))))))
+
+============================================
+Map projection - field selectors
+============================================
+
+RETURN n { .name, .age }
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (map_projection
+              object: (identifier)
+              (map_projection_element
+                (field_selector property: (identifier)))
+              (map_projection_element
+                (field_selector property: (identifier))))))))))
+
+============================================
+Map projection - all fields
+============================================
+
+RETURN n { .* }
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (map_projection
+              object: (identifier)
+              (map_projection_element
+                (all_fields_selector)))))))))
+
+============================================
+Map projection - mixed elements
+============================================
+
+RETURN n { .name, score: 10 }
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (map_projection
+              object: (identifier)
+              (map_projection_element
+                (field_selector property: (identifier)))
+              (map_projection_element
+                (literal_map_field
+                  key: (identifier)
+                  value: (expression (integer_literal)))))))))))
+
+============================================
+Map literal standalone (not projection)
+============================================
+
+RETURN {name: 'Alice'}
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (map_literal
+              (property_key_value
+                (identifier)
+                (expression (string_literal))))))))))
+
+============================================
+Map projection - variable selector
+============================================
+
+RETURN n { name, .age }
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (map_projection
+              object: (identifier)
+              (map_projection_element
+                (variable_selector variable: (identifier)))
+              (map_projection_element
+                (field_selector property: (identifier))))))))))

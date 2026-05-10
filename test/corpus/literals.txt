@@ -385,3 +385,121 @@ ERROR - unexpected character
 (ERROR
   (UNEXPECTED '@')
   (UNEXPECTED 'v'))
+
+============================================
+INF literal
+============================================
+
+RETURN INF
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (inf_literal)))))))
+
+============================================
+INFINITY literal
+============================================
+
+RETURN INFINITY
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (infinity_literal)))))))
+
+============================================
+NAN literal
+============================================
+
+RETURN NAN
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (nan_literal)))))))
+
+============================================
+Float literal with type suffix
+============================================
+
+RETURN 1.5f
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (float_literal)))))))
+
+============================================
+Integer literal with digit separator
+============================================
+
+RETURN 1_000_000
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (integer_literal)))))))
+
+============================================
+ERROR - trailing underscore in integer
+============================================
+
+RETURN 1_
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (integer_literal))))))
+  (ERROR
+    (UNEXPECTED '_')))
+
+============================================
+ERROR - consecutive underscores in integer
+============================================
+
+RETURN 1__0
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (ERROR
+        (expression
+          (integer_literal))
+        (UNEXPECTED '_'))
+      (return_body
+        (return_item
+          (expression
+            (integer_literal)))))))
