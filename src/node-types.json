@@ -776,20 +776,6 @@
           }
         ]
       },
-      "function": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "allshortestpaths",
-            "named": false
-          },
-          {
-            "type": "shortestpath",
-            "named": false
-          }
-        ]
-      },
       "start": {
         "multiple": false,
         "required": true,

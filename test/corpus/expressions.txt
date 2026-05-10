@@ -684,3 +684,24 @@ RETURN {name: 'Alice'}
               (property_key_value
                 (identifier)
                 (expression (string_literal))))))))))
+
+============================================
+Map projection - variable selector
+============================================
+
+RETURN n { name, .age }
+
+---
+
+(source_file
+  (statement
+    (return_clause
+      (return_body
+        (return_item
+          (expression
+            (map_projection
+              object: (expression (identifier))
+              (map_projection_element
+                (variable_selector variable: (identifier)))
+              (map_projection_element
+                (field_selector property: (identifier))))))))))

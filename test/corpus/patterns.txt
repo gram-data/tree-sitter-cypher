@@ -588,14 +588,13 @@ MATCH shortestPath((a)-[*]-(b)) RETURN a, b
 ERROR - shortestPath with expression argument
 ============================================
 
-MATCH shortestPath(n.name) RETURN n
+MATCH shortestPath(42) RETURN n
 
 ---
 
 (source_file
   (ERROR
-    (UNEXPECTED '.')
-    (UNEXPECTED 'm'))
+    (integer_literal))
   (statement
     (return_clause
       (return_body

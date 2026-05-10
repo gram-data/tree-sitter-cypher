@@ -130,20 +130,32 @@
 
 ; GQL path-search prefix keywords
 (all_path_search "all" @keyword)
+(all_path_search "path" @keyword)
+(all_path_search "paths" @keyword)
 (any_path_search "any" @keyword)
+(any_path_search "path" @keyword)
+(any_path_search "paths" @keyword)
 (all_shortest_path_search "all" @keyword)
 (all_shortest_path_search "shortest" @keyword)
+(all_shortest_path_search "path" @keyword)
+(all_shortest_path_search "paths" @keyword)
 (any_shortest_path_search "any" @keyword)
 (any_shortest_path_search "shortest" @keyword)
+(any_shortest_path_search "path" @keyword)
+(any_shortest_path_search "paths" @keyword)
 (counted_shortest_path_search "shortest" @keyword)
+(counted_shortest_path_search "path" @keyword)
+(counted_shortest_path_search "paths" @keyword)
 (counted_shortest_group_search "shortest" @keyword)
+(counted_shortest_group_search "path" @keyword)
+(counted_shortest_group_search "paths" @keyword)
 (counted_shortest_group_search "groups" @keyword)
 (counted_shortest_group_search "group" @keyword)
 
 ; Map projection
 (field_selector "." @punctuation.delimiter)
 (field_selector property: (identifier) @property)
-(all_fields_selector) @operator
+(all_fields_selector) @keyword.operator
 (literal_map_field key: (identifier) @property)
 
 ; Shortest path functions (legacy openCypher shortestPath / allShortestPaths)

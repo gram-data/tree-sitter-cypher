@@ -117,3 +117,46 @@ MATCH (a){2} RETURN a
     (return_clause
       (return_body
         (return_item (expression (identifier)))))))
+
+============================================
+Quantified path - empty bounds {,} accepted
+============================================
+
+MATCH ((a)-[r]->(b)){,} RETURN a
+
+---
+
+(source_file
+  (statement
+    (match_clause
+      pattern: (pattern
+        (path_pattern
+          (quantified_path_primary
+            (node_pattern variable: (identifier))
+            (relationship_pattern
+              (relationship_body variable: (identifier)))
+            (node_pattern variable: (identifier))
+            quantifier: (graph_pattern_quantifier
+              (general_quantifier))))))
+    (return_clause
+      (return_body
+        (return_item (expression (identifier)))))))
+
+============================================
+ERROR - empty braces without comma
+============================================
+
+MATCH ((a)-[r]->(b)){} RETURN a
+
+---
+
+(source_file
+  (ERROR
+    (node_pattern variable: (identifier))
+    (relationship_pattern
+      (relationship_body variable: (identifier)))
+    (node_pattern variable: (identifier)))
+  (statement
+    (return_clause
+      (return_body
+        (return_item (expression (identifier)))))))

@@ -3490,37 +3490,33 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "FIELD",
-          "name": "function",
-          "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "ALIAS",
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "TOKEN",
                 "content": {
-                  "type": "TOKEN",
-                  "content": {
-                    "type": "PATTERN",
-                    "value": "[Ss][Hh][Oo][Rr][Tt][Ee][Ss][Tt][Pp][Aa][Tt][Hh]"
-                  }
-                },
-                "named": false,
-                "value": "shortestpath"
+                  "type": "PATTERN",
+                  "value": "[Ss][Hh][Oo][Rr][Tt][Ee][Ss][Tt][Pp][Aa][Tt][Hh]"
+                }
               },
-              {
-                "type": "ALIAS",
+              "named": false,
+              "value": "shortestpath"
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "TOKEN",
                 "content": {
-                  "type": "TOKEN",
-                  "content": {
-                    "type": "PATTERN",
-                    "value": "[Aa][Ll][Ll][Ss][Hh][Oo][Rr][Tt][Ee][Ss][Tt][Pp][Aa][Tt][Hh][Ss]"
-                  }
-                },
-                "named": false,
-                "value": "allshortestpaths"
-              }
-            ]
-          }
+                  "type": "PATTERN",
+                  "value": "[Aa][Ll][Ll][Ss][Hh][Oo][Rr][Tt][Ee][Ss][Tt][Pp][Aa][Tt][Hh][Ss]"
+                }
+              },
+              "named": false,
+              "value": "allshortestpaths"
+            }
+          ]
         },
         {
           "type": "STRING",

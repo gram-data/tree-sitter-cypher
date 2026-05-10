@@ -540,7 +540,7 @@ export default grammar({
     // BNF: <legacy shortest path pattern>
     // shortestPath((a)-[*]-(b)) or allShortestPaths((a)-[:T*]-(b))
     legacy_shortest_path_pattern: $ => seq(
-      field('function', choice(kw('SHORTESTPATH'), kw('ALLSHORTESTPATHS'))),
+      choice(kw('SHORTESTPATH'), kw('ALLSHORTESTPATHS')),
       '(',
       field('start', $.node_pattern),
       $.relationship_pattern,
@@ -758,6 +758,9 @@ export default grammar({
     )),
 
     // BNF: <signed numeric literal> — INF, INFINITY, NAN special numeric values
+    // Listed in expression before $.identifier so the context-sensitive lexer prefers them
+    // when the exact keyword appears in expression position. Longer identifiers (infernal,
+    // infinity_count) always win via tree-sitter's longest-match rule; no prec override needed.
     inf_literal:      _ => token(/[Ii][Nn][Ff]/),
     infinity_literal: _ => token(/[Ii][Nn][Ff][Ii][Nn][Ii][Tt][Yy]/),
     nan_literal:      _ => token(/[Nn][Aa][Nn]/),
