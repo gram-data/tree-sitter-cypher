@@ -537,7 +537,7 @@ fn make_diagnostic(rule: &Rule, node: Node<'_>, full_source: &str, byte_offset: 
             start: Position { line: line as u32, character: col as u32 },
             end: Position { line: end_line as u32, character: end_col as u32 },
         },
-        code: None,
+        code: rule.code.clone(),
     }
 }
 

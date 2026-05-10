@@ -16,7 +16,7 @@
 
 **Purpose**: No new project structure is needed — this feature extends existing files in `tools/cypher/`.
 
-- [ ] T001 Verify `cargo test` passes on branch `007-expand-lint-notifications` before any changes (`tools/cypher/`)
+- [x] T001 Verify `cargo test` passes on branch `007-expand-lint-notifications` before any changes (`tools/cypher/`)
 
 ---
 
@@ -26,11 +26,11 @@
 
 **⚠️ CRITICAL**: No user story rule can emit a `code`-bearing diagnostic until this phase is complete.
 
-- [ ] T002 Add `pub code: Option<String>` field to the `Rule` struct in `tools/cypher/src/rules.rs`
-- [ ] T003 Parse the optional `Code:` header line in `parse_rule_file()` in `tools/cypher/src/rules.rs` (e.g. `;; Code: 03N90` → `rule.code = Some("03N90".into())`)
-- [ ] T004 Update `make_diagnostic()` in `tools/cypher/src/lint.rs` to set `code: rule.code.clone()` instead of `code: None`
-- [ ] T005 [US5] Add integration test asserting that a rule `.scm` with a `Code:` header produces a diagnostic with a matching `code` field in `tools/cypher/tests/lint_integration.rs`
-- [ ] T006 [US5] Add integration test asserting that a rule `.scm` without a `Code:` header produces a diagnostic with `code: None` (omitted from JSON) in `tools/cypher/tests/lint_integration.rs`
+- [x] T002 Add `pub code: Option<String>` field to the `Rule` struct in `tools/cypher/src/rules.rs`
+- [x] T003 Parse the optional `Code:` header line in `parse_rule_file()` in `tools/cypher/src/rules.rs` (e.g. `;; Code: 03N90` → `rule.code = Some("03N90".into())`)
+- [x] T004 Update `make_diagnostic()` in `tools/cypher/src/lint.rs` to set `code: rule.code.clone()` instead of `code: None`
+- [x] T005 [US5] Add integration test asserting that a rule `.scm` with a `Code:` header produces a diagnostic with a matching `code` field in `tools/cypher/tests/lint_integration.rs`
+- [x] T006 [US5] Add integration test asserting that a rule `.scm` without a `Code:` header produces a diagnostic with `code: None` (omitted from JSON) in `tools/cypher/tests/lint_integration.rs`
 
 **Checkpoint**: `cargo test` passes — `code` field flows from `.scm` header through `Rule` into `Diagnostic` JSON.
 
@@ -42,11 +42,11 @@
 
 **Independent Test**: `cypher lint -e "MATCH (a:User), (b:Order) RETURN a, b"` emits a `CartesianProduct` warning with `code: "03N90"`. A query with a single pattern emits nothing.
 
-- [ ] T007 [P] [US1] Create `tools/cypher/rules/structural/cartesian_product.scm` with `Rule: CartesianProduct`, `Severity: Warning`, `Applies-to: structural`, `Message:`, `Code: 03N90`, and the tree-sitter query `(match_clause pattern: (pattern (path_pattern) (path_pattern) @hit))`
-- [ ] T008 [US1] Register `cartesian_product.scm` in `builtin_rules()` in `tools/cypher/src/rules.rs` by adding it to the `structural_sources` slice
-- [ ] T009 [US1] Add integration test: `"MATCH (a:User), (b:Order) RETURN a, b"` → `CartesianProduct` warning at second pattern, `code == "03N90"` in `tools/cypher/tests/lint_integration.rs`
-- [ ] T010 [US1] Add integration test: `"MATCH (a:User)-[:PLACED]->(b:Order) RETURN a, b"` → no `CartesianProduct` diagnostic in `tools/cypher/tests/lint_integration.rs`
-- [ ] T011 [US1] Add integration test: three disconnected patterns produces two `CartesianProduct` warnings in `tools/cypher/tests/lint_integration.rs`
+- [x] T007 [P] [US1] Create `tools/cypher/rules/structural/cartesian_product.scm` with `Rule: CartesianProduct`, `Severity: Warning`, `Applies-to: structural`, `Message:`, `Code: 03N90`, and the tree-sitter query `(match_clause pattern: (pattern (path_pattern) (path_pattern) @hit))`
+- [x] T008 [US1] Register `cartesian_product.scm` in `builtin_rules()` in `tools/cypher/src/rules.rs` by adding it to the `structural_sources` slice
+- [x] T009 [US1] Add integration test: `"MATCH (a:User), (b:Order) RETURN a, b"` → `CartesianProduct` warning at second pattern, `code == "03N90"` in `tools/cypher/tests/lint_integration.rs`
+- [x] T010 [US1] Add integration test: `"MATCH (a:User)-[:PLACED]->(b:Order) RETURN a, b"` → no `CartesianProduct` diagnostic in `tools/cypher/tests/lint_integration.rs`
+- [x] T011 [US1] Add integration test: three disconnected patterns produces two `CartesianProduct` warnings in `tools/cypher/tests/lint_integration.rs`
 
 **Checkpoint**: `cargo test` and `cypher lint -e "MATCH (a), (b) RETURN a, b"` both produce the expected diagnostic.
 
@@ -58,12 +58,12 @@
 
 **Independent Test**: `cypher lint -e "MATCH (n) RETURN id(n)"` emits a `DeprecatedFunction` warning with `code: "01N01"` and a message mentioning `elementId()`. `elementId(n)` emits nothing.
 
-- [ ] T012 [P] [US2] Create `tools/cypher/rules/structural/deprecated_id_function.scm` with `Rule: DeprecatedFunction`, `Severity: Warning`, `Applies-to: structural`, `Message: id() is deprecated in Neo4j 5. Use elementId() instead, which returns a stable string identifier.`, `Code: 01N01`, and the tree-sitter query matching a `function_call` whose `function_name` has exactly one `identifier` child equal to `"id"`
-- [ ] T013 [P] [US2] Register `deprecated_id_function.scm` in `builtin_rules()` in `tools/cypher/src/rules.rs`
-- [ ] T014 [US2] Add integration test: `"MATCH (n) RETURN id(n)"` → `DeprecatedFunction` warning, message contains `elementId`, `code == "01N01"` in `tools/cypher/tests/lint_integration.rs`
-- [ ] T015 [US2] Add integration test: `"MATCH (n) RETURN elementId(n)"` → no `DeprecatedFunction` diagnostic in `tools/cypher/tests/lint_integration.rs`
-- [ ] T016 [US2] Add integration test: `"MATCH (r:REL) WHERE id(r) > 0 RETURN r"` → `DeprecatedFunction` warning (fires on relationship too) in `tools/cypher/tests/lint_integration.rs`
-- [ ] T017 [US2] Add integration test: `"MATCH (n) RETURN apoc.id(n)"` → no `DeprecatedFunction` diagnostic (qualified name is not flagged) in `tools/cypher/tests/lint_integration.rs`
+- [x] T012 [P] [US2] Create `tools/cypher/rules/structural/deprecated_id_function.scm` with `Rule: DeprecatedFunction`, `Severity: Warning`, `Applies-to: structural`, `Message: id() is deprecated in Neo4j 5. Use elementId() instead, which returns a stable string identifier.`, `Code: 01N01`, and the tree-sitter query matching a `function_call` whose `function_name` has exactly one `identifier` child equal to `"id"`
+- [x] T013 [P] [US2] Register `deprecated_id_function.scm` in `builtin_rules()` in `tools/cypher/src/rules.rs`
+- [x] T014 [US2] Add integration test: `"MATCH (n) RETURN id(n)"` → `DeprecatedFunction` warning, message contains `elementId`, `code == "01N01"` in `tools/cypher/tests/lint_integration.rs`
+- [x] T015 [US2] Add integration test: `"MATCH (n) RETURN elementId(n)"` → no `DeprecatedFunction` diagnostic in `tools/cypher/tests/lint_integration.rs`
+- [x] T016 [US2] Add integration test: `"MATCH (r:REL) WHERE id(r) > 0 RETURN r"` → `DeprecatedFunction` warning (fires on relationship too) in `tools/cypher/tests/lint_integration.rs`
+- [x] T017 [US2] Add integration test: `"MATCH (n) RETURN apoc.id(n)"` → no `DeprecatedFunction` diagnostic (qualified name is not flagged) in `tools/cypher/tests/lint_integration.rs`
 
 **Checkpoint**: `cargo test` passes and `cypher lint -e "RETURN id(1)"` emits the expected diagnostic.
 
@@ -75,13 +75,13 @@
 
 **Independent Test**: `cypher lint -e "MATCH (n) WHERE n[\$key] IS NOT NULL RETURN n"` emits a `DynamicProperty` information diagnostic with `code: "03N95"`. `n.name` and `n[0]` and `n["name"]` emit nothing.
 
-- [ ] T018 [P] [US3] Create `tools/cypher/rules/structural/dynamic_property.scm` with `Rule: DynamicProperty`, `Severity: Information`, `Applies-to: structural`, `Message: Dynamic property key prevents index use. Consider using a static property name if the key is known at query-write time.`, `Code: 03N95`, and a tree-sitter query matching `subscript_expression` whose key expression is a `parameter` or `identifier`
-- [ ] T019 [P] [US3] Register `dynamic_property.scm` in `builtin_rules()` in `tools/cypher/src/rules.rs`
-- [ ] T020 [US3] Add integration test: `"MATCH (n) WHERE n[$key] IS NOT NULL RETURN n"` → `DynamicProperty` information, `code == "03N95"` in `tools/cypher/tests/lint_integration.rs`
-- [ ] T021 [US3] Add integration test: `"MATCH (n) RETURN n.name"` → no `DynamicProperty` diagnostic in `tools/cypher/tests/lint_integration.rs`
-- [ ] T022 [US3] Add integration test: `"MATCH (n) RETURN n[0]"` → no `DynamicProperty` diagnostic (integer literal key is static) in `tools/cypher/tests/lint_integration.rs`
-- [ ] T023 [US3] Add integration test: `"MATCH (n) RETURN n[\"name\"]"` → no `DynamicProperty` diagnostic (string literal key is static) in `tools/cypher/tests/lint_integration.rs`
-- [ ] T024 [US3] Add integration test: `"SET n[$key] = 1"` → `DynamicProperty` diagnostic fires on write side in `tools/cypher/tests/lint_integration.rs`
+- [x] T018 [P] [US3] Create `tools/cypher/rules/structural/dynamic_property.scm` with `Rule: DynamicProperty`, `Severity: Information`, `Applies-to: structural`, `Message: Dynamic property key prevents index use. Consider using a static property name if the key is known at query-write time.`, `Code: 03N95`, and a tree-sitter query matching `subscript_expression` whose key expression is a `parameter` or `identifier`
+- [x] T019 [P] [US3] Register `dynamic_property.scm` in `builtin_rules()` in `tools/cypher/src/rules.rs`
+- [x] T020 [US3] Add integration test: `"MATCH (n) WHERE n[$key] IS NOT NULL RETURN n"` → `DynamicProperty` information, `code == "03N95"` in `tools/cypher/tests/lint_integration.rs`
+- [x] T021 [US3] Add integration test: `"MATCH (n) RETURN n.name"` → no `DynamicProperty` diagnostic in `tools/cypher/tests/lint_integration.rs`
+- [x] T022 [US3] Add integration test: `"MATCH (n) RETURN n[0]"` → no `DynamicProperty` diagnostic (integer literal key is static) in `tools/cypher/tests/lint_integration.rs`
+- [x] T023 [US3] Add integration test: `"MATCH (n) RETURN n[\"name\"]"` → no `DynamicProperty` diagnostic (string literal key is static) in `tools/cypher/tests/lint_integration.rs`
+- [x] T024 [US3] Add integration test: `"SET n[$key] = 1"` → `DynamicProperty` diagnostic fires on write side in `tools/cypher/tests/lint_integration.rs`
 
 **Checkpoint**: `cargo test` passes and `cypher lint -e "MATCH (n) WHERE n[\$k] IS NOT NULL RETURN n"` emits the expected diagnostic.
 
@@ -94,11 +94,11 @@
 
 **Purpose**: End-to-end validation and JSON contract verification.
 
-- [ ] T025 [P] [US5] Add `--json` integration test verifying `CartesianProduct` diagnostic contains `"code": "03N90"` in JSON output in `tools/cypher/tests/lint_integration.rs`
-- [ ] T026 [P] [US5] Add `--json` integration test verifying `DeprecatedFunction` diagnostic contains `"code": "01N01"` in JSON output in `tools/cypher/tests/lint_integration.rs`
-- [ ] T027 [P] [US5] Add `--json` integration test verifying `DynamicProperty` diagnostic contains `"code": "03N95"` in JSON output in `tools/cypher/tests/lint_integration.rs`
-- [ ] T028 Verify all three rules fire correctly from a markdown fenced `\`\`\`cypher` block via `cypher lint` on a `.md` file (manual smoke test using `quickstart.md` examples)
-- [ ] T029 Run full `cargo test` suite and confirm zero regressions against existing rules (`UnlabelledNode`, `UnboundedRelationship`, `MissingToolName`, etc.)
+- [x] T025 [P] [US5] Add `--json` integration test verifying `CartesianProduct` diagnostic contains `"code": "03N90"` in JSON output in `tools/cypher/tests/lint_integration.rs`
+- [x] T026 [P] [US5] Add `--json` integration test verifying `DeprecatedFunction` diagnostic contains `"code": "01N01"` in JSON output in `tools/cypher/tests/lint_integration.rs`
+- [x] T027 [P] [US5] Add `--json` integration test verifying `DynamicProperty` diagnostic contains `"code": "03N95"` in JSON output in `tools/cypher/tests/lint_integration.rs`
+- [x] T028 Verify all three rules fire correctly from a markdown fenced `\`\`\`cypher` block via `cypher lint` on a `.md` file (manual smoke test using `quickstart.md` examples)
+- [x] T029 Run full `cargo test` suite and confirm zero regressions against existing rules (`UnlabelledNode`, `UnboundedRelationship`, `MissingToolName`, etc.)
 
 ---
 
